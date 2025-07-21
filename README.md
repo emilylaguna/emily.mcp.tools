@@ -10,11 +10,12 @@ A Model Context Protocol (MCP) server that provides a collection of local produc
 - **Codebase Knowledgebase** - Knowledge graph for multiple codebases
 - **Async Tasks** - Background task execution and scheduling
 - **Time Service** - Current date/time information for LLMs
+- **Memory Graph** - Persistent memory graph for entities, relations, and observations
 - **Handoff** - Save and retrieve chat context for handoff between sessions
 
 ### Architecture
 - **Modular Design** - Each tool is self-contained and independently extensible
-- **Local Storage** - All data stored locally using SQLite databases
+- **Local Storage** - All data stored locally using JSONL files
 - **Plugin System** - Easy to add new tools without modifying core code
 - **Type Safety** - Full type hints and Pydantic models for data validation
 
@@ -23,7 +24,7 @@ A Model Context Protocol (MCP) server that provides a collection of local produc
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd emily.tools
+cd emily.mcp.tools
 
 # Install dependencies
 uv sync
@@ -81,28 +82,49 @@ mcp.call("handoff_list_contexts", limit=5)
 
 ### Adding New Tools
 
-1. Create a new tool module in `tools/`
-2. Implement the tool interface
+1. Create a new tool module in `tools/` (use a subfolder if needed, e.g., `tools/mytool/mytool.py`)
+2. Implement the tool interface (subclass `BaseTool`)
 3. Register the tool in `main.py`
 4. Add any required dependencies to `pyproject.toml`
 
 ## Project Structure
 
 ```
-emily.tools/
-├── main.py                 # Main MCP server entry point
-├── server.py              # Core server implementation
-├── tools/                 # Tool modules
+emily.mcp.tools/
+├── main.py                  # Main MCP server entry point
+├── server.py                # Core server implementation
+├── tools/                   # Tool modules
 │   ├── __init__.py
-│   ├── todo.py           # TODO list tool
-│   ├── calendar.py       # Calendar tool
-│   ├── knowledgebase.py  # Codebase knowledgebase
-│   ├── async_tasks.py    # Async task management
-│   ├── time_service.py   # Time service
-│   ├── handoff/         # Handoff tool
-├── data/                 # Local data storage
-├── utils/                # Shared utilities
-└── tests/                # Test suite
+│   ├── base.py              # Base tool interface
+│   ├── todo/
+│   │   └── todo.py          # TODO list tool
+│   ├── calendar/
+│   │   └── calendar.py      # Calendar tool
+│   ├── knowledgebase/
+│   │   └── knowledgebase.py # Codebase knowledgebase
+│   ├── async_tasks/
+│   │   └── async_tasks.py   # Async task management
+│   ├── time_service/
+│   │   └── time_service.py  # Time service
+│   ├── memory_graph/
+│   │   └── memory_graph.py  # Memory graph tool
+│   ├── handoff/
+│   │   └── handoff.py       # Handoff tool
+├── data/                    # Local data storage (JSONL files)
+│   ├── async_tasks.jsonl
+│   ├── calendar.jsonl
+│   ├── handoff.jsonl
+│   ├── knowledgebase.jsonl
+│   ├── memory_graph.jsonl
+│   ├── time_service.jsonl
+│   └── todo.jsonl
+├── utils/                   # Shared utilities
+│   └── __init__.py
+├── pyproject.toml           # Project dependencies and config
+├── uv.lock                  # Lockfile for uv
+├── configure.sh             # Configuration script
+├── start.sh                 # Startup script
+└── README.md                # Project documentation
 ```
 
 ## License
