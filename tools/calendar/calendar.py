@@ -61,8 +61,17 @@ class CalendarTool(BaseTool):
     def _read_events(self) -> List[Event]:
         if not self.data_file.exists():
             return []
+        events = []
         with open(self.data_file, 'r') as f:
-            return [Event(**json.loads(line)) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        events.append(Event(**json.loads(line)))
+                    except json.JSONDecodeError:
+                        # Skip invalid JSON lines
+                        continue
+        return events
 
     def _write_events(self, events: List[Event]):
         with open(self.data_file, 'w') as f:
@@ -232,10 +241,10 @@ class CalendarTool(BaseTool):
         @mcp.resource("resource://calendar/all")
         def resource_calendar_all() -> list:
             """Return all calendar events as a list of dicts."""
-            return [event.dict() for event in self.list_events()]
+            return [event.model_dump(mode='json') for event in self.list_events()]
 
         @mcp.resource("resource://calendar/{event_id}")
         def resource_calendar_by_id(event_id: int) -> dict:
             """Return a single calendar event by ID as a dict."""
             event = self.get_event(event_id)
-            return event.dict() if event else {} 
+            return event.model_dump(mode='json') if event else {} 

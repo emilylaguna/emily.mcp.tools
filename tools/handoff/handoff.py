@@ -37,8 +37,17 @@ class HandoffTool(BaseTool):
     def _read_contexts(self) -> List[HandoffContext]:
         if not self.data_file.exists():
             return []
+        contexts = []
         with open(self.data_file, 'r') as f:
-            return [HandoffContext(**json.loads(line)) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        contexts.append(HandoffContext(**json.loads(line)))
+                    except json.JSONDecodeError:
+                        # Skip invalid JSON lines
+                        continue
+        return contexts
 
     def _write_contexts(self, contexts: List[HandoffContext]):
         with open(self.data_file, 'w') as f:
@@ -66,6 +75,13 @@ class HandoffTool(BaseTool):
     def list_contexts(self, limit: int = 10) -> List[HandoffContext]:
         contexts = self._read_contexts()
         return sorted(contexts, key=lambda c: c.created_at, reverse=True)[:limit]
+
+    def get_context(self, context_id: int) -> Optional[HandoffContext]:
+        contexts = self._read_contexts()
+        for ctx in contexts:
+            if ctx.id == context_id:
+                return ctx
+        return None
 
     def register(self, mcp):
         @mcp.tool()
@@ -106,10 +122,11 @@ class HandoffTool(BaseTool):
         @mcp.resource("resource://handoff/recent")
         def handoff_recent() -> str:
             """Returns the last 10 recent handoff contexts as JSON."""
-            return json.dumps(self.get_latest_context(), indent=2)
+            latest = self.get_latest_context()
+            return json.dumps(latest.model_dump(mode='json') if latest else {}, indent=2)
 
         @mcp.resource("resource://handoff/{context_id}")
         def handoff_by_id(context_id: int) -> dict:
             """Return a single handoff context by ID as a dict."""
             ctx = self.get_context(context_id)
-            return ctx.dict() if ctx else {}
+            return ctx.model_dump(mode='json') if ctx else {}

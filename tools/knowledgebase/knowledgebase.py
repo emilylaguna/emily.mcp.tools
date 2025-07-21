@@ -69,8 +69,17 @@ class KnowledgebaseTool(BaseTool):
     def _read_entries(self) -> List[Dict[str, Any]]:
         if not self.data_file.exists():
             return []
+        entries = []
         with open(self.data_file, 'r') as f:
-            return [json.loads(line) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        entries.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        # Skip invalid JSON lines
+                        continue
+        return entries
 
     def _write_entries(self, entries: List[Dict[str, Any]]):
         with open(self.data_file, 'w') as f:
@@ -91,7 +100,7 @@ class KnowledgebaseTool(BaseTool):
             created_at=datetime.now(),
         )
         with open(self.data_file, 'a') as f:
-            f.write(json.dumps({**codebase.dict(), 'type': 'codebase'}) + '\n')
+            f.write(json.dumps({**codebase.model_dump(mode='json'), 'type': 'codebase'}) + '\n')
         return codebase
 
     def add_knowledge_node(self, codebase_id: str, node_type: str, name: str, 
@@ -111,7 +120,7 @@ class KnowledgebaseTool(BaseTool):
             updated_at=datetime.now(),
         )
         with open(self.data_file, 'a') as f:
-            f.write(json.dumps({**node.dict(), 'type': 'node'}) + '\n')
+            f.write(json.dumps({**node.model_dump(mode='json'), 'type': 'node'}) + '\n')
         return node
 
     def add_knowledge_relation(self, source_node_id: int, target_node_id: int,
@@ -127,7 +136,7 @@ class KnowledgebaseTool(BaseTool):
             created_at=datetime.now(),
         )
         with open(self.data_file, 'a') as f:
-            f.write(json.dumps({**relation.dict(), 'type': 'relation'}) + '\n')
+            f.write(json.dumps({**relation.model_dump(mode='json'), 'type': 'relation'}) + '\n')
         return relation
 
     def search_nodes(self, query: str, codebase_id: Optional[str] = None, node_type: Optional[str] = None, limit: int = 50) -> List[KnowledgeNode]:
@@ -176,7 +185,7 @@ class KnowledgebaseTool(BaseTool):
     def query_knowledge_graph(self, query: str, codebase_id: Optional[str] = None) -> Dict[str, Any]:
         # Simple search for demonstration
         nodes = self.search_nodes(query, codebase_id)
-        return {'nodes': [n.dict() for n in nodes]} 
+        return {'nodes': [n.model_dump(mode='json') for n in nodes]} 
 
     def register(self, mcp):
         @mcp.tool()
@@ -248,10 +257,10 @@ class KnowledgebaseTool(BaseTool):
         def resource_knowledgebase_all() -> list:
             """Return all knowledgebase nodes as a list of dicts."""
             # Use empty query to get all nodes (limit 100 for safety)
-            return [node.dict() for node in self.search_nodes(query="", limit=100)]
+            return [node.model_dump(mode='json') for node in self.search_nodes(query="", limit=100)]
 
         @mcp.resource("resource://knowledgebase/{node_id}")
         def resource_knowledgebase_by_id(node_id: int) -> dict:
             """Return a single knowledgebase node by ID as a dict."""
             node = self.get_node(node_id)
-            return node.dict() if node else {} 
+            return node.model_dump(mode='json') if node else {} 

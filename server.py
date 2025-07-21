@@ -15,7 +15,7 @@ from tools.base import BaseTool
 class AppContext(BaseModel):
     """Application context with tool registry and data directory."""
     
-    tools: Dict[str, BaseTool]
+    tools: Dict[str, Any]  # Using Any to avoid Pydantic schema issues with BaseTool
     data_dir: Path
 
 @asynccontextmanager

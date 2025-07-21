@@ -78,8 +78,17 @@ class AsyncTasksTool(BaseTool):
     def _read_tasks(self) -> List[AsyncTask]:
         if not self.data_file.exists():
             return []
+        tasks = []
         with open(self.data_file, 'r') as f:
-            return [AsyncTask(**json.loads(line)) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        tasks.append(AsyncTask(**json.loads(line)))
+                    except json.JSONDecodeError:
+                        # Skip invalid JSON lines
+                        continue
+        return tasks
 
     def _write_tasks(self, tasks: List[AsyncTask]):
         with open(self.data_file, 'w') as f:
@@ -141,6 +150,17 @@ class AsyncTasksTool(BaseTool):
                 return t
         return None
 
+    def update_task(self, task_id: int, **kwargs) -> Optional[AsyncTask]:
+        tasks = self._read_tasks()
+        updated = None
+        for t in tasks:
+            if t.id == task_id:
+                for k, v in kwargs.items():
+                    setattr(t, k, v)
+                updated = t
+        self._write_tasks(tasks)
+        return updated
+
     def cancel_task(self, task_id: int) -> bool:
         tasks = self._read_tasks()
         updated = False
@@ -154,12 +174,12 @@ class AsyncTasksTool(BaseTool):
     def get_task_status(self, task_id: int) -> Optional[Dict[str, Any]]:
         task = self.get_task(task_id)
         if task:
-            return task.dict()
+            return task.model_dump(mode='json')
         return None
 
     def get_running_tasks(self) -> List[Dict[str, Any]]:
         tasks = self._read_tasks()
-        return [t.dict() for t in tasks if t.status == TaskStatus.RUNNING]
+        return [t.model_dump(mode='json') for t in tasks if t.status == TaskStatus.RUNNING]
 
     def get_task_history(self, days: int = 7) -> List[AsyncTask]:
         tasks = self._read_tasks()

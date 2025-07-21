@@ -30,8 +30,17 @@ class MemoryGraphTool(BaseTool):
     def _read_graph(self) -> List[Dict[str, Any]]:
         if not self.data_file.exists():
             return []
+        entries = []
         with open(self.data_file, 'r') as f:
-            return [json.loads(line) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        entries.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        # Skip invalid JSON lines
+                        continue
+        return entries
 
     def _write_graph(self, entries: List[Dict[str, Any]]):
         with open(self.data_file, 'w') as f:

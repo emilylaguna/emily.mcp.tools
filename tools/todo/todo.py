@@ -64,8 +64,17 @@ class TodoTool(BaseTool):
     def _read_tasks(self) -> List[Task]:
         if not self.data_file.exists():
             return []
+        tasks = []
         with open(self.data_file, 'r') as f:
-            return [Task(**json.loads(line)) for line in f if line.strip()]
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        tasks.append(Task(**json.loads(line)))
+                    except json.JSONDecodeError:
+                        # Skip invalid JSON lines
+                        continue
+        return tasks
 
     def _write_tasks(self, tasks: List[Task]):
         with open(self.data_file, 'w') as f:
@@ -200,10 +209,10 @@ class TodoTool(BaseTool):
         @mcp.resource("resource://todo/all")
         def resource_todo_all() -> list:
             """Return all TODO tasks as a list of dicts."""
-            return [task.dict() for task in self.list_tasks()]
+            return [task.model_dump(mode='json') for task in self.list_tasks()]
 
         @mcp.resource("resource://todo/{task_id}")
         def resource_todo_by_id(task_id: int) -> dict:
             """Return a single TODO task by ID as a dict."""
             task = self.get_task(task_id)
-            return task.dict() if task else {} 
+            return task.model_dump(mode='json') if task else {} 
