@@ -609,4 +609,6 @@ class UnifiedKnowledgeGraphTool(BaseTool):
         """Register the tool with MCP server."""
         # Import here to avoid circular imports
         from .knowledge_graph_mcp_tools import register_knowledge_graph_tools
-        register_knowledge_graph_tools(mcp, self.memory) 
+        register_knowledge_graph_tools(mcp, self.memory)
+        
+        logger.info("Unified Knowledge Graph MCP tools registered successfully") 

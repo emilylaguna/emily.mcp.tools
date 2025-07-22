@@ -2,6 +2,7 @@
 Handoff tool for Emily Tools MCP server.
 """
 
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -10,6 +11,8 @@ from pydantic import BaseModel
 
 from ..base import BaseTool
 import json
+
+logger = logging.getLogger(__name__)
 
 class HandoffContext(BaseModel):
     id: Optional[int] = None
@@ -130,3 +133,5 @@ class HandoffTool(BaseTool):
             """Return a single handoff context by ID as a dict."""
             ctx = self.get_context(context_id)
             return ctx.model_dump(mode='json') if ctx else {}
+        
+        logger.info("Handoff MCP tools registered successfully")

@@ -3,6 +3,7 @@ Async Tasks tool for Emily Tools MCP server.
 """
 
 import asyncio
+import logging
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
@@ -12,6 +13,8 @@ from pydantic import BaseModel
 
 from ..base import BaseTool
 import json
+
+logger = logging.getLogger(__name__)
 
 
 class TaskStatus(str, Enum):
@@ -378,4 +381,6 @@ class AsyncTasksTool(BaseTool):
             status_info = self.get_task_status(task_id)
             if status_info:
                 return status_info
-            return {"error": "Task not found"} 
+            return {"error": "Task not found"}
+        
+        logger.info("Async Tasks MCP tools registered successfully")

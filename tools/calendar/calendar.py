@@ -2,6 +2,7 @@
 Calendar tool for Emily Tools MCP server.
 """
 
+import logging
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
@@ -11,6 +12,8 @@ from pydantic import BaseModel
 
 from ..base import BaseTool
 import json
+
+logger = logging.getLogger(__name__)
 
 
 class EventType(str, Enum):
@@ -247,4 +250,6 @@ class CalendarTool(BaseTool):
         def resource_calendar_by_id(event_id: int) -> dict:
             """Return a single calendar event by ID as a dict."""
             event = self.get_event(event_id)
-            return event.model_dump(mode='json') if event else {} 
+            return event.model_dump(mode='json') if event else {}
+        
+        logger.info("Calendar MCP tools registered successfully")

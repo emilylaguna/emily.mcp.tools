@@ -8,7 +8,7 @@ import logging
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -46,10 +46,17 @@ class WorkflowRunInfo(BaseModel):
 class AutomationTool(BaseTool):
     """Tool for managing workflows and automation in the unified memory system."""
 
-    def __init__(self, data_dir: Path):
-        super().__init__(data_dir)
-        db_path = data_dir / "automation.db"
-        self.memory_store = UnifiedMemoryStore(db_path)
+    def __init__(self, memory_store: UnifiedMemoryStore, data_dir: Optional[Path] = None):
+        # Initialize BaseTool with data_dir if provided
+        if data_dir:
+            super().__init__(data_dir)
+        else:
+            # Create a temporary data directory for testing
+            import tempfile
+            temp_dir = Path(tempfile.mkdtemp())
+            super().__init__(temp_dir)
+        
+        self.memory_store = memory_store
         self.workflow_engine = WorkflowEngine(self.memory_store)
 
     @property
@@ -105,8 +112,8 @@ class AutomationTool(BaseTool):
                 id=workflow.id,
                 name=workflow.name,
                 description=workflow.description,
-                trigger=workflow.trigger.dict(),
-                actions=[action.dict() for action in workflow.actions],
+                trigger=workflow.trigger.model_dump(),
+                actions=[action.model_dump() for action in workflow.actions],
                 enabled=workflow.enabled,
                 created_at=workflow.created_at.isoformat(),
                 updated_at=workflow.updated_at.isoformat()
@@ -488,7 +495,7 @@ class AutomationTool(BaseTool):
                 return json.dumps({
                     "workflows": workflow_list,
                     "count": len(workflow_list),
-                    "timestamp": datetime.now(datetime.UTC).isoformat()
+                    "timestamp": datetime.now().isoformat()
                 }, indent=2)
             except Exception as e:
                 return json.dumps({
@@ -534,11 +541,13 @@ class AutomationTool(BaseTool):
                 return json.dumps({
                     "runs": run_list,
                     "count": len(run_list),
-                    "timestamp": datetime.now(datetime.UTC).isoformat()
+                    "timestamp": datetime.now().isoformat()
                 }, indent=2)
             except Exception as e:
                 return json.dumps({
                     "error": str(e),
                     "runs": [],
                     "count": 0
-                }, indent=2) 
+                }, indent=2)
+        
+        logger.info("Automation MCP tools registered successfully")

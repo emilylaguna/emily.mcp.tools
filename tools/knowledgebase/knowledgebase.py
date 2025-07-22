@@ -3,6 +3,7 @@ Codebase Knowledgebase tool for Emily Tools MCP server.
 """
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -10,6 +11,8 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 from ..base import BaseTool
+
+logger = logging.getLogger(__name__)
 
 
 class KnowledgeNode(BaseModel):
@@ -263,4 +266,6 @@ class KnowledgebaseTool(BaseTool):
         def resource_knowledgebase_by_id(node_id: int) -> dict:
             """Return a single knowledgebase node by ID as a dict."""
             node = self.get_node(node_id)
-            return node.model_dump(mode='json') if node else {} 
+            return node.model_dump(mode='json') if node else {}
+        
+        logger.info("Knowledgebase MCP tools registered successfully")

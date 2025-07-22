@@ -1,14 +1,21 @@
 """
-Emily Tools - Extensible MCP Server
+Emily.Tools
 
-Main entry point for the Emily Tools MCP server with all tools registered.
+Main entry point for the Emily.Tools MCP server with all tools registered.
 """
 
 from pathlib import Path
 
 from mcp.server.fastmcp import Context, FastMCP
 
+from core import UnifiedMemoryStore
+from intelligent_search_mcp import IntelligentSearchMCPTools
 from tools import *
+# from tools.todo.unified_todo_tool import UnifiedTodoTool
+# from tools.handoff.unified_handoff_tool import UnifiedHandoffTool
+# from tools.knowledgebase.unified_knowledge_graph_tool import UnifiedKnowledgeGraphTool
+
+
 
 def create_mcp_server() -> FastMCP:
     """Create and configure the MCP server with all tools."""
@@ -17,19 +24,22 @@ def create_mcp_server() -> FastMCP:
     data_dir = Path("data")
     data_dir.mkdir(exist_ok=True)
     
+    # Initialize unified memory store
+    memory_store = UnifiedMemoryStore(data_dir / "memory.db")
+    
     # Initialize MCP server
-    mcp = FastMCP("Emily Tools")
+    mcp = FastMCP("Emily.Tools")
 
-    # Initialize tools (this will also register them with MCP)
+    # Initialize unified tools with memory store
     import asyncio
-    asyncio.run(TodoTool(data_dir).initialize(mcp))
-    asyncio.run(CalendarTool(data_dir).initialize(mcp))
-    asyncio.run(KnowledgebaseTool(data_dir).initialize(mcp))
-    asyncio.run(AsyncTasksTool(data_dir).initialize(mcp))
-    asyncio.run(TimeServiceTool(data_dir).initialize(mcp))
-    asyncio.run(MemoryGraphTool(data_dir).initialize(mcp))
-    asyncio.run(HandoffTool(data_dir).initialize(mcp))
-    asyncio.run(AutomationTool(data_dir).initialize(mcp))
+    asyncio.run(AutomationTool(memory_store, data_dir).initialize(mcp))
+    asyncio.run(UnifiedTodoTool(memory_store).initialize(mcp))
+    asyncio.run(UnifiedHandoffTool(memory_store).initialize(mcp))
+    asyncio.run(UnifiedKnowledgeGraphTool(memory_store, data_dir).initialize(mcp))
+    
+    # Initialize intelligent search tools
+    intelligent_search_tools = IntelligentSearchMCPTools(memory_store)
+    intelligent_search_tools.register_tools(mcp)
     
     return mcp
 

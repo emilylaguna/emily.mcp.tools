@@ -27,7 +27,7 @@ class Event(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     type: str  # "entity_created", "task_completed", "calendar_event", etc.
     payload: Dict[str, Any]
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now())
     source: str = "system"  # "system", "mcp", "external"
 
 
@@ -53,8 +53,8 @@ class Workflow(BaseModel):
     trigger: WorkflowTrigger
     actions: List[WorkflowAction]
     enabled: bool = True
-    created_at: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now())
+    updated_at: datetime = Field(default_factory=lambda: datetime.now())
 
 
 class WorkflowRun(BaseModel):
@@ -63,7 +63,7 @@ class WorkflowRun(BaseModel):
     workflow_id: str
     event_id: str
     status: str  # "running", "completed", "failed", "rolled_back"
-    started_at: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
+    started_at: datetime = Field(default_factory=lambda: datetime.now())
     completed_at: Optional[datetime] = None
     logs: List[str] = []
     error: Optional[str] = None
@@ -101,7 +101,7 @@ class WorkflowEngine:
 
     def register_workflow(self, workflow: Workflow) -> None:
         """Register a new workflow."""
-        workflow.updated_at = datetime.now(datetime.UTC)
+        workflow.updated_at = datetime.now()
         self.workflows[workflow.id] = workflow
         
         # Save to memory store
@@ -213,12 +213,12 @@ class WorkflowEngine:
                     raise
             
             workflow_run.status = "completed"
-            workflow_run.completed_at = datetime.now(datetime.UTC)
+            workflow_run.completed_at = datetime.now()
             workflow_run.logs.append("Workflow execution completed successfully")
             
         except Exception as e:
             workflow_run.status = "failed"
-            workflow_run.completed_at = datetime.now(datetime.UTC)
+            workflow_run.completed_at = datetime.now()
             workflow_run.error = str(e)
             workflow_run.logs.append(f"Workflow execution failed: {str(e)}")
             logger.error(f"Workflow {workflow.id} failed: {e}")
@@ -429,7 +429,7 @@ class WorkflowEngine:
         workflow = self.workflows.get(workflow_id)
         if workflow:
             workflow.enabled = False
-            workflow.updated_at = datetime.now(datetime.UTC)
+            workflow.updated_at = datetime.now()
             # Update in memory store
             return True
         return False
@@ -439,7 +439,7 @@ class WorkflowEngine:
         workflow = self.workflows.get(workflow_id)
         if workflow:
             workflow.enabled = True
-            workflow.updated_at = datetime.now(datetime.UTC)
+            workflow.updated_at = datetime.now()
             # Update in memory store
             return True
         return False 

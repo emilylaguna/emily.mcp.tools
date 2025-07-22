@@ -23,9 +23,16 @@ class TestAutomationTool:
             yield Path(tmp_dir)
 
     @pytest.fixture
-    def automation_tool(self, temp_dir):
+    def memory_store(self, temp_dir):
+        """Create a test memory store."""
+        from core import UnifiedMemoryStore
+        db_path = temp_dir / "test_memory.db"
+        return UnifiedMemoryStore(db_path, enable_vector_search=False, enable_ai_extraction=False)
+    
+    @pytest.fixture
+    def automation_tool(self, memory_store, temp_dir):
         """Create an AutomationTool instance for testing."""
-        return AutomationTool(temp_dir)
+        return AutomationTool(memory_store, temp_dir)
 
     @pytest.fixture
     def sample_workflow_definition(self):
@@ -317,9 +324,16 @@ class TestAutomationToolMCPIntegration:
             yield Path(tmp_dir)
 
     @pytest.fixture
-    def automation_tool(self, temp_dir):
+    def memory_store(self, temp_dir):
+        """Create a test memory store."""
+        from core import UnifiedMemoryStore
+        db_path = temp_dir / "test_memory.db"
+        return UnifiedMemoryStore(db_path, enable_vector_search=False, enable_ai_extraction=False)
+
+    @pytest.fixture
+    def automation_tool(self, memory_store, temp_dir):
         """Create an AutomationTool instance for testing."""
-        return AutomationTool(temp_dir)
+        return AutomationTool(memory_store, temp_dir)
 
     @pytest.fixture
     def mock_mcp(self):
@@ -443,7 +457,7 @@ class TestAutomationToolMCPIntegration:
         automation_tool.register(mock_mcp)
         
         # Get the registered tool function
-        tool_func = mock_mcp.tool_functions[5]  # Sixth tool
+        tool_func = mock_mcp.tool_functions[6]  # Seventh tool (automation_trigger_workflow)
         
         with patch.object(automation_tool, 'trigger_workflow') as mock_trigger:
             mock_trigger.return_value = True
@@ -461,18 +475,17 @@ class TestAutomationToolMCPIntegration:
         resource_func = mock_mcp.resource_functions[0]  # First resource
         
         with patch.object(automation_tool, 'list_workflows') as mock_list:
+            from tools.automation.automation import WorkflowDefinition
             mock_workflows = [
-                Mock(
+                WorkflowDefinition(
                     id="test-1",
                     name="Test Workflow",
                     description="Test description",
                     enabled=True,
-                    trigger=Mock(model_dump=lambda: {"type": "entity_created"}),
-                    actions=[Mock(), Mock()]  # 2 actions
+                    trigger={"type": "entity_created"},
+                    actions=[{"type": "create_task"}, {"type": "notify"}]  # 2 actions
                 )
             ]
-            mock_workflows[0].actions[0].model_dump = lambda: {"type": "create_task"}
-            mock_workflows[0].actions[1].model_dump = lambda: {"type": "notify"}
             mock_list.return_value = mock_workflows
             
             result = resource_func()

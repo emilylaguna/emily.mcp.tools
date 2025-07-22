@@ -44,8 +44,10 @@ class MigrationCLI:
             output_path = Path(output_db)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             
-            # Initialize migrator
-            memory_store = create_memory_store(output_db)
+            # Initialize migrator with the correct database path
+            # create_memory_store expects a directory, not a file path
+            data_path = output_path.parent
+            memory_store = create_memory_store(data_path)
             self.migrator = MigrationManager(memory_store, data_dir)
             
             # Run migration
@@ -66,8 +68,10 @@ class MigrationCLI:
         try:
             logger.info(f"Verifying migration results in {db_path}")
             
-            # Initialize memory store
-            store = create_memory_store(db_path)
+            # Initialize memory store with the correct path
+            # create_memory_store expects a directory, not a file path
+            data_path = Path(db_path).parent
+            store = create_memory_store(data_path)
             
             # Get statistics
             stats = self._get_database_stats(store)
@@ -155,12 +159,36 @@ class MigrationCLI:
         print("MIGRATION RESULTS")
         print("="*50)
         
+        # Handle the case where results might be a string or have a different structure
+        if isinstance(results, str):
+            print(f"Migration result: {results}")
+            return
+            
         for tool, result in results.items():
+            if isinstance(result, str):
+                print(f"\n{tool.upper()}: {result}")
+                continue
+                
             print(f"\n{tool.upper()}:")
-            print(f"  Entities migrated: {result.get('entities', 0)}")
-            print(f"  Relations migrated: {result.get('relations', 0)}")
-            print(f"  Contexts migrated: {result.get('contexts', 0)}")
-            print(f"  Errors: {result.get('errors', 0)}")
+            if isinstance(result, dict):
+                # Handle different result formats from migration manager
+                if 'migrated_count' in result:
+                    print(f"  Records migrated: {result.get('migrated_count', 0)}")
+                elif 'migrated_entities' in result:
+                    print(f"  Entities migrated: {result.get('migrated_entities', 0)}")
+                elif 'migrated_contexts' in result:
+                    print(f"  Contexts migrated: {result.get('migrated_contexts', 0)}")
+                else:
+                    print(f"  Records migrated: {result.get('entities', 0)}")
+                
+                print(f"  Relations migrated: {result.get('relations', 0)}")
+                print(f"  Contexts migrated: {result.get('contexts', 0)}")
+                print(f"  Errors: {result.get('error_count', result.get('errors', 0))}")
+                
+                if 'status' in result:
+                    print(f"  Status: {result['status']}")
+            else:
+                print(f"  Result: {result}")
     
     def _print_verification_results(self, stats: Dict[str, Any]) -> None:
         """Print verification results."""

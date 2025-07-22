@@ -3,10 +3,13 @@ MCP Tool Definitions for Unified Todo Tool
 Phase 3.2: Advanced Todo Tool MCP Integration
 """
 
+import logging
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 from .unified_todo_tool import UnifiedTodoTool
+
+logger = logging.getLogger(__name__)
 
 
 def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
@@ -410,4 +413,6 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
                 }
                 for entity, rel in related
             ]
-        } 
+        }
+    
+    logger.info("Todo MCP tools registered successfully")

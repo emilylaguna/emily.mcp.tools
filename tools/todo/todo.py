@@ -2,6 +2,7 @@
 TODO List tool for Emily Tools MCP server.
 """
 
+import logging
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
@@ -11,6 +12,8 @@ from pydantic import BaseModel
 
 from ..base import BaseTool
 import json
+
+logger = logging.getLogger(__name__)
 
 
 class Priority(str, Enum):
@@ -215,4 +218,6 @@ class TodoTool(BaseTool):
         def resource_todo_by_id(task_id: int) -> dict:
             """Return a single TODO task by ID as a dict."""
             task = self.get_task(task_id)
-            return task.model_dump(mode='json') if task else {} 
+            return task.model_dump(mode='json') if task else {}
+        
+        logger.info("Todo MCP tools registered successfully")

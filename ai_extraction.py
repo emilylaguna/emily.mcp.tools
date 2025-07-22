@@ -6,6 +6,8 @@ Phase 2.2: AI-powered content analysis and entity extraction.
 import hashlib
 import logging
 import re
+import subprocess
+import sys
 from typing import Dict, List, Optional, Tuple, Any
 from difflib import SequenceMatcher
 
@@ -36,8 +38,17 @@ class AIExtractor:
                 self.nlp = spacy.load("en_core_web_sm")
                 logger.info("spaCy model loaded successfully")
             except OSError:
-                logger.warning("spaCy model not found, falling back to regex extraction")
-                self.use_spacy = False
+                logger.warning("spaCy model not found, attempting to download with uv...")
+                if self._download_spacy_model():
+                    try:
+                        self.nlp = spacy.load("en_core_web_sm")
+                        logger.info("spaCy model downloaded and loaded successfully")
+                    except OSError:
+                        logger.warning("Failed to load spaCy model after download, falling back to regex extraction")
+                        self.use_spacy = False
+                else:
+                    logger.warning("Failed to download spaCy model, falling back to regex extraction")
+                    self.use_spacy = False
         
         # Common false positives for name extraction
         self.name_false_positives = {
@@ -57,6 +68,7 @@ class AIExtractor:
         Returns:
             List of extracted entities with type, name, and confidence
         """
+        logger.info(f"Starting entity extraction on text of length {len(text)}")
         entities = []
         
         # Extract person names
@@ -91,19 +103,24 @@ class AIExtractor:
             "confidence": score
         } for project, score in projects])
         
+        logger.info(f"Entity extraction complete: found {len(entities)} total entities")
         return entities
     
     def _extract_people(self, text: str) -> List[Tuple[str, float]]:
         """Extract person names from text using spaCy or regex."""
         if self.use_spacy and self.nlp:
+            logger.info("Using spaCy for person name extraction")
             return self._extract_people_spacy(text)
         else:
+            logger.info("Using regex fallback for person name extraction")
             return self._extract_people_regex(text)
     
     def _extract_people_spacy(self, text: str) -> List[Tuple[str, float]]:
         """Extract person names using spaCy NER."""
         doc = self.nlp(text)
         people = []
+        
+        logger.debug(f"spaCy found {len(doc.ents)} entities in text")
         
         for ent in doc.ents:
             if ent.label_ == "PERSON":
@@ -112,7 +129,11 @@ class AIExtractor:
                     # spaCy confidence is typically high for NER
                     confidence = 0.9
                     people.append((name, confidence))
+                    logger.debug(f"spaCy extracted person: {name} (confidence: {confidence})")
+                else:
+                    logger.debug(f"spaCy found person entity but filtered out: {name}")
         
+        logger.info(f"spaCy extracted {len(people)} valid person names")
         return people
     
     def _extract_people_regex(self, text: str) -> List[Tuple[str, float]]:
@@ -120,6 +141,8 @@ class AIExtractor:
         # Pattern for capitalized names (2-3 words max)
         name_pattern = r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\b'
         potential_names = re.findall(name_pattern, text)
+        
+        logger.debug(f"Regex found {len(set(potential_names))} potential name matches")
         
         validated_names = []
         for name in set(potential_names):
@@ -129,7 +152,11 @@ class AIExtractor:
                 # Simple confidence scoring
                 confidence = 0.8 if len(name.split()) >= 2 else 0.6
                 validated_names.append((name, confidence))
+                logger.debug(f"Regex extracted person: {name} (confidence: {confidence})")
+            else:
+                logger.debug(f"Regex found potential name but filtered out: {name}")
         
+        logger.info(f"Regex extracted {len(validated_names)} valid person names")
         return validated_names
     
     def _extract_technologies(self, text: str) -> List[Tuple[str, float]]:
@@ -285,6 +312,27 @@ class AIExtractor:
     def calculate_content_hash(self, content: str) -> str:
         """Calculate SHA-1 hash of content for caching."""
         return hashlib.sha1(content.encode('utf-8')).hexdigest()
+    
+    def _download_spacy_model(self) -> bool:
+        """Download spaCy model using uv."""
+        try:
+            logger.info("Downloading spaCy model 'en_core_web_sm' using uv...")
+            result = subprocess.run(
+                [sys.executable, "-m", "uv", "run", "python", "-m", "spacy", "download", "en_core_web_sm"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            logger.info("spaCy model download completed successfully")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to download spaCy model: {e}")
+            logger.error(f"stdout: {e.stdout}")
+            logger.error(f"stderr: {e.stderr}")
+            return False
+        except FileNotFoundError:
+            logger.error("uv not found in PATH, cannot download spaCy model")
+            return False
 
 
 class EntityMatcher:

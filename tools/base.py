@@ -32,8 +32,8 @@ class BaseTool(ABC):
     
     async def initialize(self, mcp) -> None:
         """Initialize the tool (e.g., create database tables, register toolsith MCP server."""
-        self.data_file.parent.mkdir(parents=True, exist_ok=True)
-        self.data_file.touch(exist_ok=True)
+        # self.data_file.parent.mkdir(parents=True, exist_ok=True)
+        # self.data_file.touch(exist_ok=True)
         self.register(mcp)
     
     async def cleanup(self) -> None:

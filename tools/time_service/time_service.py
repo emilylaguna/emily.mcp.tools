@@ -2,6 +2,7 @@
 Time Service tool for Emily Tools MCP server.
 """
 
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
@@ -9,6 +10,8 @@ from typing import Any, Dict, List
 from pydantic import BaseModel
 
 from ..base import BaseTool
+
+logger = logging.getLogger(__name__)
 
 
 class TimeInfo(BaseModel):
@@ -157,3 +160,5 @@ class TimeServiceTool(BaseTool):
         async def time_format_time(timestamp: float, format_string: str = "%Y-%m-%d %H:%M:%S", ctx: object = None) -> str:
             """Format a timestamp in a specific format."""
             return self.format_time(timestamp, format_string)
+        
+        logger.info("Time Service MCP tools registered successfully")

@@ -1,7 +1,10 @@
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 from ..base import BaseTool
+
+logger = logging.getLogger(__name__)
 
 class MemoryGraphTool(BaseTool):
     """Memory graph tool using JSONL for persistent storage of entities, relations, and observations."""
@@ -168,3 +171,5 @@ class MemoryGraphTool(BaseTool):
         async def memory_open_nodes(names: list, ctx: object = None) -> list:
             """Open specific nodes in the memory graph."""
             return self.open_nodes(names)
+        
+        logger.info("Memory Graph MCP tools registered successfully")

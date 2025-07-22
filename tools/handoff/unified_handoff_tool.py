@@ -466,4 +466,6 @@ class UnifiedHandoffTool(BaseTool):
         def handoff_by_id(context_id: int) -> dict:
             """Return a single handoff context by ID as a dict."""
             ctx = self.get_context(context_id)
-            return ctx.model_dump(mode='json') if ctx else {} 
+            return ctx.model_dump(mode='json') if ctx else {}
+        
+        logger.info("Handoff MCP tools registered successfully")

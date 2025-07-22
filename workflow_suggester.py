@@ -26,7 +26,7 @@ class WorkflowSuggester:
     def analyze_patterns(self, time_range_days: int = 30) -> Dict[str, Any]:
         """Analyze user activity patterns to identify automation opportunities."""
         try:
-            cutoff_date = datetime.now(datetime.UTC) - timedelta(days=time_range_days)
+            cutoff_date = datetime.now() - timedelta(days=time_range_days)
             
             # Get recent entities
             recent_entities = self._get_recent_entities(cutoff_date)

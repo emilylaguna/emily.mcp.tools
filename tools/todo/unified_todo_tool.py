@@ -3,6 +3,7 @@ Unified Todo Tool - advanced implementation with unified memory integration.
 Phase 3.2: Advanced Todo Tool
 """
 
+import logging
 import re
 import uuid
 from datetime import datetime, timedelta
@@ -16,6 +17,8 @@ from pydantic import BaseModel, Field
 from ..base import BaseTool
 from core import UnifiedMemoryStore
 from models import MemoryEntity, MemoryRelation, MemoryContext
+
+logger = logging.getLogger(__name__)
 
 
 class Priority(str, Enum):
@@ -737,6 +740,8 @@ class UnifiedTodoTool(BaseTool):
         """Register MCP tools for the unified todo system."""
         from .todo_mcp_tools import register_todo_mcp_tools
         register_todo_mcp_tools(mcp, self)
+        
+        logger.info("Unified Todo MCP tools registered successfully")
 
     # Helper Methods
     def _get_overdue_tasks(self) -> List[MemoryEntity]:
