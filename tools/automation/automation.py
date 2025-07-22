@@ -16,11 +16,11 @@ from ..base import BaseTool
 try:
     from ...workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
     from ...workflows.suggester import WorkflowSuggester
-    from ...core import UnifiedMemoryStore
+    from ...core import UnifiedMemoryStore, MemoryEntity
 except ImportError:
     from workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
     from workflows.suggester import WorkflowSuggester
-    from core import UnifiedMemoryStore
+    from core import UnifiedMemoryStore, MemoryEntity
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class WorkflowSuggestion(BaseModel):
 class AutomationTool(BaseTool):
     """Tool for managing workflows and automation in the unified memory system."""
 
-    def __init__(self, memory_store: UnifiedMemoryStore, data_dir: Optional[Path] = None):
+    def __init__(self, memory_store: UnifiedMemoryStore, data_dir: Optional[Path] = None, workflow_engine=None):
         # Initialize BaseTool with data_dir if provided
         if data_dir:
             super().__init__(data_dir)
@@ -75,7 +75,13 @@ class AutomationTool(BaseTool):
             super().__init__(temp_dir)
         
         self.memory_store = memory_store
-        self.workflow_engine = WorkflowEngine(self.memory_store)
+        
+        # Use provided workflow engine or create a new one
+        if workflow_engine:
+            self.workflow_engine = workflow_engine
+        else:
+            self.workflow_engine = WorkflowEngine(self.memory_store)
+            
         self.workflow_suggester = WorkflowSuggester(self.memory_store)
 
     @property
@@ -115,20 +121,12 @@ class AutomationTool(BaseTool):
                 enabled=workflow_def.get("enabled", True)
             )
             
-            # Register with engine
+            # Register with engine (this handles both in-memory and persistence)
             self.workflow_engine.register_workflow(workflow)
             
-            # Save to memory store
-            workflow_entity = self.memory_store.save_entity(
-                entity_type="workflow",
-                content=workflow.model_dump_json(),
-                tags=["automation", "workflow"],
-                metadata={
-                    "workflow_id": workflow.id,
-                    "name": workflow.name,
-                    "enabled": workflow.enabled
-                }
-            )
+            # Verify the workflow was registered successfully
+            if workflow.id not in self.workflow_engine.workflows:
+                raise RuntimeError(f"Workflow {workflow.id} was not properly registered in memory")
             
             return WorkflowDefinition(
                 id=workflow.id,

@@ -20,7 +20,6 @@ except ImportError:
     from core.models import MemoryEntity, MemoryRelation, MemoryContext
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

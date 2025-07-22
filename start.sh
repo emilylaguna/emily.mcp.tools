@@ -10,4 +10,4 @@ cd "$SCRIPT_DIR"
 source .venv/bin/activate
 
 # Run the main application
-uv run python main.py
+uv run python main.py --log=DEBUG

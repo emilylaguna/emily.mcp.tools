@@ -7,7 +7,7 @@ import json
 import logging
 import sqlite3
 import threading
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 import uuid
@@ -164,7 +164,8 @@ class UnifiedMemoryStore:
             
             model_name = model_name or self.DEFAULT_EMBEDDING_MODEL
             self.embedding_model = SentenceTransformer(model_name)
-            
+            # self.embedding_model = SentenceTransformer(self.db_path.parent / model_name)
+            # self.embedding_model.save(self.db_path.parent / model_name)
             # Verify model dimension
             test_embedding = self.embedding_model.encode("test")
             actual_dimension = len(test_embedding)
@@ -295,16 +296,21 @@ class UnifiedMemoryStore:
         """Save entity with automatic embedding generation."""
         conn = self._get_conn()
         
+        logger.info(f"Saving entity: {entity.id}")
+        
         try:
             if use_transaction:
                 conn.execute("BEGIN TRANSACTION")
+            
+            # Check if this is a new entity (for workflow event emission)
+            is_new_entity = not entity.id or not self._entity_exists(entity.id)
             
             # Generate UUID if entity.id is None
             if not entity.id:
                 entity.id = str(uuid.uuid4())
             
             # Update timestamps
-            now = datetime.now(UTC)
+            now = datetime.now(timezone.utc)
             entity.updated_at = now
             if not entity.created_at:
                 entity.created_at = now
@@ -352,6 +358,9 @@ class UnifiedMemoryStore:
             
             if use_transaction:
                 conn.commit()
+            
+            # Emit workflow event after successful save
+            self._emit_workflow_event(entity=entity)
             logger.debug(f"Saved entity: {entity.id} ({entity.type})")
             return entity
             
@@ -421,7 +430,7 @@ class UnifiedMemoryStore:
             raise ValueError(f"Entity {entity.id} not found")
         
         # Update timestamps
-        entity.updated_at = datetime.now(UTC)
+        entity.updated_at = datetime.now(timezone.utc)
         entity.created_at = existing.created_at  # Preserve original creation time
         
         # Check if content changed (for embedding regeneration)
@@ -755,6 +764,7 @@ class UnifiedMemoryStore:
         """Save relationship between entities."""
         conn = self._get_conn()
         
+        logger.info(f"Saving relation: {relation.id}")
         try:
             if use_transaction:
                 conn.execute("BEGIN TRANSACTION")
@@ -785,6 +795,10 @@ class UnifiedMemoryStore:
             
             if use_transaction:
                 conn.commit()
+            
+            # Emit workflow event after successful save
+            self._emit_workflow_event(relation=relation)
+            
             logger.debug(f"Saved relation: {relation.id}")
             return relation
             
@@ -950,7 +964,7 @@ class UnifiedMemoryStore:
     def save_context(self, context: MemoryContext) -> MemoryContext:
         """Save context/conversation data with AI enhancement."""
         conn = self._get_conn()
-        
+        logger.info(f"Saving context: {context.id}")
         try:
             conn.execute("BEGIN TRANSACTION")
             
@@ -975,6 +989,7 @@ class UnifiedMemoryStore:
                     if enhancement['extract_hash']:
                         context.metadata['extract_hash'] = enhancement['extract_hash']
                     
+                    logger.info(f"Enhancement: {enhancement}")
                     # Create new entities for extracted entities marked for creation
                     new_entity_ids = []
                     for entity_data in enhancement['extracted_entities']:
@@ -1036,6 +1051,7 @@ class UnifiedMemoryStore:
                 except Exception as e:
                     logger.warning(f"Failed to create relationships for context {context.id}: {e}")
             
+            self._emit_workflow_event(context=context)
             logger.debug(f"Saved context: {context.id} ({context.type})")
             return context
             
@@ -1309,6 +1325,7 @@ class UnifiedMemoryStore:
         # Save the context first
         saved_context = self.save_context(context)
         
+        logger.info(f"Saving relation: {relation.id}")
         # Apply AI enhancement if available
         if self.enable_ai_extraction and self.content_enhancer:
             try:
@@ -1435,6 +1452,44 @@ class UnifiedMemoryStore:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
         self.close()
+
+    def _emit_workflow_event(self, entity: MemoryEntity = None, relation = None, context = None, entities: List[MemoryEntity] = None) -> None:
+        """Emit a workflow event if workflow engine is available."""
+        if not self.workflow_engine:
+            return
+            
+        try:
+            # Import Event here to avoid circular imports
+            from workflows.engine import Event
+            
+            # Prepare event payload - can handle multiple entities
+            payload = []
+            
+            # Single entity
+            if entity:
+                payload.append(entity.to_dict())
+            
+            
+            # Other data types
+            if relation:
+                payload.append(relation.to_dict())
+            if context:
+                payload.append(context.to_dict())
+            
+            # Create and trigger event
+            # For new trigger system, we don't rely on event_type as much
+            event = Event(
+                payload=payload,
+                source="memory_store"
+            )
+            
+            # Trigger event - WorkflowEngine now handles sync/async contexts
+            self.workflow_engine.trigger_event(event)
+            logger.debug(f"Emitted workflow event: {payload}")
+            
+        except Exception as e:
+            # Don't let workflow event failures break memory operations
+            logger.warning(f"Failed to emit workflow event {payload}: {e}")
 
 
 def create_memory_store(data_dir: Union[str, Path], **kwargs) -> UnifiedMemoryStore:

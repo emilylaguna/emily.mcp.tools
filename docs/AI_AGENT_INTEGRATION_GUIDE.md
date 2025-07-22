@@ -243,6 +243,12 @@ Always use the appropriate MCP tools for these operations. When users ask for ta
 - `get_smart_suggestions` - Get contextual suggestions
 
 Always provide helpful, actionable responses and use the appropriate tools for each request.
+
+**Important for Workflow Automation**: To ensure workflows trigger consistently across sessions, implement automatic context saving:
+- Save conversation context every few exchanges using `handoff_save`
+- Include workflow-triggering keywords in context summaries
+- This ensures automation workflows can detect and respond to conversation patterns
+
 ```
 
 ### Connection Setup
@@ -939,6 +945,230 @@ trigger_result = mcp.call("automation_trigger_workflow",
 ```
 ```
 
+### Example: Personal Automation Workflows
+
+**Meow Counter Example**:
+```python
+# Emily's meow tracking workflow
+meow_workflow = {
+    "id": "meow-tracker",
+    "name": "Meow Tracker",
+    "description": "When a new conversation mentions 'meow', create a fun meow task.",
+    "trigger": {
+        "type": "conversation_saved",
+        "filter": {"contains_keywords": ["meow"]}
+    },
+    "actions": [
+        {
+            "type": "create_task",
+            "params": {
+                "title": "Meow detected!",
+                "description": "Emily said meow! Time for cat content 🐱",
+                "priority": "low",
+                "tags": ["meow", "fun", "cat"]
+            }
+        }
+    ],
+    "enabled": true
+}
+
+# Register the workflow
+result = mcp.call("automation_register_workflow", workflow_definition=meow_workflow)
+
+# To make this work across sessions, the AI agent should regularly save context:
+def save_conversation_with_keywords(conversation_summary):
+    """Save conversation context to trigger automation workflows"""
+    mcp.call("handoff_save", context=conversation_summary)
+    # This will trigger any workflows that match keywords in the summary
+```
+
+## 🤖 Automatic Workflow Triggering
+
+### Overview
+
+Workflows now **automatically trigger** when entities, relations, or contexts are created/updated in the unified memory system. This enables powerful automation scenarios like:
+
+- Auto-creating tasks from conversations
+- Notifying teams when important entities are created
+- Updating project status when tasks are completed
+- Creating follow-up actions from meeting notes
+
+### Trigger Types
+
+| Trigger | Description | When it fires |
+|---------|-------------|---------------|
+| `entity_created` | New entity saved | Any `memory_store.save_entity()` call for new entities |
+| `entity_updated` | Existing entity updated | Any `memory_store.save_entity()` call for existing entities |
+| `relation_created` | New relation saved | Any `memory_store.save_relation()` call |
+| `manual` | Manually triggered | Via `automation_trigger_workflow` MCP tool |
+
+### Filter Syntax
+
+```python
+# Simple entity type filter
+workflow_def = {
+    "trigger": {
+        "type": "entity_created",
+        "filter": {"entity.type": "note"}
+    }
+}
+
+# Complex nested filters
+workflow_def = {
+    "trigger": {
+        "type": "entity_created", 
+        "filter": {
+            "entity.type": "handoff",
+            "entity.metadata.priority": "high",
+            "entity.tags": ["urgent", "escalation"]
+        }
+    }
+}
+```
+
+### Working Examples
+
+#### 1. Auto-Task Creation from Notes
+```python
+# This workflow automatically creates tasks when notes are created
+note_to_task_workflow = {
+    "id": "note-to-task-auto",
+    "name": "Auto-create tasks from notes",
+    "description": "Automatically create follow-up tasks when notes are saved",
+    "trigger": {
+        "type": "entity_created",
+        "filter": {"entity.type": "note"}
+    },
+    "actions": [
+        {
+            "type": "create_task",
+            "params": {
+                "title": "Follow up on: {{ entity.name }}",
+                "content": "Action items from note: {{ entity.content }}",
+                "priority": "medium"
+            }
+        }
+    ]
+}
+
+# Register the workflow
+result = mcp.call("automation_register_workflow", workflow_definition=note_to_task_workflow)
+
+# Now when you create a note, a task is automatically created!
+note = mcp.call("handoff_save", context="Discussed new project timeline - need to update milestones")
+# 🤖 Auto-creates task: "Follow up on: Project Discussion"
+```
+
+#### 2. High-Priority Issue Escalation
+```python
+# Auto-escalate high priority issues
+escalation_workflow = {
+    "id": "high-priority-escalation",
+    "name": "High Priority Issue Escalation",
+    "description": "Automatically escalate high-priority issues",
+    "trigger": {
+        "type": "entity_created",
+        "filter": {
+            "entity.type": "handoff",
+            "entity.metadata.priority": "high"
+        }
+    },
+    "actions": [
+        {
+            "type": "create_task",
+            "params": {
+                "title": "URGENT: {{ entity.name }}",
+                "priority": "high",
+                "content": "High-priority issue requires immediate attention: {{ entity.content }}"
+            }
+        },
+        {
+            "type": "notify",
+            "params": {
+                "channel": "slack",
+                "message": "🚨 High priority issue created: {{ entity.name }}"
+            }
+        }
+    ]
+}
+```
+
+#### 3. Project Status Updates
+```python
+# Auto-update project status when tasks are completed
+project_update_workflow = {
+    "id": "project-status-update",
+    "name": "Project Status Auto-Update",
+    "description": "Update project metadata when tasks are completed",
+    "trigger": {
+        "type": "entity_updated",
+        "filter": {
+            "entity.type": "task",
+            "entity.metadata.status": "completed"
+        }
+    },
+    "actions": [
+        {
+            "type": "update_entity",
+            "params": {
+                "entity_id": "{{ entity.metadata.project_id }}",
+                "updates": {
+                    "metadata.last_task_completed": "{{ entity.updated_at }}",
+                    "metadata.completed_tasks_count": "{{ entity.metadata.completed_tasks_count | default(0) | int + 1 }}"
+                }
+            }
+        }
+    ]
+}
+```
+
+### Testing Auto-Triggering
+
+```python
+# 1. Register a workflow
+workflow = {
+    "id": "test-auto-trigger",
+    "name": "Test Auto-Trigger",
+    "trigger": {
+        "type": "entity_created",
+        "filter": {"entity.type": "note"}
+    },
+    "actions": [{
+        "type": "create_task",
+        "params": {"title": "Auto-created: {{ entity.name }}"}
+    }]
+}
+mcp.call("automation_register_workflow", workflow_definition=workflow)
+
+# 2. Create an entity that matches the filter
+mcp.call("handoff_save", context="This is a test note")
+
+# 3. Check that a task was auto-created
+tasks = mcp.call("todo_get_today")
+# You should see: "Auto-created: Meeting Discussion" or similar
+```
+
+### Benefits of Auto-Triggering
+
+✅ **Zero Manual Intervention**: Workflows run automatically when conditions are met  
+✅ **Real-time Response**: Actions happen immediately when data changes  
+✅ **Consistent Execution**: Never forget to run important follow-up actions  
+✅ **Scalable Automation**: Handle increasing workload without manual overhead  
+✅ **Cross-Domain Intelligence**: Connect handoffs, tasks, notes, and projects automatically
+
+### Troubleshooting
+
+**Workflow not triggering?**
+1. Check filter syntax: Use `entity.type` not just `type`
+2. Verify workflow is enabled: `automation_list_workflows`
+3. Check event types match exactly
+4. Test with simple filters first, then add complexity
+
+**Performance considerations:**
+- Workflow execution happens asynchronously  
+- Failed workflows don't break data operations
+- Use specific filters to avoid unnecessary triggering
+
 ## Advanced Integration Patterns
 
 ### Multi-Tool Workflows
@@ -1452,3 +1682,252 @@ def test_integration():
 ```
 
 This comprehensive guide provides AI agents with everything they need to effectively integrate with the Emily Tools MCP server, from basic operations to advanced patterns and best practices. 
+
+### Workflow Definition Schema and Limitations
+
+`automation_register_workflow(workflow_definition)` expects **exactly** this structure (extra top-level keys will be ignored and _can_ cause validation errors):
+```jsonc
+{
+  "id": "string (unique)",        // Optional – autogenerated if omitted
+  "name": "string",               // Required
+  "description": "string",        // Required
+  "trigger": {
+    "type": "entity_created" | "entity_updated" | "relation_created" | "scheduled" | "manual",
+    "filter": {                    // Optional – filter conditions for automatic triggers
+      // For entity triggers, use nested syntax:
+      "entity.type": "note",       // Entity type filter
+      "entity.metadata.priority": "high",  // Nested metadata filter
+      "entity.tags": ["urgent"]    // List matching for tags
+      // For relation triggers:
+      // "relation.relation_type": "depends_on"
+    },
+    "schedule": "cron string"      // Only for scheduled triggers (eg. "0 9 * * MON")
+  },
+  "actions": [                     // At least one action
+    {
+      "type": "create_task" | "update_entity" | "save_relation" | "notify" | "run_shell" | "http_request",
+      "params": { /* action-specific */ },
+      "condition": "optional Jinja expression"  // eg. "{{ entity.priority == 'high' }}"
+    }
+  ],
+  "enabled": true                 // Optional (default true)
+}
+```
+
+**Automatic Trigger Types** ✨
+
+The system now supports **automatic workflow triggering** when data changes:
+
+| Trigger Type      | When it fires | Filter context |
+|-------------------|---------------|----------------|
+| `entity_created`  | New entity saved to memory store | `entity.*` properties available |
+| `entity_updated`  | Existing entity updated | `entity.*` properties available |
+| `relation_created` | New relation created | `relation.*` properties available |
+| `manual`          | Manually triggered via MCP tool | Custom payload |
+| `scheduled`       | Cron-based scheduling | Time-based context |
+
+**Filter Syntax for Automatic Triggers** 🎯
+
+Use **nested property syntax** for entity and relation filters:
+
+```jsonc
+// Entity filters - use "entity." prefix
+{
+  "entity.type": "handoff",           // Entity type
+  "entity.name": "Meeting Notes",     // Entity name (exact match)
+  "entity.metadata.priority": "high", // Nested metadata
+  "entity.tags": ["urgent", "bug"]    // List matching (any item matches)
+}
+
+// Relation filters - use "relation." prefix  
+{
+  "relation.relation_type": "depends_on",
+  "relation.source_id": "specific-entity-id",
+  "relation.strength": 0.8
+}
+
+// Complex filters with multiple conditions (ALL must match)
+{
+  "entity.type": "task",
+  "entity.metadata.status": "completed",
+  "entity.metadata.project_id": "project-123"
+}
+```
+
+**Template Variables** 📝
+
+Actions can use template variables from the triggering event:
+
+```jsonc
+{
+  "type": "create_task",
+  "params": {
+    "title": "Follow up on: {{ entity.name }}",
+    "content": "Action items: {{ entity.content }}",
+    "priority": "{{ entity.metadata.priority | default('medium') }}",
+    "tags": ["auto-created", "{{ entity.type }}"]
+  }
+}
+```
+
+**Currently supported action types**
+
+| Action type      | Required params                                      |
+|------------------|------------------------------------------------------|
+| `create_task`    | `title` (str), `content` (str) **plus** any valid `todo_create_task` params (`priority`, `tags`, …) |
+| `update_entity`  | `entity_id` (str), `updates` (dict)                 |
+| `save_relation`  | `source_id`, `target_id`, `relation_type`, `strength`|
+| `notify`         | `message` (str), `channel` (str)                    |
+| `run_shell`      | `command` (str)                                      |
+| `http_request`   | `method` ("GET"/"POST"), `url` (str), `headers`/`body` |
+
+⚠️  **Not yet supported** – `increment_counter`, `create_knowledge_entity`, or any other custom action types. Including them will raise an "Invalid workflow definition" error.
+
+### Working Examples ✅
+
+#### 1. Auto-create tasks from notes
+```python
+note_to_task_workflow = {
+    "id": "note-to-task-auto",
+    "name": "Auto-create tasks from notes",
+    "description": "Automatically create follow-up tasks when notes are saved",
+    "trigger": {
+        "type": "entity_created",
+        "filter": {"entity.type": "note"}
+    },
+    "actions": [
+        {
+            "type": "create_task",
+            "params": {
+                "title": "Follow up on: {{ entity.name }}",
+                "content": "Action items from note: {{ entity.content }}",
+                "priority": "medium"
+            }
+        }
+    ]
+}
+
+result = mcp.call("automation_register_workflow", workflow_definition=note_to_task_workflow)
+```
+
+#### 2. High-priority issue escalation
+```python
+escalation_workflow = {
+    "id": "high-priority-escalation",
+    "name": "High Priority Issue Escalation", 
+    "description": "Automatically escalate high-priority handoffs",
+    "trigger": {
+        "type": "entity_created",
+        "filter": {
+            "entity.type": "handoff",
+            "entity.metadata.priority": "high"
+        }
+    },
+    "actions": [
+        {
+            "type": "create_task",
+            "params": {
+                "title": "URGENT: {{ entity.name }}",
+                "priority": "high",
+                "content": "High-priority issue: {{ entity.content }}"
+            }
+        },
+        {
+            "type": "notify",
+            "params": {
+                "channel": "slack", 
+                "message": "🚨 High priority issue: {{ entity.name }}"
+            }
+        }
+    ],
+    "enabled": true
+}
+```
+
+#### 3. Project status updates on task completion
+```python
+project_update_workflow = {
+    "id": "project-status-update",
+    "name": "Project Status Auto-Update",
+    "description": "Update project when tasks are completed",
+    "trigger": {
+        "type": "entity_updated",
+        "filter": {
+            "entity.type": "task",
+            "entity.metadata.status": "completed"
+        }
+    },
+    "actions": [
+        {
+            "type": "update_entity",
+            "params": {
+                "entity_id": "{{ entity.metadata.project_id }}",
+                "updates": {
+                    "metadata.last_task_completed": "{{ entity.updated_at }}",
+                    "metadata.total_completed": "{{ entity.metadata.total_completed | default(0) | int + 1 }}"
+                }
+            },
+            "condition": "{{ entity.metadata.project_id is defined }}"
+        }
+    ],
+    "enabled": true
+}
+```
+
+### Testing Your Workflows 🧪
+
+```python
+# 1. Register a simple test workflow
+test_workflow = {
+    "id": "test-auto-trigger",
+    "name": "Test Auto-Trigger",
+    "trigger": {
+        "type": "entity_created",
+        "filter": {"entity.type": "note"}
+    },
+    "actions": [{
+        "type": "create_task", 
+        "params": {"title": "Auto-created: {{ entity.name }}"}
+    }]
+}
+mcp.call("automation_register_workflow", workflow_definition=test_workflow)
+
+# 2. Trigger by creating an entity that matches
+mcp.call("handoff_save", context="This is a test note")
+
+# 3. Verify the task was auto-created
+tasks = mcp.call("todo_get_today")
+# Should include: "Auto-created: [context title]"
+```
+
+**Troubleshooting**
+
+❌ **Common Issues:**
+
+```python
+# WRONG: Old filter syntax
+"filter": {"type": "note"}  # Won't work!
+
+# CORRECT: New nested syntax  
+"filter": {"entity.type": "note"}  # Works! ✅
+```
+
+```python
+# WRONG: Missing required template context
+"title": "Task for {{ name }}"  # 'name' not available
+
+# CORRECT: Use entity context
+"title": "Task for {{ entity.name }}"  # ✅
+```
+
+**Performance considerations:**
+- Workflow execution happens asynchronously and doesn't block data operations
+- Failed workflows don't break memory store operations
+- Use specific filters to avoid triggering on every entity creation
+- Template variables are resolved at execution time
+
+**Debugging workflows:**
+1. Check `automation_list_workflows` to verify registration
+2. Ensure filters use correct nested syntax (`entity.type`, not `type`)
+3. Test with simple examples before adding complexity
+4. Use `automation_get_workflow` to inspect workflow definitions 

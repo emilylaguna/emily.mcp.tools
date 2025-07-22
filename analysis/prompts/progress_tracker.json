@@ -1,0 +1,18 @@
+{
+  "phase1_foundation": {
+    "description": "Minimal AST + complexity analysis",
+    "status": "completed"
+  },
+  "phase2_metrics": {
+    "description": "Extended metrics (cognitive, NPath, coupling)",
+    "status": "pending"
+  },
+  "phase3_semantic": {
+    "description": "Semantic pattern detection & intent analysis",
+    "status": "pending"
+  },
+  "phase3_language_support": {
+    "description": "Swift & Kotlin parsing via Tree-sitter",
+    "status": "pending"
+  }
+} 

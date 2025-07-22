@@ -71,16 +71,59 @@ class WorkflowDSL:
         if not isinstance(trigger_data, dict):
             raise ValueError("Trigger must be a dictionary")
         
-        trigger_type = trigger_data.get('type')
-        if not trigger_type:
-            raise ValueError("Trigger type is required")
+        # Handle new simplified syntax
+        if 'type' in trigger_data and 'event_type' not in trigger_data:
+            # New syntax: direct entity matching
+            return WorkflowTrigger(
+                type=trigger_data.get('type'),
+                content=trigger_data.get('content'),
+                name=trigger_data.get('name'),
+                tags=trigger_data.get('tags'),
+                metadata=trigger_data.get('metadata'),
+                schedule=trigger_data.get('schedule')
+            )
         
-        if trigger_type not in self.supported_trigger_types:
-            raise ValueError(f"Unsupported trigger type: {trigger_type}")
+        # Handle legacy syntax for backward compatibility
+        if 'event_type' in trigger_data:
+            legacy_type = trigger_data.get('event_type')
+        else:
+            legacy_type = trigger_data.get('type')  # Old-style event type
+            
+        if legacy_type not in self.supported_trigger_types:
+            raise ValueError(f"Unsupported trigger type: {legacy_type}")
+        
+        # Convert legacy filter format to new format
+        filter_dict = trigger_data.get('filter', {})
+        
+        # Extract entity-specific fields from legacy filter
+        entity_type = None
+        content = None
+        name = None
+        tags = None
+        metadata = None
+        
+        for key, value in filter_dict.items():
+            if key == 'entity.type':
+                entity_type = value
+            elif key == 'entity.content':
+                content = value
+            elif key == 'entity.name':
+                name = value
+            elif key == 'entity.tags':
+                tags = value if isinstance(value, list) else [value]
+            elif key.startswith('entity.metadata.'):
+                if not metadata:
+                    metadata = {}
+                meta_key = key.replace('entity.metadata.', '')
+                metadata[meta_key] = value
         
         return WorkflowTrigger(
-            type=trigger_type,
-            filter=trigger_data.get('filter'),
+            event_type=legacy_type,  # Keep for backward compatibility
+            type=entity_type,
+            content=content,
+            name=name,
+            tags=tags,
+            metadata=metadata,
             schedule=trigger_data.get('schedule')
         )
     
@@ -254,15 +297,34 @@ class WorkflowDSL:
 
 # Example workflow definitions
 EXAMPLE_WORKFLOWS = {
+    'handoff_follow_up_new': """
+id: handoff_follow_up_new
+name: Handoff Follow-up (New Syntax)
+description: Automatically create tasks when handoff contexts contain "meow" using new simplified syntax
+trigger:
+  type: handoff
+  content: meow
+actions:
+  - type: create_task
+    params:
+      title: "Follow up on handoff: {{ entity.name }}"
+      priority: high
+      content: "Handoff discussion: {{ entity.content }}"
+  - type: notify
+    params:
+      channel: slack
+      message: "New handoff discussion needs follow up: {{ entity.name }}"
+""",
+
     'pr_follow_up': """
 id: pr_follow_up
-name: PR Follow-up Automation
+name: PR Follow-up Automation (Legacy Syntax)
 description: Automatically create tasks and notify team when PR discussions are created
 trigger:
-  type: entity_created
+  event_type: entity_created
   filter:
-    type: handoff
-    metadata.topics: ["pull request"]
+    entity.type: handoff
+    entity.metadata.topics: ["pull request"]
 actions:
   - type: create_task
     params:
@@ -280,10 +342,9 @@ id: task_completion
 name: Task Completion Workflow
 description: Automatically update project status when tasks are completed
 trigger:
-  type: entity_updated
-  filter:
-    type: task
-    metadata.status: "completed"
+  type: task
+  metadata:
+    status: completed
 actions:
   - type: update_entity
     params:
@@ -301,7 +362,6 @@ id: daily_standup
 name: Daily Standup Reminder
 description: Send daily standup reminders
 trigger:
-  type: scheduled
   schedule: "0 9 * * 1-5"  # 9 AM on weekdays
 actions:
   - type: notify
@@ -320,10 +380,8 @@ id: meeting_followup
 name: Meeting Follow-up Automation
 description: Create action items from meeting notes
 trigger:
-  type: entity_created
-  filter:
-    type: handoff
-    metadata.topics: ["meeting", "discussion"]
+  type: handoff
+  tags: ["meeting", "discussion"]
 actions:
   - type: create_task
     params:
@@ -341,10 +399,8 @@ id: bug_report
 name: Bug Report Automation
 description: Automatically create tasks for bug reports
 trigger:
-  type: entity_created
-  filter:
-    type: handoff
-    metadata.topics: ["bug", "issue", "error"]
+  type: handoff
+  tags: ["bug", "issue", "error"]
 actions:
   - type: create_task
     params:
@@ -362,9 +418,7 @@ id: project_setup
 name: Project Setup Automation
 description: Automatically setup new projects with initial tasks
 trigger:
-  type: entity_created
-  filter:
-    type: project
+  type: project
 actions:
   - type: create_task
     params:
@@ -381,44 +435,4 @@ actions:
       channel: slack
       message: "New project '{{ entity.name }}' has been set up with initial tasks"
 """,
-
-    'code_review': """
-id: code_review
-name: Code Review Automation
-description: Automatically create tasks for code reviews
-trigger:
-  type: entity_created
-  filter:
-    type: handoff
-    metadata.topics: ["code review", "review"]
-actions:
-  - type: create_task
-    params:
-      title: "Code Review: {{ entity.name }}"
-      priority: medium
-      content: "Code review request: {{ entity.content }}"
-  - type: notify
-    params:
-      channel: slack
-      message: "Code review task created: {{ entity.name }}"
-""",
-
-    'deadline_reminder': """
-id: deadline_reminder
-name: Deadline Reminder Automation
-description: Send reminders for upcoming deadlines
-trigger:
-  type: scheduled
-  schedule: "0 10 * * 1-5"  # 10 AM on weekdays
-actions:
-  - type: notify
-    params:
-      channel: slack
-      message: "Check for upcoming deadlines and update task status"
-  - type: create_task
-    params:
-      title: "Review Upcoming Deadlines"
-      priority: medium
-      content: "Review and update status of tasks with upcoming deadlines"
-"""
 } 

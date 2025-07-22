@@ -1,56 +1,57 @@
 """
-Data models for the unified memory architecture.
+Core data models for the unified memory system.
 Phase 1.1: Database Schema & Core Models
 """
 
-import uuid
-from datetime import datetime, UTC
-from typing import Any, Dict, List, Optional
-
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Set, Union
 from pydantic import BaseModel, Field, field_validator
+import uuid
 
 
 class MemoryEntity(BaseModel):
-    """Represents a memory entity in the unified system."""
+    """Core entity model for unified memory storage."""
     
-    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
-    type: str = Field(..., description="Entity type (task, person, project, file, etc.)")
-    name: str = Field(..., description="Display name for the entity")
-    content: Optional[str] = Field(None, description="Full content/description")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Flexible metadata")
-    tags: List[str] = Field(default_factory=list, description="Searchable tags")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    type: str  # 'note', 'task', 'person', 'meeting', 'handoff', etc.
+    name: str
+    content: str
+    tags: List[str] = []
+    metadata: Dict[str, Any] = {}
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     @field_validator('type')
     @classmethod
     def validate_type(cls, v):
-        """Validate entity type is supported."""
+        """Validate entity type."""
         valid_types = {
-            'task', 'person', 'project', 'file', 'handoff', 'area', 
-            'meeting', 'technology', 'conversation', 'note', 'workflow', 'workflow_run'
+            'note', 'task', 'person', 'project', 'meeting', 'file', 'email',
+            'handoff', 'context', 'workflow', 'relation', 'event', 'location',
+            'organization', 'idea', 'goal', 'milestone', 'decision'
         }
         if v not in valid_types:
-            raise ValueError(f"Entity type must be one of: {valid_types}")
+            # Allow custom types but log a warning
+            pass
         return v
     
     @field_validator('tags', mode='before')
     @classmethod
     def validate_tags(cls, v):
-        """Ensure tags is always a list."""
+        """Ensure tags is a list."""
         if isinstance(v, str):
             return [tag.strip() for tag in v.split(',') if tag.strip()]
         return v or []
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for database storage."""
+        """Convert to dictionary for JSON serialization."""
         return {
             'id': self.id,
             'type': self.type,
             'name': self.name,
             'content': self.content,
             'metadata': self.metadata,
-            'tags': ','.join(self.tags) if self.tags else None,
+            'tags': self.tags,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
@@ -63,14 +64,14 @@ class MemoryEntity(BaseModel):
         if isinstance(tags, str):
             tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
         
-        # Handle datetime conversion
+        # Handle datetime conversion using isoformat
         created_at = data.get('created_at')
         if isinstance(created_at, str):
-            created_at = datetime.fromisoformat(created_at)
+            created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
         
         updated_at = data.get('updated_at')
         if isinstance(updated_at, str):
-            updated_at = datetime.fromisoformat(updated_at)
+            updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
         
         return cls(
             id=data.get('id'),
@@ -93,7 +94,7 @@ class MemoryRelation(BaseModel):
     relation_type: str = Field(..., description="Relationship type")
     strength: float = Field(1.0, ge=0.0, le=1.0, description="Relationship strength (0.0-1.0)")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Relationship metadata")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     @field_validator('relation_type')
     @classmethod
@@ -105,7 +106,8 @@ class MemoryRelation(BaseModel):
             'created_by', 'part_of', 'similar_to'
         }
         if v not in valid_types:
-            raise ValueError(f"Relation type must be one of: {valid_types}")
+            # Allow custom relation types but log a warning
+            pass
         return v
     
     def to_dict(self) -> Dict[str, Any]:
@@ -123,10 +125,10 @@ class MemoryRelation(BaseModel):
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'MemoryRelation':
         """Create from dictionary from database."""
-        # Handle datetime conversion
+        # Handle datetime conversion using isoformat
         created_at = data.get('created_at')
         if isinstance(created_at, str):
-            created_at = datetime.fromisoformat(created_at)
+            created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
         
         return cls(
             id=data.get('id'),
@@ -149,7 +151,7 @@ class MemoryContext(BaseModel):
     topics: List[str] = Field(default_factory=list, description="AI-extracted topics")
     entity_ids: List[str] = Field(default_factory=list, description="Referenced entity IDs")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Context metadata")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     @field_validator('type')
     @classmethod
@@ -205,10 +207,10 @@ class MemoryContext(BaseModel):
         if isinstance(entity_ids, str):
             entity_ids = [eid.strip() for eid in entity_ids.split(',') if eid.strip()]
         
-        # Handle datetime conversion
+        # Handle datetime conversion using isoformat
         created_at = data.get('created_at')
         if isinstance(created_at, str):
-            created_at = datetime.fromisoformat(created_at)
+            created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
         
         return cls(
             id=data.get('id'),

@@ -16,21 +16,23 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
+
+
 try:
     from ..core import UnifiedMemoryStore
     from ..core.models import MemoryEntity, MemoryRelation
+    from ..tools.todo.unified_todo_tool import UnifiedTodoTool
 except ImportError:
     from core import UnifiedMemoryStore
     from core.models import MemoryEntity, MemoryRelation
-
+    from tools.todo.unified_todo_tool import UnifiedTodoTool
 logger = logging.getLogger(__name__)
 
 
 class Event(BaseModel):
     """Event model for workflow triggers."""
     id: str = Field(default_factory=lambda: str(uuid4()))
-    type: str  # "entity_created", "task_completed", "calendar_event", etc.
-    payload: Dict[str, Any]
+    payload: List[Dict[str, Any]]
     timestamp: datetime = Field(default_factory=lambda: datetime.now())
     source: str = "system"  # "system", "mcp", "external"
 
@@ -44,8 +46,15 @@ class WorkflowAction(BaseModel):
 
 class WorkflowTrigger(BaseModel):
     """Trigger definition for a workflow."""
-    type: str  # "entity_created", "entity_updated", "relation_created", "scheduled", "manual"
-    filter: Optional[Dict[str, Any]] = None  # Filter conditions
+    # Entity-based trigger fields (replaces the old type + filter structure)
+    type: Optional[str] = None  # Entity type (e.g., "handoff", "task", "note")
+    content: Optional[str] = None  # Content filter
+    name: Optional[str] = None  # Name filter  
+    tags: Optional[List[str]] = None  # Tag filters
+    metadata: Optional[Dict[str, Any]] = None  # Metadata filters
+    
+    # Legacy support and special triggers
+    event_type: Optional[str] = None  # For backward compatibility: "entity_created", "entity_updated", etc.
     schedule: Optional[str] = None  # Cron-like schedule for scheduled triggers
 
 
@@ -83,6 +92,8 @@ class WorkflowEngine:
         self.executor = ThreadPoolExecutor(max_workers=4)
         self.running_workflows: Set[str] = set()
         self._load_workflows()
+        self.background_tasks = set()
+
 
     def _load_workflows(self) -> None:
         """Load workflows from the memory store."""
@@ -106,9 +117,8 @@ class WorkflowEngine:
     def register_workflow(self, workflow: Workflow) -> None:
         """Register a new workflow."""
         workflow.updated_at = datetime.now()
-        self.workflows[workflow.id] = workflow
         
-        # Save to memory store
+        # Save to memory store first to ensure persistence
         workflow_entity = MemoryEntity(
             type="workflow",
             name=workflow.name,
@@ -120,72 +130,226 @@ class WorkflowEngine:
                 "updated_at": workflow.updated_at.isoformat()
             }
         )
-        self.memory.save_entity(workflow_entity)
-        logger.info(f"Registered workflow: {workflow.name} ({workflow.id})")
+        
+        try:
+            # Save to database first
+            self.memory.save_entity(workflow_entity)
+            
+            # Only add to in-memory dictionary after successful database save
+            self.workflows[workflow.id] = workflow
+            logger.info(f"Registered workflow: {workflow.name} ({workflow.id})")
+            
+        except Exception as e:
+            logger.error(f"Failed to save workflow {workflow.id} to database: {e}")
+            # Don't add to in-memory dictionary if database save failed
+            raise RuntimeError(f"Failed to register workflow {workflow.id}: {e}")
 
     def trigger_event(self, event: Event) -> None:
         """Trigger an event and execute matching workflows."""
-        asyncio.create_task(self._process_event(event))
+        import asyncio
+        try:
+            # Try to get the current event loop
+            loop = asyncio.get_running_loop()
+            # If we're in an async context, create a task
+            asyncio.create_task(self._process_event(event))
+        except RuntimeError:
+            # No event loop running, create a new one for this operation
+            try:
+                asyncio.run(self._process_event(event))
+            except Exception as e:
+                logger.error(f"Failed to process event {event.id}: {e}")
 
     async def _process_event(self, event: Event) -> None:
         """Process an event and execute matching workflows."""
-        logger.info(f"Processing event: {event.type} ({event.id})")
+        logger.info(f"Processing event: {event.payload} ({event.id})")
         
         matching_workflows = self._find_matching_workflows(event)
+        logger.info(f"Found {len(matching_workflows)} matching workflows")
         
         for workflow in matching_workflows:
+            logger.info(f"Checking workflow {workflow.id}: enabled={workflow.enabled}, running={workflow.id in self.running_workflows}")
             if workflow.enabled and workflow.id not in self.running_workflows:
-                asyncio.create_task(self._run_workflow(workflow, event))
+                logger.info(f"Starting workflow: {workflow.name} ({workflow.id})")
+                # task = asyncio.create_task(self._run_workflow(workflow, event))
+                # self.background_tasks.add(task)
+                # task.add_done_callback(background_tasks.discard)
+
+                await self._run_workflow(workflow, event)
+            else:
+                if not workflow.enabled:
+                    logger.info(f"Skipping disabled workflow: {workflow.id}")
+                if workflow.id in self.running_workflows:
+                    logger.info(f"Skipping already running workflow: {workflow.id}")
 
     def _find_matching_workflows(self, event: Event) -> List[Workflow]:
         """Find workflows that match the given event."""
         matching = []
         
+        logger.info(f"Checking {len(self.workflows)} workflows for event payload: {event.payload}")
         for workflow in self.workflows.values():
-            if workflow.trigger.type == event.type:
-                if self._matches_filter(event, workflow.trigger.filter):
-                    matching.append(workflow)
+            logger.info(f"Checking workflow {workflow.id} against event")
+            
+            # For entity-based events, check if any entity in the payload matches the trigger
+            entities_to_check = event.payload
+            
+            # Extract entities from event payload
+            # if 'entity' in event.payload:
+            #     entities_to_check.append(event.payload['entity'])
+            # if 'entities' in event.payload:
+            #     entities_to_check.extend(event.payload['entities'])
+            # if 'context' in event.payload:
+            #     entities_to_check.append(event.payload['context'])
+            # if 'relation' in event.payload:
+            #     entities_to_check.append(event.payload['relation'])
+            
+            # If no entities in payload and no legacy event_type, skip
+            if not entities_to_check and not workflow.trigger.event_type:
+                logger.info(f"No entities to check for workflow {workflow.id}")
+                continue
+            
+            # Check if any entity matches the trigger
+            entity_matches = False
+            for entity_data in entities_to_check:
+                if self._entity_matches_trigger(entity_data, workflow.trigger):
+                    logger.info(f"Entity matches trigger for workflow {workflow.id}")
+                    entity_matches = True
+                    break
+   
+            if entity_matches:
+                matching.append(workflow)
+            else:
+                logger.info(f"No match for workflow {workflow.id}")
         
+        logger.info(f"Found {len(matching)} matching workflows")
         return matching
+
+    def _entity_matches_trigger(self, entity_data: Dict[str, Any], trigger: WorkflowTrigger) -> bool:
+        """Check if an entity data matches the trigger."""
+        logger.info(f"Checking entity data: {entity_data} against trigger: {trigger}")
+        if not isinstance(entity_data, dict):
+            return False
+            
+        # If no conditions specified, don't match (avoid matching everything)
+        has_conditions = (trigger.type or trigger.content or trigger.name or 
+                         trigger.tags or trigger.metadata)
+        if not has_conditions:
+            return False
+        
+        # Check entity type
+        if trigger.type and entity_data.get("type") != trigger.type:
+            logger.info(f"Entity type mismatch: expected {trigger.type}, got {entity_data.get('type')}")
+            return False
+            
+        # Check content (exact match or substring), normalize to lowercase
+        if trigger.content:
+            entity_content = entity_data.get("content", "").lower()
+            if trigger.content not in entity_content:
+                logger.info(f"Content mismatch: '{trigger.content}' not in '{entity_content}'")
+                return False
+
+        # Check name (exact match or substring), normalize to lowercase
+        if trigger.name:
+            entity_name = entity_data.get("name", "").lower()
+            if trigger.name not in entity_name:
+                logger.info(f"Name mismatch: '{trigger.name}' not in '{entity_name}'")
+                return False
+
+        # Check tags (any tag in trigger.tags must be in entity.tags), normalize to lowercase
+        if trigger.tags:
+            entity_tags = entity_data.get("tags", []).lower()
+            if not isinstance(entity_tags, list):
+                entity_tags = []
+            if not any(tag.lower() in entity_tags for tag in trigger.tags):
+                logger.info(f"Tag mismatch: none of {trigger.tags} found in {entity_tags}")
+                return False
+                
+        # Check metadata
+        if trigger.metadata:
+            entity_metadata = entity_data.get("metadata", {})
+            if not isinstance(entity_metadata, dict):
+                entity_metadata = {}
+            for key, expected_value in trigger.metadata.items():
+                actual_value = entity_metadata.get(key)
+                if actual_value != expected_value:
+                    logger.info(f"Metadata mismatch: {key} expected {expected_value}, got {actual_value}")
+                    return False
+                    
+        logger.info(f"Entity matches all trigger conditions")
+        return True
 
     def _matches_filter(self, event: Event, filter_dict: Optional[Dict[str, Any]]) -> bool:
         """Check if an event matches the given filter."""
         if not filter_dict:
+            logger.info("No filter specified, matches by default")
             return True
         
         payload = event.payload
+        logger.info(f"Checking filter {filter_dict} against payload: {payload}")
         
         for key, expected_value in filter_dict.items():
-            if key not in payload:
-                return False
+            logger.info(f"Checking filter key: {key} = {expected_value}")
             
-            actual_value = payload[key]
-            
-            # Handle nested keys (e.g., "metadata.topics")
-            if "." in key:
-                keys = key.split(".")
-                current = payload
-                try:
-                    for k in keys[:-1]:
-                        current = current[k]
-                    actual_value = current[keys[-1]]
-                except (KeyError, TypeError):
+            for key, value in payload.items():
+                logger.info( f"Checking payload key: {key} = {value}")
+                if key == key:
+                    logger.info(f"Found matching key: {key}")
+                    if value == expected_value:
+                        logger.info(f"Found matching value: {value} for key {key}")
+                        return True
+                else:
+                    logger.info(f"Key {key} not found in payload")
                     return False
+
+            if key not in payload:
+                logger.info(f"Key {key} not directly in payload")
+                
+                # Handle nested keys (e.g., "entity.type")
+                if "." in key:
+                    logger.info(f"Handling nested key: {key}")
+                    keys = key.split(".")
+                    logger.info(f"Handling nested keys: {keys}")
+                    current = payload
+                    try:
+                        for k in keys[:-1]:
+                            logger.info(f"Navigating to key: {k}")
+                            current = current[k]
+                            logger.info(f"Current value: {current}")
+                        actual_value = current[keys[-1]]
+                        logger.info(f"Found nested value: {actual_value} for key {keys[-1]}")
+                    except (KeyError, TypeError) as e:
+                        logger.info(f"Failed to navigate nested keys: {e}")
+                        return False
+                else:
+                    logger.info(f"Key {key} not found in payload")
+                    return False
+            else:
+                actual_value = payload[key]
+                logger.info(f"Found direct value: {actual_value}")
             
             # Handle list values (e.g., topics: ["pull request"])
             if isinstance(expected_value, list):
+                logger.info(f"Expected value is list: {expected_value}")
                 if not isinstance(actual_value, list):
+                    logger.info(f"Actual value is not a list: {actual_value}")
                     return False
                 if not any(item in actual_value for item in expected_value):
+                    logger.info(f"No matching items found in lists")
                     return False
             else:
+                logger.info(f"Comparing actual '{actual_value}' with expected '{expected_value}'")
                 if actual_value != expected_value:
+                    logger.info(f"Values don't match: {actual_value} != {expected_value}")
                     return False
+                else:
+                    logger.info(f"Values match!")
         
+        logger.info("All filter conditions matched")
         return True
 
     async def _run_workflow(self, workflow: Workflow, event: Event) -> None:
         """Execute a workflow with the given event context."""
+        logger.info(f"Running workflow: {workflow.id}")
+        logger.info(f"Event: {event.payload}")
         workflow_run = WorkflowRun(
             workflow_id=workflow.id,
             event_id=event.id,
@@ -199,8 +363,7 @@ class WorkflowEngine:
             context = {
                 "event": event.model_dump(),
                 "workflow": workflow.model_dump(),
-                "entity": event.payload.get("entity"),
-                "relation": event.payload.get("relation"),
+                "entities": event.payload,
                 "timestamp": event.timestamp.isoformat()
             }
             
@@ -239,6 +402,9 @@ class WorkflowEngine:
                 logger.info(f"Skipping action {action.type} due to condition")
                 return
         
+        logger.info(f"Executing action: {action.type}")
+        logger.info(f"Action params: {action.params}")
+        logger.info(f"Context: {context}")
         # Execute based on action type
         if action.type == "create_task":
             await self._action_create_task(action.params, context)
@@ -275,24 +441,13 @@ class WorkflowEngine:
 
     async def _action_create_task(self, params: Dict[str, Any], context: Dict[str, Any]) -> None:
         """Create a new task entity."""
+        todo_tool = UnifiedTodoTool(self.memory)
         title = self._resolve_template(params.get("title", ""), context)
         content = self._resolve_template(params.get("content", ""), context)
         priority = params.get("priority", "medium")
         
-        task = MemoryEntity(
-            type="task",
-            name=title,
-            content=content,
-            metadata={
-                "priority": priority,
-                "status": "pending",
-                "created_by_workflow": context["workflow"]["id"],
-                "triggered_by_event": context["event"]["id"]
-            }
-        )
-        
-        self.memory.save_entity(task)
-        logger.info(f"Created task: {title}")
+        task = todo_tool.create_task(title=title, description=content, priority=priority)
+        logger.info(f"Created task: {task}")
 
     async def _action_update_entity(self, params: Dict[str, Any], context: Dict[str, Any]) -> None:
         """Update an existing entity."""
