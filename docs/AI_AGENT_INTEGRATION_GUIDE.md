@@ -35,6 +35,8 @@ The Emily Tools MCP server provides the following core capabilities:
 - **Data Model Fields**: Store content in the `content` field
 - **Return Values**: MCP tools return `description` field (mapped from `content`)
 
+**Note**: Most query endpoints return `description` for consistency, but some advanced search functions (like `todo_quick_find`) may return raw entities with `content` fields.
+
 ### Supported Entity Types
 
 When creating entities in the knowledge graph, you must use one of these valid entity types:
@@ -188,6 +190,28 @@ All entities follow this structure:
 
 ## Getting Started
 
+### Quick Start Example
+
+```python
+# Basic connection and task creation example
+import asyncio
+from mcp import ClientSession
+
+async def quick_start():
+    # Connect to the MCP server
+    async with ClientSession("stdio", ["python", "main.py"]) as session:
+        # Create a simple task
+        result = await session.call_tool("todo_create_task", {
+            "title": "Test connection",
+            "description": "Verifying MCP server integration"
+        })
+        print(f"Created task: {result['title']}")
+        print(f"Task ID: {result['id']}")
+
+# Run the example
+asyncio.run(quick_start())
+```
+
 ### Initial Setup Prompts
 
 ```markdown
@@ -206,14 +230,36 @@ Always use the appropriate MCP tools for these operations. When users ask for ta
 ## Available Tools
 
 ### Todo Management Tools
+
+**CRUD Operations:**
 - `todo_create_area` - Create organizational areas
 - `todo_create_project` - Create projects within areas
 - `todo_create_task` - Create individual tasks
 - `todo_create_task_nl` - Create tasks from natural language
+- `todo_update_task` - Update a task's properties
+- `todo_update_project` - Update a project's properties
+- `todo_complete_task` - Mark tasks as complete
+- `todo_complete_project` - Complete a project and all its tasks
+- `todo_delete_task` - Delete a task
+- `todo_archive_area` - Archive an area and all its projects
+
+**Smart Lists & Queries:**
 - `todo_get_today` - Get today's tasks with AI suggestions
+- `todo_get_evening` - Get tasks suitable for evening work
+- `todo_get_upcoming` - Get upcoming tasks and events
+- `todo_get_anytime` - Get tasks without specific scheduling
+- `todo_get_someday` - Get tasks marked for future consideration
 - `todo_list_areas` - List all areas
 - `todo_list_projects` - List projects
-- `todo_complete_task` - Mark tasks as complete
+- `todo_quick_find` - Quick find across tasks, projects, areas with AI search
+- `todo_search_tasks` - Search tasks with advanced filtering
+
+**Project Intelligence:**
+- `todo_get_project_progress` - Get detailed project progress
+- `todo_project_timeline` - Get complete project timeline
+- `todo_get_task_details` - Get detailed task information including relationships
+- `todo_suggest_priorities` - Get AI-suggested task priorities
+- `todo_get_statistics` - Get comprehensive todo statistics
 
 **Todo Tool Parameters:**
 - `todo_create_area(name, description=None, color=None)` - Creates an area with optional description and color
@@ -227,6 +273,7 @@ Always use the appropriate MCP tools for these operations. When users ask for ta
 - `handoff_search` - Search saved contexts
 - `handoff_related` - Find related contexts
 - `handoff_insights` - Get context insights
+- `handoff_suggest_actions` - Get suggested follow-up actions for a context
 
 ### Knowledge Graph Tools
 - `graph_create_entity` - Create entities in the knowledge graph
@@ -234,13 +281,30 @@ Always use the appropriate MCP tools for these operations. When users ask for ta
 - `graph_find_related` - Find related entities
 - `graph_search` - Search for entities
 - `graph_get_entity` - Get specific entity details
+- `graph_get_relations` - Get relations for a specific entity
+- `graph_shortest_path` - Find the shortest path between two entities
+- `graph_find_clusters` - Find clusters of related entities
+- `graph_get_centrality` - Get centrality score for an entity
+- `graph_delete_entity` - Delete an entity and its relations
+- `graph_delete_relation` - Delete a specific relation
 
 ### Intelligent Search Tools
-- `intelligent_search` - Advanced semantic search
-- `natural_query` - Process natural language queries
-- `get_project_intelligence` - Get project insights
-- `find_expertise` - Find people with specific expertise
-- `get_smart_suggestions` - Get contextual suggestions
+- `intelligent_search` - Advanced semantic search with cross-domain intelligence
+- `natural_query` - Process natural language queries with intelligent interpretation
+- `get_project_intelligence` - Get comprehensive project intelligence across all domains
+- `find_expertise` - Find people with expertise in specific technology
+- `get_smart_suggestions` - Get contextual suggestions based on current entity
+- `intent_based_search` - Understand search intent and provide contextual results
+- `get_workflow_suggestions` - Get workflow suggestions based on user's current activity
+- `complex_query` - Process complex queries with multiple clauses and relationships
+- `get_expertise_map` - Create expertise map from conversation and code patterns
+- `get_cross_domain_insights` - Get cross-domain insights for a specific entity
+- `search_with_context` - Search with additional context about the current entity
+
+### Codebase Analysis Tools
+- `codebase_parse_file` - Parse a single source file and return basic metrics
+- `codebase_analyse_repo` - Analyse all supported files inside directory recursively
+- `codebase_query_hotspots` - Return high-complexity hotspots within directory
 
 Always provide helpful, actionable responses and use the appropriate tools for each request.
 
@@ -248,6 +312,8 @@ Always provide helpful, actionable responses and use the appropriate tools for e
 - Save conversation context every few exchanges using `handoff_save`
 - Include workflow-triggering keywords in context summaries
 - This ensures automation workflows can detect and respond to conversation patterns
+
+**Important**: All MCP tool calls are asynchronous. Use `await` when calling tools in async contexts, or use the appropriate async client library for your AI agent framework.
 
 ```
 
@@ -272,9 +338,9 @@ To connect your AI agent to the Emily Tools MCP server:
 3. **Test the connection** by calling a simple tool:
    ```python
    # Test with a simple todo creation
-   result = mcp.call("todo_create_task", 
-                    title="Test connection",
-                    description="Verifying MCP server connection")
+result = await mcp.call("todo_create_task", 
+                 title="Test connection",
+                 description="Verifying MCP server connection")
    ```
 
 ## Todo Management
@@ -293,19 +359,19 @@ I'll help you create an organizational structure for your todos. Let me create t
 
 ```python
 # Create work area
-work_area = mcp.call("todo_create_area", 
+work_area = await mcp.call("todo_create_area", 
                      name="Work",
                      description="Professional tasks and projects",
                      color="#007AFF")
 
 # Create personal area  
-personal_area = mcp.call("todo_create_area",
+personal_area = await mcp.call("todo_create_area",
                         name="Personal", 
                         description="Personal tasks and life management",
                         color="#34C759")
 
 # Create learning area
-learning_area = mcp.call("todo_create_area",
+learning_area = await mcp.call("todo_create_area",
                         name="Learning",
                         description="Educational goals and skill development", 
                         color="#FF9500")
@@ -318,6 +384,7 @@ learning_area = mcp.call("todo_create_area",
 #   "status": "active",
 #   "created": True
 # }
+# Note: The "description" field maps from the underlying "content" field
 ```
 
 ## Creating Projects
@@ -329,7 +396,7 @@ I'll create a project for your web application development. Let me set that up f
 
 ```python
 # Create web app project
-web_project = mcp.call("todo_create_project",
+web_project = await mcp.call("todo_create_project",
                        name="Web Application Development",
                        area_id=work_area["id"],
                        description="Build a modern web application with React and Node.js",
@@ -345,6 +412,7 @@ web_project = mcp.call("todo_create_project",
 #   "status": "active",
 #   "created": True
 # }
+# Note: The "description" field maps from the underlying "content" field
 ```
 
 ## Creating Tasks
@@ -356,7 +424,7 @@ I'll create a task for implementing user authentication. Let me add that to your
 
 ```python
 # Create authentication task
-auth_task = mcp.call("todo_create_task",
+auth_task = await mcp.call("todo_create_task",
                      title="Implement User Authentication",
                      description="Add OAuth2 authentication with JWT tokens",
                      project_id=web_project["id"],
@@ -380,6 +448,7 @@ auth_task = mcp.call("todo_create_task",
 #   "tags": [],
 #   "created": True
 # }
+# Note: The "description" field maps from the underlying "content" field
 ```
 
 ## Natural Language Task Creation
@@ -391,7 +460,7 @@ I'll create a task for reviewing the API documentation using natural language pr
 
 ```python
 # Create task from natural language
-review_task = mcp.call("todo_create_task_nl",
+review_task = await mcp.call("todo_create_task_nl",
                        input_text="Review the API documentation tomorrow morning")
 ```
 
@@ -404,7 +473,7 @@ Let me check your tasks for today, including AI-suggested priorities.
 
 ```python
 # Get today's tasks with AI suggestions
-today_tasks = mcp.call("todo_get_today")
+today_tasks = await mcp.call("todo_get_today")
 ```
 
 This will return:
@@ -422,7 +491,7 @@ Great! Let me mark that task as complete for you.
 
 ```python
 # Complete the authentication task
-completed_task = mcp.call("todo_complete_task", 
+completed_task = await mcp.call("todo_complete_task", 
                          task_id=auth_task["id"])
 ```
 ```
@@ -441,7 +510,7 @@ Let me check the progress of your web application project.
 
 ```python
 # Get project progress
-project_progress = mcp.call("todo_get_project_progress",
+project_progress = await mcp.call("todo_get_project_progress",
                            project_id=web_project["id"])
 ```
 
@@ -460,7 +529,7 @@ Let me find tasks that are suitable for evening work (lower energy, less complex
 
 ```python
 # Get evening tasks
-evening_tasks = mcp.call("todo_get_evening")
+evening_tasks = await mcp.call("todo_get_evening")
 ```
 
 ## Upcoming Planning
@@ -472,7 +541,7 @@ Let me check your upcoming tasks and deadlines for the next week.
 
 ```python
 # Get upcoming tasks
-upcoming = mcp.call("todo_get_upcoming", days=7)
+upcoming = await mcp.call("todo_get_upcoming", days=7)
 ```
 
 ## Quick Search
@@ -484,7 +553,7 @@ Let me search for all tasks related to authentication across your projects.
 
 ```python
 # Search for authentication tasks
-auth_tasks = mcp.call("todo_quick_find", query="authentication")
+auth_tasks = await mcp.call("todo_quick_find", query="authentication")
 ```
 ```
 
@@ -504,7 +573,7 @@ I'll save this conversation context so you can pick up where you left off later.
 
 ```python
 # Save current conversation context
-saved_context = mcp.call("handoff_save",
+saved_context = await mcp.call("handoff_save",
                         context="Working on web application development. Discussed authentication implementation, API documentation review, and project structure. User is planning to continue with frontend development next.")
 ```
 
@@ -517,7 +586,7 @@ Let me retrieve the context from your last session to remind you where we left o
 
 ```python
 # Get latest saved context
-latest_context = mcp.call("handoff_get")
+latest_context = await mcp.call("handoff_get")
 ```
 
 ## Context Search
@@ -529,7 +598,7 @@ Let me search through your saved contexts for discussions about authentication.
 
 ```python
 # Search for authentication-related contexts
-auth_contexts = mcp.call("handoff_search",
+auth_contexts = await mcp.call("handoff_search",
                          query="authentication",
                          limit=10)
 ```
@@ -543,7 +612,7 @@ Let me find conversations that are related to your current context.
 
 ```python
 # Find related contexts
-related_contexts = mcp.call("handoff_related",
+related_contexts = await mcp.call("handoff_related",
                            context_id=latest_context["id"])
 ```
 
@@ -556,7 +625,7 @@ Let me analyze your recent conversations to provide insights and patterns.
 
 ```python
 # Get context insights
-insights = mcp.call("handoff_insights",
+insights = await mcp.call("handoff_insights",
                    context_id=latest_context["id"])
 ```
 
@@ -575,7 +644,7 @@ Let me suggest next actions based on your conversation history and current conte
 
 ```python
 # Get suggested actions
-suggestions = mcp.call("handoff_suggest_actions",
+suggestions = await mcp.call("handoff_suggest_actions",
                       context_id=latest_context["id"])
 ```
 ```
@@ -596,7 +665,7 @@ I'll help you create knowledge entities to document your web application archite
 
 ```python
 # Create architecture entity
-architecture = mcp.call("graph_create_entity",
+architecture = await mcp.call("graph_create_entity",
                        payload={
                            "type": "project",
                            "name": "Web Application Architecture",
@@ -605,7 +674,7 @@ architecture = mcp.call("graph_create_entity",
                        })
 
 # Create frontend entity
-frontend = mcp.call("graph_create_entity",
+frontend = await mcp.call("graph_create_entity",
                    payload={
                        "type": "technology",
                        "name": "React Frontend",
@@ -614,7 +683,7 @@ frontend = mcp.call("graph_create_entity",
                    })
 
 # Create backend entity
-backend = mcp.call("graph_create_entity",
+backend = await mcp.call("graph_create_entity",
                   payload={
                       "type": "technology", 
                       "name": "Node.js Backend",
@@ -632,19 +701,19 @@ I'll create relationships to show how the components connect to your overall arc
 
 ```python
 # Create relationships
-mcp.call("graph_create_relation",
+await mcp.call("graph_create_relation",
         source_id=frontend["id"],
         target_id=architecture["id"],
         relation_type="part_of",
         strength=0.9)
 
-mcp.call("graph_create_relation",
+await mcp.call("graph_create_relation",
         source_id=backend["id"], 
         target_id=architecture["id"],
         relation_type="part_of",
         strength=0.9)
 
-mcp.call("graph_create_relation",
+await mcp.call("graph_create_relation",
         source_id=frontend["id"],
         target_id=backend["id"],
         relation_type="relates_to",
@@ -660,7 +729,7 @@ Let me find all entities and relationships related to your React frontend.
 
 ```python
 # Find related entities
-related = mcp.call("graph_find_related",
+related = await mcp.call("graph_find_related",
                   entity_id=frontend["id"],
                   depth=2)
 ```
@@ -674,9 +743,9 @@ Let me search through your knowledge graph for everything related to authenticat
 
 ```python
 # Search for authentication knowledge
-auth_knowledge = mcp.call("graph_search",
+auth_knowledge = await mcp.call("graph_search",
                          query="authentication",
-                         entity_type="component")
+                         entity_type="technology")
 ```
 
 ## Codebase Integration
@@ -687,29 +756,43 @@ auth_knowledge = mcp.call("graph_search",
 I'll help you document your codebase structure in the knowledge graph.
 
 ```python
-# Register codebase
-codebase = mcp.call("codebase_register",
-                   codebase_id="web-app",
-                   name="Web Application",
-                   root_path="/path/to/your/project",
-                   description="Full-stack web application with React and Node.js")
+# Analyze codebase structure
+codebase_analysis = await mcp.call("codebase_analyse_repo",
+                            directory="/path/to/your/project")
 
-# Add knowledge nodes
-mcp.call("codebase_add_knowledge",
-        codebase_id="web-app",
-        node_type="file",
-        name="auth.js",
-        content="Authentication middleware and JWT token handling",
-        path="src/middleware/auth.js",
-        metadata={"language": "javascript", "purpose": "authentication"})
+# Create knowledge entities for key files
+await mcp.call("graph_create_entity",
+        payload={
+            "type": "file",
+            "name": "auth.js",
+            "content": "Authentication middleware and JWT token handling",
+            "metadata": {
+                "path": "src/middleware/auth.js",
+                "language": "javascript",
+                "purpose": "authentication"
+            },
+            "tags": ["javascript", "authentication", "middleware"]
+        })
 
-mcp.call("codebase_add_knowledge",
-        codebase_id="web-app", 
-        node_type="component",
-        name="LoginForm",
-        content="React component for user login with form validation",
-        path="src/components/LoginForm.jsx",
-        metadata={"language": "jsx", "purpose": "user-interface"})
+await mcp.call("graph_create_entity",
+        payload={
+            "type": "file",
+            "name": "LoginForm.jsx",
+            "content": "React component for user login with form validation",
+            "metadata": {
+                "path": "src/components/LoginForm.jsx",
+                "language": "jsx",
+                "purpose": "user-interface"
+            },
+            "tags": ["react", "component", "authentication", "ui"]
+        })
+
+# Create relationships between components
+await mcp.call("graph_create_relation",
+        source_id="auth-entity-id",
+        target_id="loginform-entity-id",
+        relation_type="relates_to",
+        strength=0.8)
 ```
 ```
 
@@ -729,7 +812,7 @@ I'll perform a comprehensive search across all your data types for authenticatio
 
 ```python
 # Universal search across all domains
-auth_results = mcp.call("intelligent_search",
+auth_results = await mcp.call("intelligent_search",
                        query="user authentication",
                        context={
                            "include_tasks": True,
@@ -748,7 +831,7 @@ I'll process your natural language query to find relevant tasks.
 
 ```python
 # Process natural language query
-query_results = mcp.call("natural_query",
+query_results = await mcp.call("natural_query",
                         query="tasks related to authentication project due soon")
 ```
 
@@ -761,7 +844,7 @@ I'll gather comprehensive intelligence about your web application project across
 
 ```python
 # Get project intelligence
-project_intel = mcp.call("get_project_intelligence",
+project_intel = await mcp.call("get_project_intelligence",
                         project_id=web_project["id"])
 ```
 
@@ -782,7 +865,7 @@ Let me search for people with React development expertise based on conversations
 
 ```python
 # Find React experts
-react_experts = mcp.call("find_expertise",
+react_experts = await mcp.call("find_expertise",
                         technology="React")
 ```
 
@@ -795,7 +878,7 @@ Let me provide contextual suggestions based on your current work on authenticati
 
 ```python
 # Get smart suggestions
-suggestions = mcp.call("get_smart_suggestions",
+suggestions = await mcp.call("get_smart_suggestions",
                       context={
                           "current_work": "authentication",
                           "project_id": web_project["id"],
@@ -812,7 +895,7 @@ I'll understand your intent and provide relevant information about authenticatio
 
 ```python
 # Intent-based search
-auth_understanding = mcp.call("intent_based_search",
+auth_understanding = await mcp.call("intent_based_search",
                              natural_query="I want to understand how authentication works in my system")
 ```
 
@@ -825,7 +908,7 @@ I'll process this complex query to find tasks matching all your criteria.
 
 ```python
 # Complex query processing
-complex_results = mcp.call("complex_query",
+complex_results = await mcp.call("complex_query",
                           query="high priority authentication tasks with dependencies")
 ```
 
@@ -838,7 +921,7 @@ I'll analyze your authentication work across conversations, tasks, code, and kno
 
 ```python
 # Get cross-domain insights
-auth_insights = mcp.call("get_cross_domain_insights",
+auth_insights = await mcp.call("get_cross_domain_insights",
                         entity_id=auth_task["id"])
 ```
 
@@ -851,7 +934,7 @@ I'll search for API documentation with the context that you're working on authen
 
 ```python
 # Contextual search
-api_docs = mcp.call("search_with_context",
+api_docs = await mcp.call("search_with_context",
                    query="API documentation",
                    entity_context="authentication implementation")
 ```
@@ -873,22 +956,23 @@ I'll help you create an automation workflow that creates tasks from conversation
 
 ```python
 # Register automation workflow
-workflow = mcp.call("automation_register_workflow",
+workflow = await mcp.call("automation_register_workflow",
                    workflow_definition={
                        "id": "conversation-to-task",
                        "name": "Conversation to Task Automation",
                        "description": "Automatically create tasks from conversation context",
                        "trigger": {
-                           "type": "conversation_saved",
-                           "conditions": {
-                               "contains_action_items": True
+                           "type": "entity_created",
+                           "filter": {
+                               "entity.type": "handoff"
                            }
                        },
                        "actions": [
                            {
                                "type": "create_task",
                                "params": {
-                                   "source": "conversation",
+                                   "title": "Follow up on: {{ entity.name }}",
+                                   "content": "Action items from conversation: {{ entity.content }}",
                                    "priority": "medium"
                                }
                            }
@@ -906,7 +990,7 @@ Let me show you all your registered automation workflows.
 
 ```python
 # List all workflows
-workflows = mcp.call("automation_list_workflows",
+workflows = await mcp.call("automation_list_workflows",
                     enabled_only=False)
 ```
 
@@ -919,12 +1003,9 @@ Let me suggest workflows that would be beneficial for your current work context.
 
 ```python
 # Get workflow suggestions
-workflow_suggestions = mcp.call("get_workflow_suggestions",
-                               user_context={
-                                   "current_project": web_project["id"],
-                                   "recent_activities": ["task_creation", "conversation_saving"],
-                                   "workload": "medium"
-                               })
+workflow_suggestions = await mcp.call("automation_get_workflow_suggestions",
+                               query="",
+                               limit=10)
 ```
 
 ## Triggering Workflows
@@ -936,11 +1017,11 @@ I'll manually trigger the conversation-to-task workflow for you.
 
 ```python
 # Trigger workflow manually
-trigger_result = mcp.call("automation_trigger_workflow",
+trigger_result = await mcp.call("automation_trigger_workflow",
                          workflow_id="conversation-to-task",
-                         context={
-                             "conversation_id": latest_context["id"],
-                             "manual_trigger": True
+                         event_data={
+                             "manual_trigger": True,
+                             "context": "Manual workflow execution"
                          })
 ```
 ```
@@ -955,30 +1036,33 @@ meow_workflow = {
     "name": "Meow Tracker",
     "description": "When a new conversation mentions 'meow', create a fun meow task.",
     "trigger": {
-        "type": "conversation_saved",
-        "filter": {"contains_keywords": ["meow"]}
+        "type": "entity_created",
+        "filter": {
+            "entity.type": "handoff",
+            "entity.content": "meow"
+        }
     },
     "actions": [
         {
             "type": "create_task",
             "params": {
                 "title": "Meow detected!",
-                "description": "Emily said meow! Time for cat content 🐱",
+                "content": "Emily said meow! Time for cat content 🐱",
                 "priority": "low",
                 "tags": ["meow", "fun", "cat"]
             }
         }
     ],
-    "enabled": true
+    "enabled": True
 }
 
 # Register the workflow
-result = mcp.call("automation_register_workflow", workflow_definition=meow_workflow)
+result = await mcp.call("automation_register_workflow", workflow_definition=meow_workflow)
 
 # To make this work across sessions, the AI agent should regularly save context:
-def save_conversation_with_keywords(conversation_summary):
+async def save_conversation_with_keywords(conversation_summary):
     """Save conversation context to trigger automation workflows"""
-    mcp.call("handoff_save", context=conversation_summary)
+    await mcp.call("handoff_save", context=conversation_summary)
     # This will trigger any workflows that match keywords in the summary
 ```
 
@@ -1001,6 +1085,10 @@ Workflows now **automatically trigger** when entities, relations, or contexts ar
 | `entity_updated` | Existing entity updated | Any `memory_store.save_entity()` call for existing entities |
 | `relation_created` | New relation saved | Any `memory_store.save_relation()` call |
 | `manual` | Manually triggered | Via `automation_trigger_workflow` MCP tool |
+| `handoff` | Handoff context created | When handoff content matches filter (new syntax only) |
+| `scheduled` | Time-based trigger | Based on cron schedule |
+
+**Note**: The `handoff` trigger type is only available in the new simplified syntax. For legacy `event_type` syntax, use `entity_created` with `filter: {"entity.type": "handoff"}`.
 
 ### Filter Syntax
 
@@ -1013,7 +1101,15 @@ workflow_def = {
     }
 }
 
-# Complex nested filters
+# Handoff content filter
+workflow_def = {
+    "trigger": {
+        "type": "handoff",
+        "content": "meow"
+    }
+}
+
+# Complex nested filters for entities
 workflow_def = {
     "trigger": {
         "type": "entity_created", 
@@ -1052,11 +1148,11 @@ note_to_task_workflow = {
 }
 
 # Register the workflow
-result = mcp.call("automation_register_workflow", workflow_definition=note_to_task_workflow)
+result = await mcp.call("automation_register_workflow", workflow_definition=note_to_task_workflow)
 
 # Now when you create a note, a task is automatically created!
-note = mcp.call("handoff_save", context="Discussed new project timeline - need to update milestones")
-# 🤖 Auto-creates task: "Follow up on: Project Discussion"
+note = await mcp.call("handoff_save", context="Discussed new project timeline - need to update milestones")
+# 🤖 Auto-creates task: "Follow up on: [context title]"
 ```
 
 #### 2. High-Priority Issue Escalation
@@ -1134,18 +1230,18 @@ workflow = {
         "filter": {"entity.type": "note"}
     },
     "actions": [{
-        "type": "create_task",
+        "type": "create_task", 
         "params": {"title": "Auto-created: {{ entity.name }}"}
     }]
 }
-mcp.call("automation_register_workflow", workflow_definition=workflow)
+await mcp.call("automation_register_workflow", workflow_definition=workflow)
 
 # 2. Create an entity that matches the filter
-mcp.call("handoff_save", context="This is a test note")
+await mcp.call("handoff_save", context="This is a test note")
 
 # 3. Check that a task was auto-created
-tasks = mcp.call("todo_get_today")
-# You should see: "Auto-created: Meeting Discussion" or similar
+tasks = await mcp.call("todo_get_today")
+# You should see: "Auto-created: [context title]" or similar
 ```
 
 ### Benefits of Auto-Triggering
@@ -1185,31 +1281,31 @@ I'll help you set up a complete project structure using all available tools.
 
 ```python
 # 1. Create project area and project
-project_area = mcp.call("todo_create_area",
+project_area = await mcp.call("todo_create_area",
                        name="New Project",
                        description="Area for new project organization")
 
-project = mcp.call("todo_create_project",
+project = await mcp.call("todo_create_project",
                   name="New Project",
                   area_id=project_area["id"],
                   description="Complete project setup with documentation")
 
 # 2. Create initial tasks
-mcp.call("todo_create_task",
+await mcp.call("todo_create_task",
         title="Project Planning",
         description="Define project scope, requirements, and timeline",
         project_id=project["id"],
         priority="high")
 
-mcp.call("todo_create_task",
+await mcp.call("todo_create_task",
         title="Setup Development Environment",
         description="Install tools, setup repository, configure IDE",
         project_id=project["id"],
         priority="high")
 
 # 3. Document in knowledge graph
-project_entity = mcp.call("graph_create_entity",
-                         entity_data={
+project_entity = await mcp.call("graph_create_entity",
+                         payload={
                              "type": "project",
                              "name": "New Project",
                              "content": "Complete project documentation and planning",
@@ -1217,11 +1313,11 @@ project_entity = mcp.call("graph_create_entity",
                          })
 
 # 4. Save context for handoff
-mcp.call("handoff_save",
+await mcp.call("handoff_save",
         context=f"Started new project setup. Created project '{project['name']}' with initial tasks and documentation.")
 
 # 5. Get smart suggestions
-suggestions = mcp.call("get_smart_suggestions",
+suggestions = await mcp.call("get_smart_suggestions",
                       context={
                           "new_project": True,
                           "project_id": project["id"],
@@ -1238,24 +1334,24 @@ I'll help you process the meeting outcomes using multiple tools.
 
 ```python
 # 1. Save meeting context
-meeting_context = mcp.call("handoff_save",
+meeting_context = await mcp.call("handoff_save",
                           context="Meeting about authentication system implementation. Discussed OAuth2 integration, security requirements, and timeline. Action items: research OAuth providers, create security documentation, setup development environment.")
 
 # 2. Extract and create tasks from context
-mcp.call("todo_create_from_conversation",
+await mcp.call("todo_create_from_conversation",
         context_id=meeting_context["id"],
         title="Research OAuth Providers")
 
-mcp.call("todo_create_from_conversation",
+await mcp.call("todo_create_from_conversation",
         context_id=meeting_context["id"],
         title="Create Security Documentation")
 
-mcp.call("todo_create_from_conversation",
+await mcp.call("todo_create_from_conversation",
         context_id=meeting_context["id"],
         title="Setup Development Environment")
 
 # 3. Update knowledge graph with meeting insights
-mcp.call("graph_create_entity",
+await mcp.call("graph_create_entity",
         payload={
             "type": "meeting",
             "name": "Authentication System Meeting",
@@ -1264,11 +1360,11 @@ mcp.call("graph_create_entity",
         })
 
 # 4. Get related insights
-insights = mcp.call("handoff_insights",
+insights = await mcp.call("handoff_insights",
                    context_id=meeting_context["id"])
 
 # 5. Get next action suggestions
-next_actions = mcp.call("handoff_suggest_actions",
+next_actions = await mcp.call("handoff_suggest_actions",
                        context_id=meeting_context["id"])
 ```
 
@@ -1281,20 +1377,20 @@ I'll help you with a comprehensive daily review using all available tools.
 
 ```python
 # 1. Get today's tasks and progress
-today_summary = mcp.call("todo_get_today")
+today_summary = await mcp.call("todo_get_today")
 
 # 2. Get upcoming tasks
-upcoming_tasks = mcp.call("todo_get_upcoming", days=7)
+upcoming_tasks = await mcp.call("todo_get_upcoming", days=7)
 
 # 3. Get recent context
-recent_context = mcp.call("handoff_get")
+recent_context = await mcp.call("handoff_get")
 
 # 4. Get project intelligence
-project_intel = mcp.call("get_project_intelligence",
+project_intel = await mcp.call("get_project_intelligence",
                         project_id=web_project["id"])
 
 # 5. Get smart suggestions for tomorrow
-tomorrow_suggestions = mcp.call("get_smart_suggestions",
+tomorrow_suggestions = await mcp.call("get_smart_suggestions",
                                context={
                                    "daily_review": True,
                                    "completed_today": today_summary["completed"],
@@ -1302,11 +1398,11 @@ tomorrow_suggestions = mcp.call("get_smart_suggestions",
                                })
 
 # 6. Save review context
-mcp.call("handoff_save",
+await mcp.call("handoff_save",
         context=f"Daily review completed. Completed {len(today_summary['completed'])} tasks. Upcoming: {len(upcoming_tasks['tasks'])} tasks in next 7 days. Focus areas: {tomorrow_suggestions['focus_areas']}")
 
 # 7. Create planning task for tomorrow
-mcp.call("todo_create_task",
+await mcp.call("todo_create_task",
         title="Daily Planning",
         description="Review yesterday's progress and plan today's priorities",
         priority="high",
@@ -1322,7 +1418,7 @@ I'll help you discover all knowledge about authentication across your entire sys
 
 ```python
 # 1. Search across all domains
-auth_search = mcp.call("intelligent_search",
+auth_search = await mcp.call("intelligent_search",
                       query="authentication",
                       context={
                           "include_tasks": True,
@@ -1332,27 +1428,27 @@ auth_search = mcp.call("intelligent_search",
                       })
 
 # 2. Get knowledge graph entities
-auth_entities = mcp.call("graph_search",
+auth_entities = await mcp.call("graph_search",
                         query="authentication")
 
 # 3. Find related entities
 related_entities = []
 for entity in auth_entities:
-    related = mcp.call("graph_find_related",
+    related = await mcp.call("graph_find_related",
                       entity_id=entity["id"],
                       depth=2)
     related_entities.extend(related["entities"])
 
 # 4. Get project intelligence
-auth_projects = mcp.call("get_project_intelligence",
+auth_projects = await mcp.call("get_project_intelligence",
                         project_id=web_project["id"])
 
 # 5. Get cross-domain insights
-cross_domain = mcp.call("get_cross_domain_insights",
+cross_domain = await mcp.call("get_cross_domain_insights",
                        entity_id=auth_task["id"])
 
 # 6. Create comprehensive knowledge summary
-mcp.call("graph_create_entity",
+await mcp.call("graph_create_entity",
         payload={
             "type": "note",
             "name": "Authentication System Knowledge",
@@ -1377,10 +1473,10 @@ mcp.call("graph_create_entity",
 I'll implement robust error handling for all tool calls.
 
 ```python
-# Example error handling pattern
-def safe_tool_call(tool_name, **kwargs):
+# Example error handling pattern (all MCP calls are async)
+async def safe_tool_call(session, tool_name, **kwargs):
     try:
-        result = mcp.call(tool_name, **kwargs)
+        result = await session.call_tool(tool_name, **kwargs)
         return {"success": True, "data": result}
     except Exception as e:
         return {
@@ -1391,9 +1487,9 @@ def safe_tool_call(tool_name, **kwargs):
         }
 
 # Usage example
-task_result = safe_tool_call("todo_create_task",
-                            title="Test task",
-                            description="Testing error handling")
+task_result = await safe_tool_call(session, "todo_create_task",
+                                  title="Test task",
+                                  description="Testing error handling")
 
 if not task_result["success"]:
     print(f"Failed to create task: {task_result['error']}")
@@ -1673,9 +1769,9 @@ def test_integration():
     assert context["context"] == "Test context"
     
     # Test knowledge creation
-    entity = mcp.call("graph_create_entity",
-                     entity_data={"type": "test", "name": "Test Entity"})
-    assert entity["name"] == "Test Entity"
+entity = mcp.call("graph_create_entity",
+                 payload={"type": "test", "name": "Test Entity"})
+assert entity["name"] == "Test Entity"
     
     print("All integration tests passed!")
 ```
@@ -1723,12 +1819,13 @@ The system now supports **automatic workflow triggering** when data changes:
 | `entity_created`  | New entity saved to memory store | `entity.*` properties available |
 | `entity_updated`  | Existing entity updated | `entity.*` properties available |
 | `relation_created` | New relation created | `relation.*` properties available |
+| `handoff`         | Handoff context created | Content matching available |
 | `manual`          | Manually triggered via MCP tool | Custom payload |
 | `scheduled`       | Cron-based scheduling | Time-based context |
 
 **Filter Syntax for Automatic Triggers** 🎯
 
-Use **nested property syntax** for entity and relation filters:
+Use **nested property syntax** for entity and relation filters, or **direct content matching** for handoff triggers:
 
 ```jsonc
 // Entity filters - use "entity." prefix
@@ -1737,6 +1834,12 @@ Use **nested property syntax** for entity and relation filters:
   "entity.name": "Meeting Notes",     // Entity name (exact match)
   "entity.metadata.priority": "high", // Nested metadata
   "entity.tags": ["urgent", "bug"]    // List matching (any item matches)
+}
+
+// Handoff content filters - direct content matching
+{
+  "type": "handoff",
+  "content": "meow"                   // Triggers when handoff contains "meow"
 }
 
 // Relation filters - use "relation." prefix  
@@ -1808,6 +1911,32 @@ note_to_task_workflow = {
 }
 
 result = mcp.call("automation_register_workflow", workflow_definition=note_to_task_workflow)
+```
+
+#### 2. Meow detection workflow (handoff trigger)
+```python
+meow_workflow = {
+    "id": "meow-detector",
+    "name": "Meow Detection Workflow",
+    "description": "Creates a fun todo when Emily says 'meow' in conversation",
+    "trigger": {
+        "type": "handoff",
+        "content": "meow"
+    },
+    "actions": [
+        {
+            "type": "create_task",
+            "params": {
+                "title": "🐱 Meow Alert!",
+                "description": "Emily said meow! Time for some cat-related fun.",
+                "priority": "low",
+                "tags": ["meow", "cats", "fun", "emily"]
+            }
+        }
+    ]
+}
+
+result = mcp.call("automation_register_workflow", workflow_definition=meow_workflow)
 ```
 
 #### 2. High-priority issue escalation
@@ -1918,6 +2047,20 @@ tasks = mcp.call("todo_get_today")
 
 # CORRECT: Use entity context
 "title": "Task for {{ entity.name }}"  # ✅
+```
+
+```python
+# WRONG: Handoff trigger with filter syntax
+"trigger": {
+    "type": "handoff",
+    "filter": {"entity.content": "meow"}  # Won't work!
+}
+
+# CORRECT: Handoff trigger with direct content
+"trigger": {
+    "type": "handoff", 
+    "content": "meow"  # Works! ✅
+}
 ```
 
 **Performance considerations:**
