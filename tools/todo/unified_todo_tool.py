@@ -97,7 +97,8 @@ class UnifiedTodoTool(BaseTool):
         ]
 
     # Areas Management
-    def create_area(self, name: str, description: str = None, color: str = None, **kwargs) -> MemoryEntity:
+    
+    def create_area(self, name: str, description: str, color: Optional[str] = None, **kwargs) -> MemoryEntity:
         """Create a new area (top-level organization)."""
         metadata = {
             "status": kwargs.get("status", "active"),
@@ -177,8 +178,8 @@ class UnifiedTodoTool(BaseTool):
         return True
 
     # Projects Management
-    def create_project(self, name: str, area_id: str = None, description: str = None, 
-                      deadline: str = None, **kwargs) -> MemoryEntity:
+    def create_project(self, name: str, area_id: Optional[str] = None, description: Optional[str] = None, 
+                      deadline: Optional[str] = None, **kwargs) -> MemoryEntity:
         """Create a new project."""
         metadata = {
             "area_id": area_id,
@@ -191,7 +192,7 @@ class UnifiedTodoTool(BaseTool):
         entity = MemoryEntity(
             id=str(uuid.uuid4()),
             name=name,
-            content=description,
+            content=description or "",
             type="project",
             tags=kwargs.get("tags", []),
             metadata=metadata
@@ -199,7 +200,7 @@ class UnifiedTodoTool(BaseTool):
         
         return self.memory.save_entity(entity)
     
-    def get_projects(self, area_id: str = None, status: str = "active") -> List[MemoryEntity]:
+    def get_projects(self, area_id: Optional[str] = None, status: str = "active") -> List[MemoryEntity]:
         """Get projects, optionally filtered by area and status."""
         projects = self.memory.search_entities("project")
         
@@ -272,10 +273,10 @@ class UnifiedTodoTool(BaseTool):
         }
 
     # Tasks Management
-    def create_task(self, title: str, description: str = None, project_id: str = None,
-                   area_id: str = None, heading_id: str = None, priority: str = "medium",
-                   scheduled_date: str = None, due_date: str = None, energy_level: str = "medium",
-                   time_estimate: int = None, checklist: List[Dict] = None, **kwargs) -> MemoryEntity:
+    def create_task(self, title: str, description: Optional[str] = None, project_id: Optional[str] = None,
+                   area_id: Optional[str] = None, heading_id: Optional[str] = None, priority: str = "medium",
+                   scheduled_date: Optional[str] = None, due_date: Optional[str] = None, energy_level: str = "medium",
+                   time_estimate: Optional[int] = None, checklist: Optional[List[Dict]] = None, **kwargs) -> MemoryEntity:
         """Create a new task with advanced features."""
         metadata = {
             "status": kwargs.get("status", "todo"),
@@ -297,7 +298,7 @@ class UnifiedTodoTool(BaseTool):
         entity = MemoryEntity(
             id=str(uuid.uuid4()),
             name=title,
-            content=description,
+            content=description or "",
             type="task",
             tags=kwargs.get("tags", []),
             metadata=metadata
@@ -497,7 +498,7 @@ class UnifiedTodoTool(BaseTool):
         return list(unique_someday.values())
 
     # AI-Enhanced Features
-    def create_task_from_conversation(self, context_id: str, suggested_title: str = None) -> MemoryEntity:
+    def create_task_from_conversation(self, context_id: str, suggested_title: Optional[str] = None) -> MemoryEntity:
         """Create task from handoff context with AI extraction."""
         
         # Get the conversation context
@@ -884,7 +885,7 @@ class UnifiedTodoTool(BaseTool):
         else:
             return 'low'
     
-    def parse_natural_date(self, input_text: str, context_data: Dict = None) -> Optional[datetime]:
+    def parse_natural_date(self, input_text: str, context_data: Optional[Dict] = None) -> Optional[datetime]:
         """Enhanced natural language date parsing with context awareness."""
         from dateutil.parser import parse as dateutil_parse
         

@@ -82,6 +82,7 @@ class UnifiedMemoryStore:
         # Initialize embedding model
         self.embedding_model = None
         self.vector_enabled = False
+        self.workflow_engine = None
         
         if enable_vector_search:
             self._setup_embedding_model(embedding_model)

@@ -16,7 +16,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
     """Register all MCP tools for the unified todo system."""
     
     @mcp.tool()
-    async def todo_create_area(name: str, description: str = None, color: str = None) -> dict:
+    async def todo_create_area(name: str, description: str, color: Optional[str] = None) -> dict:
         """Create a new area (top-level organization)."""
         area = todo_tool.create_area(name=name, description=description, color=color)
         return {
@@ -28,8 +28,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         }
     
     @mcp.tool()
-    async def todo_create_project(name: str, area_id: str = None, description: str = None, 
-                                deadline: str = None) -> dict:
+    async def todo_create_project(name: str, description: str, area_id: Optional[str] = None, deadline: Optional[str] = None) -> dict:
         """Create a new project."""
         project = todo_tool.create_project(
             name=name,
@@ -48,11 +47,11 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         }
     
     @mcp.tool()
-    async def todo_create_task(title: str, description: str = None, project_id: str = None,
-                              area_id: str = None, priority: str = "medium", 
-                              scheduled_date: str = None, due_date: str = None,
-                              energy_level: str = "medium", time_estimate: int = None,
-                              tags: list = None) -> dict:
+    async def todo_create_task(title: str, description: Optional[str] = None, project_id: Optional[str] = None,
+                              area_id: Optional[str] = None, priority: str = "medium", 
+                              scheduled_date: Optional[str] = None, due_date: Optional[str] = None,
+                              energy_level: str = "medium", time_estimate: Optional[int] = None,
+                              tags: Optional[List[str]] = None) -> dict:
         """Create a new task with advanced features."""
         if tags is None:
             tags = []
@@ -102,7 +101,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         }
     
     @mcp.tool()
-    async def todo_create_from_conversation(context_id: str, title: str = None) -> dict:
+    async def todo_create_from_conversation(context_id: str, title: Optional[str] = None) -> dict:
         """Create task from conversation context."""
         task = todo_tool.create_task_from_conversation(context_id, title)
         return {
@@ -155,7 +154,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         ]
     
     @mcp.tool()
-    async def todo_list_projects(area_id: str = None, status: str = "active") -> list:
+    async def todo_list_projects(area_id: Optional[str] = None, status: str = "active") -> list:
         """List projects, optionally filtered by area."""
         projects = todo_tool.get_projects(area_id, status)
         return [
@@ -330,7 +329,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         }
     
     @mcp.tool()
-    async def todo_search_tasks(query: str, filters: dict = None) -> list:
+    async def todo_search_tasks(query: str, filters: Optional[Dict[str, Any]] = None) -> list:
         """Search tasks with advanced filtering."""
         if filters is None:
             filters = {}

@@ -483,7 +483,7 @@ class TestUnifiedTodoTool:
     def test_comprehensive_workflow(self, todo_tool):
         """Test a comprehensive todo workflow."""
         # 1. Create area
-        work_area = todo_tool.create_area("Work", color="#007AFF")
+        work_area = todo_tool.create_area("Work", "Work-related tasks and projects", color="#007AFF")
         
         # 2. Create project
         project = todo_tool.create_project(

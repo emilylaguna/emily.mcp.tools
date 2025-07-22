@@ -3,6 +3,8 @@ Emily.Tools
 
 Main entry point for the Emily.Tools MCP server with all tools registered.
 """
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from pathlib import Path
 
@@ -15,16 +17,17 @@ import coloredlogs, logging
 
 logger = logging.getLogger(__name__)
 
-# coloredlogs.install(level='INFO')
+coloredlogs.install(level='INFO')
 
 # Integrate static analysis tools so that higher-level MCP skills can import
 # `analysis` without additional setup.  The import is lightweight and does not
 # run any expensive parsing at startup.
 import analysis
 
-def create_mcp_server() -> FastMCP:
+mcp = FastMCP("Emily.Tools")
+
+def create_mcp_server(mcp: FastMCP = None) -> FastMCP:
     """Create and configure the MCP server with all tools."""
-    
     # Create data directory
     data_dir = Path("data")
     data_dir.mkdir(exist_ok=True)
@@ -41,7 +44,8 @@ def create_mcp_server() -> FastMCP:
     logger.info(f"Workflow automation enabled: {memory_store.workflow_engine is not None}")
 
     # Initialize MCP server
-    mcp = FastMCP("Emily.Tools")
+    if mcp is None:
+        mcp = FastMCP("Emily.Tools")
 
     # Initialize unified tools with memory store and workflow engine
     import asyncio
@@ -49,7 +53,7 @@ def create_mcp_server() -> FastMCP:
     asyncio.run(UnifiedTodoTool(memory_store).initialize(mcp))
     asyncio.run(UnifiedHandoffTool(memory_store).initialize(mcp))
     asyncio.run(UnifiedKnowledgeGraphTool(memory_store, data_dir).initialize(mcp))
-    asyncio.run(CodebaseAnalysisTool(data_dir).initialize(mcp))
+    # asyncio.run(CodebaseAnalysisTool(data_dir).initialize(mcp))
     
     # Initialize intelligent search tools
     intelligent_search_tools = IntelligentSearchMCPTools(memory_store)
@@ -57,11 +61,10 @@ def create_mcp_server() -> FastMCP:
 
     return mcp
 
-# Expose a global MCP server object for MCP CLI compatibility
-mcp = create_mcp_server()
 
 def main():
-    mcp.run()
+    server = create_mcp_server(mcp)
+    server.run()
 
 if __name__ == "__main__":
     main()
