@@ -79,7 +79,7 @@ class TodoTool(BaseTool):
     def _write_tasks(self, tasks: List[Task]):
         with open(self.data_file, 'w') as f:
             for task in tasks:
-                f.write(task.json() + '\n')
+                f.write(task.model_dump_json() + '\n')
 
     def create_task(self, title: str, description: Optional[str] = None, 
                    priority: Priority = Priority.MEDIUM, due_date: Optional[str] = None,
@@ -97,7 +97,7 @@ class TodoTool(BaseTool):
             created_at=datetime.now(),
         )
         with open(self.data_file, 'a') as f:
-            f.write(task.json() + '\n')
+            f.write(task.model_dump_json() + '\n')
         return task
 
     def list_tasks(self, status: Optional[Status] = None, 

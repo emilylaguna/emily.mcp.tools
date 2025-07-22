@@ -78,7 +78,7 @@ class TestTodoTool:
         with open(todo_tool.data_file, 'w') as f:
             for task_data in sample_tasks:
                 task = Task(**task_data)
-                f.write(task.json() + '\n')
+                f.write(task.model_dump_json() + '\n')
         
         result = todo_tool._read_tasks()
         assert len(result) == 3

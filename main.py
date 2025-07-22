@@ -29,6 +29,7 @@ def create_mcp_server() -> FastMCP:
     asyncio.run(TimeServiceTool(data_dir).initialize(mcp))
     asyncio.run(MemoryGraphTool(data_dir).initialize(mcp))
     asyncio.run(HandoffTool(data_dir).initialize(mcp))
+    asyncio.run(AutomationTool(data_dir).initialize(mcp))
     
     return mcp
 

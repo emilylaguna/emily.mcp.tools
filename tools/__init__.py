@@ -10,6 +10,7 @@ from .async_tasks.async_tasks import AsyncTasksTool
 from .time_service.time_service import TimeServiceTool
 from .memory_graph.memory_graph import MemoryGraphTool
 from .handoff.handoff import HandoffTool
+from .automation.automation import AutomationTool
 
 __all__ = [
     "BaseTool",
@@ -20,4 +21,5 @@ __all__ = [
     "TimeServiceTool",
     "MemoryGraphTool",
     "HandoffTool",
+    "AutomationTool",
 ] 
