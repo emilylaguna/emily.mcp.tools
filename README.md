@@ -11,7 +11,7 @@ A Model Context Protocol (MCP) server that provides intelligent productivity too
 - **Automatic Entity Extraction**: AI identifies people, projects, files, and more
 
 ### 🛠️ Enhanced Tools
-- **Smart Todo Management**: Things-style todos with context awareness
+- **Smart Todo Management**: Todos with context awareness
 - **Intelligent Handoff**: AI-enhanced context preservation
 - **Knowledge Graph**: Multi-codebase knowledge with relationships
 - **Workflow Automation**: AI-powered workflow suggestions and execution

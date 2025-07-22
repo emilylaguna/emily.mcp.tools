@@ -181,6 +181,26 @@ class UnifiedHandoffTool(BaseTool):
         # Sort by created_at (most recent first)
         return sorted(handoff_contexts, key=lambda x: x.created_at, reverse=True)
     
+    def get_contexts_from_today(self) -> List[HandoffContext]:
+        """Get all handoff contexts from today ordered by created_at in DESC order."""
+        from datetime import date
+        
+        today = date.today()
+        
+        # Search all handoff contexts using the contexts table
+        memory_contexts = self.memory.search_contexts("", filters={"type": "handoff"})
+        
+        # Convert to HandoffContext objects and filter by today
+        handoff_contexts = []
+        for ctx in memory_contexts:
+            handoff_context = self._memory_context_to_handoff_context(ctx.model_dump())
+            # Check if the context was created today
+            if handoff_context.created_at.date() == today:
+                handoff_contexts.append(handoff_context)
+        
+        # Sort by created_at (most recent first)
+        return sorted(handoff_contexts, key=lambda x: x.created_at, reverse=True)
+    
     def get_latest_context(self) -> Optional[HandoffContext]:
         """Get the most recent handoff context."""
         contexts = self.get_contexts()
@@ -391,18 +411,19 @@ class UnifiedHandoffTool(BaseTool):
             }
         
         @mcp.tool()
-        async def handoff_get() -> dict:
-            """Get the latest saved chat context."""
-            latest = self.get_latest_context()
-            if latest:
-                return {
-                    "id": latest.id,
-                    "context": latest.context,
-                    "created_at": latest.created_at.isoformat(),
-                    "summary": latest.summary,
-                    "topics": latest.topics
+        async def handoff_get() -> list:
+            """Get all handoff contexts from today ordered by created_at in DESC order."""
+            contexts = self.get_contexts_from_today()
+            return [
+                {
+                    "id": c.id,
+                    "context": c.context,
+                    "created_at": c.created_at.isoformat(),
+                    "summary": c.summary,
+                    "topics": c.topics
                 }
-            return {}
+                for c in contexts
+            ]
         
         @mcp.tool()
         async def handoff_list(limit: int = 10) -> list:

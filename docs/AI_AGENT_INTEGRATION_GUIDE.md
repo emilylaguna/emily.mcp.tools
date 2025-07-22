@@ -25,6 +25,167 @@ The Emily Tools MCP server provides the following core capabilities:
 - **Intelligent Search**: Semantic search across all data types
 - **Workflow Automation**: AI-powered workflow suggestions
 
+## Data Models and Entity Types
+
+### Parameter Mapping
+
+**Important**: The MCP tools use different parameter names than the underlying data model:
+
+- **MCP Tool Parameters**: Use `description` for content
+- **Data Model Fields**: Store content in the `content` field
+- **Return Values**: MCP tools return `description` field (mapped from `content`)
+
+### Supported Entity Types
+
+When creating entities in the knowledge graph, you must use one of these valid entity types:
+
+- **`task`** - Todo items, action items
+- **`person`** - People mentioned in conversations  
+- **`project`** - Software projects, initiatives
+- **`file`** - Code files, documents
+- **`handoff`** - Conversation contexts
+- **`area`** - Areas for organization
+- **`meeting`** - Meeting notes and outcomes
+- **`technology`** - Programming languages, frameworks, tools
+- **`conversation`** - General conversation contexts
+- **`note`** - General notes and documentation
+- **`workflow`** - Automation workflows
+- **`workflow_run`** - Workflow execution instances
+
+### Supported Relation Types
+
+When creating relationships between entities, use one of these valid relation types:
+
+- **`relates_to`** - General relationship
+- **`contains`** - Hierarchical containment
+- **`follows_from`** - Temporal or logical sequence
+- **`depends_on`** - Dependency relationship
+- **`mentions`** - Entity mentioned in content
+- **`implements`** - Implementation relationship
+- **`references`** - Reference relationship
+- **`assigned_to`** - Assignment relationship
+- **`created_by`** - Creation relationship
+- **`part_of`** - Part-whole relationship
+- **`similar_to`** - Similarity relationship
+
+### Supported Context Types
+
+For handoff and conversation contexts, use one of these valid context types:
+
+- **`handoff`** - Session handoff contexts
+- **`meeting`** - Meeting notes and outcomes
+- **`debug_session`** - Debugging sessions
+- **`conversation`** - General conversations
+- **`code_review`** - Code review sessions
+- **`planning_session`** - Planning meetings
+- **`retrospective`** - Retrospective sessions
+
+### Entity Structure
+
+All entities follow this structure:
+```python
+{
+    "type": "task|person|project|file|handoff|area|meeting|technology|conversation|note|workflow|workflow_run",
+    "name": "Display name for the entity",
+    "content": "Full content/description (optional)",
+    "metadata": {},  # Flexible metadata dictionary
+    "tags": []       # Searchable tags list
+}
+```
+
+### Common Entity Examples
+
+**Task Entity:**
+```python
+{
+    "type": "task",
+    "name": "Implement User Authentication",
+    "content": "Add OAuth2 authentication with JWT tokens",
+    "metadata": {
+        "priority": "high",
+        "status": "todo",
+        "project_id": "project-uuid",
+        "due_date": "2024-03-15"
+    },
+    "tags": ["authentication", "oauth2", "security"]
+}
+```
+
+**Technology Entity:**
+```python
+{
+    "type": "technology", 
+    "name": "React",
+    "content": "JavaScript library for building user interfaces",
+    "metadata": {
+        "version": "18.2.0",
+        "category": "frontend"
+    },
+    "tags": ["javascript", "frontend", "ui"]
+}
+```
+
+**Project Entity:**
+```python
+{
+    "type": "project",
+    "name": "Web Application Development", 
+    "content": "Full-stack web application with React and Node.js",
+    "metadata": {
+        "status": "active",
+        "deadline": "2024-03-15",
+        "area_id": "area-uuid"
+    },
+    "tags": ["web-app", "full-stack", "react", "nodejs"]
+}
+```
+
+**Person Entity:**
+```python
+{
+    "type": "person",
+    "name": "John Doe",
+    "content": "Senior developer working on authentication system",
+    "metadata": {
+        "role": "developer",
+        "expertise": ["react", "nodejs", "authentication"]
+    },
+    "tags": ["developer", "senior", "authentication"]
+}
+```
+
+### Relation Examples
+
+**Component Relationship:**
+```python
+{
+    "source_id": "frontend-entity-id",
+    "target_id": "project-entity-id", 
+    "relation_type": "part_of",
+    "strength": 0.9
+}
+```
+
+**Dependency Relationship:**
+```python
+{
+    "source_id": "auth-task-id",
+    "target_id": "database-setup-task-id",
+    "relation_type": "depends_on", 
+    "strength": 0.8
+}
+```
+
+**Assignment Relationship:**
+```python
+{
+    "source_id": "auth-task-id",
+    "target_id": "john-doe-person-id",
+    "relation_type": "assigned_to",
+    "strength": 1.0
+}
+```
+
 ## Getting Started
 
 ### Initial Setup Prompts
@@ -54,6 +215,11 @@ Always use the appropriate MCP tools for these operations. When users ask for ta
 - `todo_list_projects` - List projects
 - `todo_complete_task` - Mark tasks as complete
 
+**Todo Tool Parameters:**
+- `todo_create_area(name, description=None, color=None)` - Creates an area with optional description and color
+- `todo_create_project(name, area_id=None, description=None, deadline=None)` - Creates a project with optional area assignment, description, and deadline
+- `todo_create_task(title, description=None, project_id=None, area_id=None, priority="medium", scheduled_date=None, due_date=None, energy_level="medium", time_estimate=None, tags=None)` - Creates a task with full metadata support
+
 ### Handoff Tools
 - `handoff_save` - Save conversation context
 - `handoff_get` - Get latest saved context
@@ -66,7 +232,7 @@ Always use the appropriate MCP tools for these operations. When users ask for ta
 - `graph_create_entity` - Create entities in the knowledge graph
 - `graph_create_relation` - Create relationships between entities
 - `graph_find_related` - Find related entities
-- `graph_search_entities` - Search for entities
+- `graph_search` - Search for entities
 - `graph_get_entity` - Get specific entity details
 
 ### Intelligent Search Tools
@@ -137,6 +303,15 @@ learning_area = mcp.call("todo_create_area",
                         name="Learning",
                         description="Educational goals and skill development", 
                         color="#FF9500")
+
+# Example return value:
+# {
+#   "id": "uuid-string",
+#   "name": "Work", 
+#   "description": "Professional tasks and projects",
+#   "status": "active",
+#   "created": True
+# }
 ```
 
 ## Creating Projects
@@ -153,6 +328,17 @@ web_project = mcp.call("todo_create_project",
                        area_id=work_area["id"],
                        description="Build a modern web application with React and Node.js",
                        deadline="2024-03-15")
+
+# Example return value:
+# {
+#   "id": "uuid-string",
+#   "name": "Web Application Development",
+#   "description": "Build a modern web application with React and Node.js", 
+#   "area_id": "work-area-uuid",
+#   "deadline": "2024-03-15",
+#   "status": "active",
+#   "created": True
+# }
 ```
 
 ## Creating Tasks
@@ -171,6 +357,23 @@ auth_task = mcp.call("todo_create_task",
                      priority="high",
                      energy_level="high",
                      time_estimate=480)  # 8 hours
+
+# Example return value:
+# {
+#   "id": "uuid-string",
+#   "title": "Implement User Authentication",
+#   "description": "Add OAuth2 authentication with JWT tokens",
+#   "priority": "high",
+#   "status": "todo",
+#   "project_id": "web-project-uuid",
+#   "area_id": null,
+#   "scheduled_date": null,
+#   "due_date": null,
+#   "energy_level": "high",
+#   "time_estimate": 480,
+#   "tags": [],
+#   "created": True
+# }
 ```
 
 ## Natural Language Task Creation
@@ -388,8 +591,8 @@ I'll help you create knowledge entities to document your web application archite
 ```python
 # Create architecture entity
 architecture = mcp.call("graph_create_entity",
-                       entity_data={
-                           "type": "architecture",
+                       payload={
+                           "type": "project",
                            "name": "Web Application Architecture",
                            "content": "Modern web application using React frontend, Node.js backend, and PostgreSQL database",
                            "tags": ["web-app", "architecture", "full-stack"]
@@ -397,8 +600,8 @@ architecture = mcp.call("graph_create_entity",
 
 # Create frontend entity
 frontend = mcp.call("graph_create_entity",
-                   entity_data={
-                       "type": "component",
+                   payload={
+                       "type": "technology",
                        "name": "React Frontend",
                        "content": "User interface built with React, TypeScript, and Tailwind CSS",
                        "tags": ["react", "frontend", "typescript"]
@@ -406,8 +609,8 @@ frontend = mcp.call("graph_create_entity",
 
 # Create backend entity
 backend = mcp.call("graph_create_entity",
-                  entity_data={
-                      "type": "component", 
+                  payload={
+                      "type": "technology", 
                       "name": "Node.js Backend",
                       "content": "API server built with Express.js and JWT authentication",
                       "tags": ["nodejs", "backend", "api"]
@@ -424,28 +627,22 @@ I'll create relationships to show how the components connect to your overall arc
 ```python
 # Create relationships
 mcp.call("graph_create_relation",
-        relation_data={
-            "source_id": frontend["id"],
-            "target_id": architecture["id"],
-            "relation_type": "part_of",
-            "strength": 0.9
-        })
+        source_id=frontend["id"],
+        target_id=architecture["id"],
+        relation_type="part_of",
+        strength=0.9)
 
 mcp.call("graph_create_relation",
-        relation_data={
-            "source_id": backend["id"], 
-            "target_id": architecture["id"],
-            "relation_type": "part_of",
-            "strength": 0.9
-        })
+        source_id=backend["id"], 
+        target_id=architecture["id"],
+        relation_type="part_of",
+        strength=0.9)
 
 mcp.call("graph_create_relation",
-        relation_data={
-            "source_id": frontend["id"],
-            "target_id": backend["id"],
-            "relation_type": "communicates_with",
-            "strength": 0.8
-        })
+        source_id=frontend["id"],
+        target_id=backend["id"],
+        relation_type="relates_to",
+        strength=0.8)
 ```
 
 ## Finding Related Knowledge
@@ -471,9 +668,9 @@ Let me search through your knowledge graph for everything related to authenticat
 
 ```python
 # Search for authentication knowledge
-auth_knowledge = mcp.call("graph_search_entities",
+auth_knowledge = mcp.call("graph_search",
                          query="authentication",
-                         filters={"type": "component"})
+                         entity_type="component")
 ```
 
 ## Codebase Integration
@@ -829,7 +1026,7 @@ mcp.call("todo_create_from_conversation",
 
 # 3. Update knowledge graph with meeting insights
 mcp.call("graph_create_entity",
-        entity_data={
+        payload={
             "type": "meeting",
             "name": "Authentication System Meeting",
             "content": "Discussed OAuth2 integration, security requirements, and implementation timeline",
@@ -905,7 +1102,7 @@ auth_search = mcp.call("intelligent_search",
                       })
 
 # 2. Get knowledge graph entities
-auth_entities = mcp.call("graph_search_entities",
+auth_entities = mcp.call("graph_search",
                         query="authentication")
 
 # 3. Find related entities
@@ -926,8 +1123,8 @@ cross_domain = mcp.call("get_cross_domain_insights",
 
 # 6. Create comprehensive knowledge summary
 mcp.call("graph_create_entity",
-        entity_data={
-            "type": "knowledge_summary",
+        payload={
+            "type": "note",
             "name": "Authentication System Knowledge",
             "content": f"Comprehensive knowledge about authentication system including {len(auth_entities)} entities, {len(related_entities)} related items, and cross-domain insights",
             "tags": ["authentication", "knowledge-summary", "system-overview"]
@@ -985,7 +1182,7 @@ I'll implement fallback strategies when tools are unavailable.
 def get_knowledge_with_fallback(query):
     try:
         # Try knowledge graph first
-        return mcp.call("graph_search_entities", query=query)
+        return mcp.call("graph_search", query=query)
     except Exception as e:
         try:
             # Fallback to intelligent search
@@ -1011,7 +1208,7 @@ def create_and_verify_task(title, description):
                    description=description)
     
     # Verify creation
-    verification = mcp.call("todo_get_task", task_id=task["id"])
+    verification = mcp.call("todo_get_task_details", task_id=task["id"])
     
     if verification["title"] == title:
         return {"success": True, "task": task, "verified": True}
@@ -1089,7 +1286,7 @@ def create_project_with_documentation(project_name, description):
     
     # Create corresponding knowledge entity
     mcp.call("graph_create_entity",
-            entity_data={
+            payload={
                 "type": "project",
                 "name": project_name,
                 "content": description,
@@ -1138,7 +1335,7 @@ def comprehensive_search(query):
     # Parallel search across domains
     results = {
         "tasks": mcp.call("todo_quick_find", query=query),
-        "knowledge": mcp.call("graph_search_entities", query=query),
+        "knowledge": mcp.call("graph_search", query=query),
         "conversations": mcp.call("handoff_search", query=query)
     }
     return results
@@ -1146,7 +1343,7 @@ def comprehensive_search(query):
 # Bad: Sequential searches
 def slow_search(query):
     tasks = mcp.call("todo_quick_find", query=query)
-    knowledge = mcp.call("graph_search_entities", query=query)
+    knowledge = mcp.call("graph_search", query=query)
     conversations = mcp.call("handoff_search", query=query)
     return {"tasks": tasks, "knowledge": knowledge, "conversations": conversations}
 ```

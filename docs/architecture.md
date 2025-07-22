@@ -22,8 +22,8 @@ The Emily Tools unified memory architecture provides a single, intelligent backe
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │
 │  │ Handoff     │ │ Todo        │ │ Knowledge   │          │
 │  │ Wrapper     │ │ Wrapper     │ │ Graph       │          │
-│  │ - AI        │ │ - Things    │ │ - Multi-    │          │
-│  │   enhance   │ │   style     │ │   codebase  │          │
+│  │ - AI        │ │ - Tasks     │ │ - Multi-    │          │
+│  │   enhance   │ │             │ │   codebase  │          │
 │  │ - Context   │ │ - Smart     │ │ - Entity    │          │
 │  │   preserve  │ │   search    │ │   linking   │          │
 │  └─────────────┘ └─────────────┘ └─────────────┘          │
@@ -226,7 +226,6 @@ handoff_suggest_related_contexts(context_id: str) -> List[Dict]
 ### Todo Tool Wrapper
 
 **Features:**
-- **Things-style Interface**: Familiar task management
 - **Smart Search**: Semantic task search
 - **Context Awareness**: Link tasks to conversations and code
 - **AI Suggestions**: Automatic task categorization

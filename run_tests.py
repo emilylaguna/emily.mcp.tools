@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner for the memory graph tool.
+Test runner
 """
 
 import sys
@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 def main():
-    """Run the memory graph tests."""
+    """Run the tests."""
     # Add the project root to Python path
     project_root = Path(__file__).parent
     sys.path.insert(0, str(project_root))

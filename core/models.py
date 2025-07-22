@@ -234,7 +234,7 @@ ENTITY_TYPES = {
     'project': 'Software projects, initiatives',
     'file': 'Code files, documents',
     'handoff': 'Conversation contexts',
-    'area': 'Things-style areas for organization',
+    'area': 'Areas for organization',
     'meeting': 'Meeting notes and outcomes',
     'technology': 'Programming languages, frameworks, tools',
     'conversation': 'General conversation contexts',

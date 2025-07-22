@@ -22,7 +22,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         return {
             "id": area.id,
             "name": area.name,
-            "description": area.description,
+            "description": area.content,
             "status": area.metadata.get("status"),
             "created": True
         }
@@ -40,7 +40,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         return {
             "id": project.id,
             "name": project.name,
-            "description": project.description,
+            "description": project.content,
             "area_id": project.metadata.get("area_id"),
             "deadline": project.metadata.get("deadline"),
             "status": project.metadata.get("status"),
@@ -73,7 +73,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         return {
             "id": task.id,
             "title": task.name,
-            "description": task.description,
+            "description": task.content,
             "priority": task.metadata.get("priority"),
             "status": task.metadata.get("status"),
             "project_id": task.metadata.get("project_id"),
@@ -93,7 +93,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         return {
             "id": task.id,
             "title": task.name,
-            "description": task.description,
+            "description": task.content,
             "priority": task.metadata.get("priority"),
             "status": task.metadata.get("status"),
             "scheduled_date": task.metadata.get("scheduled_date"),
@@ -108,7 +108,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         return {
             "task_id": task.id,
             "title": task.name,
-            "description": task.description,
+            "description": task.content,
             "priority": task.metadata.get("priority"),
             "source_context": task.metadata.get("source_context"),
             "created": True

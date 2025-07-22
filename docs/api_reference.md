@@ -270,7 +270,7 @@ Enhanced handoff tool with AI capabilities.
 
 ### UnifiedTodoTool
 
-Enhanced todo tool with Things-style features.
+Enhanced todo tool with cool features.
 
 #### Methods
 

@@ -1,6 +1,6 @@
 """
 Unit tests for unified todo tool wrapper.
-Phase 3.2: Things-Style Todo Tool
+Phase 3.2: Todo Tool
 """
 
 import pytest
