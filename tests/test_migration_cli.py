@@ -1,18 +1,18 @@
-#!/usr/bin/env python3
 """
-Tests for the migration CLI.
+Unit tests for migration CLI tool.
+Phase 2.3: Migration System
 """
 
 import pytest
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, mock_open
 import uuid
 
-from migration_cli import MigrationCLI
+from migration.cli import MigrationCLI
 from core import create_memory_store
-from models import MemoryEntity
+from core.models import MemoryEntity
 
 
 class TestMigrationCLI:
@@ -44,7 +44,7 @@ class TestMigrationCLI:
         output_db = Path(temp_dir) / "memory.db"
         
         # Mock the migrator
-        with patch('migration_cli.MigrationManager') as mock_migrator_class:
+        with patch('migration.manager.MigrationManager') as mock_migrator_class:
             mock_migrator = Mock()
             mock_migrator.migrate_all.return_value = {
                 'handoff': {'entities': 1, 'relations': 0, 'contexts': 1, 'errors': 0},
@@ -71,7 +71,7 @@ class TestMigrationCLI:
         output_db = Path(temp_dir) / "memory.db"
         
         # Mock the migrator to raise an exception
-        with patch('migration_cli.MigrationManager') as mock_migrator_class:
+        with patch('migration.manager.MigrationManager') as mock_migrator_class:
             mock_migrator_class.side_effect = Exception("Migration failed")
             
             # Run migration
@@ -270,10 +270,10 @@ class TestMigrationCLI:
         assert "todo.jsonl: 1 records" in captured.out
 
 
-def test_migration_cli_main_help():
-    """Test CLI help output."""
-    with patch('sys.argv', ['migration_cli.py']):
-        with patch('migration_cli.MigrationCLI') as mock_cli_class:
+    def test_migration_cli_main_help():
+        """Test CLI help output."""
+        with patch('sys.argv', ['migration_cli.py']):
+            with patch('migration.cli.MigrationCLI') as mock_cli_class:
             mock_cli = Mock()
             mock_cli_class.return_value = mock_cli
             
@@ -287,10 +287,10 @@ def test_migration_cli_main_help():
             mock_cli.rollback.assert_not_called()
 
 
-def test_migration_cli_main_migrate():
-    """Test CLI migrate command."""
-    with patch('sys.argv', ['migration_cli.py', 'migrate', '--data-dir', 'test_data', '--output-db', 'test.db']):
-        with patch('migration_cli.MigrationCLI') as mock_cli_class:
+    def test_migration_cli_main_migrate():
+        """Test CLI migrate command."""
+        with patch('sys.argv', ['migration_cli.py', 'migrate', '--data-dir', 'test_data', '--output-db', 'test.db']):
+            with patch('migration.cli.MigrationCLI') as mock_cli_class:
             mock_cli = Mock()
             mock_cli.migrate.return_value = True
             mock_cli_class.return_value = mock_cli
@@ -307,10 +307,10 @@ def test_migration_cli_main_migrate():
             mock_cli.migrate.assert_called_once_with('test_data', 'test.db')
 
 
-def test_migration_cli_main_verify():
-    """Test CLI verify command."""
-    with patch('sys.argv', ['migration_cli.py', 'verify', '--db-path', 'test.db']):
-        with patch('migration_cli.MigrationCLI') as mock_cli_class:
+    def test_migration_cli_main_verify():
+        """Test CLI verify command."""
+        with patch('sys.argv', ['migration_cli.py', 'verify', '--db-path', 'test.db']):
+            with patch('migration.cli.MigrationCLI') as mock_cli_class:
             mock_cli = Mock()
             mock_cli.verify.return_value = True
             mock_cli_class.return_value = mock_cli
@@ -327,10 +327,10 @@ def test_migration_cli_main_verify():
             mock_cli.verify.assert_called_once_with('test.db', None)
 
 
-def test_migration_cli_main_rollback():
-    """Test CLI rollback command."""
-    with patch('sys.argv', ['migration_cli.py', 'rollback', '--backup-dir', 'backup', '--restore-to', 'target']):
-        with patch('migration_cli.MigrationCLI') as mock_cli_class:
+    def test_migration_cli_main_rollback():
+        """Test CLI rollback command."""
+        with patch('sys.argv', ['migration_cli.py', 'rollback', '--backup-dir', 'backup', '--restore-to', 'target']):
+            with patch('migration.cli.MigrationCLI') as mock_cli_class:
             mock_cli = Mock()
             mock_cli.rollback.return_value = True
             mock_cli_class.return_value = mock_cli

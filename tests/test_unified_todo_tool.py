@@ -1,6 +1,6 @@
 """
-Tests for Unified Todo Tool
-Phase 3.2: Advanced Todo Tool Testing
+Unit tests for unified todo tool wrapper.
+Phase 3.2: Things-Style Todo Tool
 """
 
 import pytest
@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from core import create_test_memory_store, UnifiedMemoryStore
+from core.models import MemoryEntity, MemoryRelation
 from tools.todo.unified_todo_tool import UnifiedTodoTool, Priority, Status, EnergyLevel
-from models import MemoryEntity, MemoryRelation
 
 
 class TestUnifiedTodoTool:

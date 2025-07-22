@@ -1,16 +1,17 @@
 """
-Tests for the automation tool MCP integration.
+Unit tests for automation tool and workflow engine.
+Phase 4.2: Smart Workflows & Automation
 """
 
 import json
 import pytest
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock, patch
 
-from tools.automation.automation import AutomationTool, WorkflowDefinition, WorkflowRunInfo
-from automation_engine import Workflow, WorkflowAction, WorkflowTrigger, Event
+from workflows.engine import Workflow, WorkflowAction, WorkflowTrigger, Event
 from core import UnifiedMemoryStore
+from tools.automation.automation import AutomationTool, WorkflowDefinition
 
 
 class TestAutomationTool:

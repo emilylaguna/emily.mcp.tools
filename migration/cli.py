@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
 """
-Migration CLI for converting JSONL-based tools to unified memory architecture.
+Migration CLI tool for converting JSONL files to unified memory store.
+Phase 2.3: Migration System
 """
 
 import argparse
-import json
 import logging
 import shutil
-import sqlite3
-from datetime import datetime, UTC
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-import uuid
+from typing import Dict, Any, Optional
 
-try:
-    from ..core import UnifiedMemoryStore, create_memory_store
-    from ..core.models import MemoryEntity, MemoryRelation, MemoryContext
-    from .manager import MigrationManager
-except ImportError:
-    # Fallback for when running as standalone script
-    import sys
-    sys.path.append('.')
-    from core import UnifiedMemoryStore, create_memory_store
-    from core.models import MemoryEntity, MemoryRelation, MemoryContext
-    from migration.manager import MigrationManager
+from core import UnifiedMemoryStore, create_memory_store
+from core.models import MemoryEntity, MemoryRelation, MemoryContext
+from .manager import MigrationManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

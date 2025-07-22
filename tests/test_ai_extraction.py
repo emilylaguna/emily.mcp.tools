@@ -1,5 +1,5 @@
 """
-Tests for AI Entity Extraction & Enhancement.
+Unit tests for AI Entity Extraction & Enhancement.
 Phase 2.2: AI-powered content analysis and entity extraction.
 """
 
@@ -9,9 +9,9 @@ import shutil
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from ai_extraction import AIExtractor, EntityMatcher, ContentEnhancer
+from intelligence.ai_extraction import AIExtractor, EntityMatcher, ContentEnhancer
 from core import UnifiedMemoryStore
-from models import MemoryEntity, MemoryContext
+from core.models import MemoryEntity, MemoryContext
 
 
 class TestAIExtractor:

@@ -1,20 +1,17 @@
 """
-Tests for UnifiedHandoffTool
+Unit tests for unified handoff tool wrapper.
 Phase 3.1: Handoff Tool Wrapper
-
-Tests backward compatibility and new AI features.
 """
 
-import json
+import pytest
 import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
-
-import pytest
+from unittest.mock import Mock, patch
 
 from core import create_test_memory_store
-from models import MemoryContext
+from core.models import MemoryContext
 from tools.handoff.unified_handoff_tool import UnifiedHandoffTool, HandoffContext
 
 

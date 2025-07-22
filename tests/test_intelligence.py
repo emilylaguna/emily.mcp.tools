@@ -1,8 +1,6 @@
 """
-Tests for Intelligent Search & Cross-Domain Intelligence
-
-This module tests the advanced search and intelligence features
-implemented in Phase 4.1.
+Unit tests for intelligent search and cross-domain intelligence features.
+Phase 4.1: Semantic Search & Cross-Domain Intelligence
 """
 
 import pytest
@@ -13,11 +11,11 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 from core import UnifiedMemoryStore, create_test_memory_store
-from models import MemoryEntity, MemoryRelation, MemoryContext
-from intelligent_search import IntelligentSearchEngine
-from smart_suggestions import SmartSuggestionsEngine
-from natural_query import NaturalQueryProcessor
-from intelligent_search_mcp import IntelligentSearchMCPTools
+from core.models import MemoryEntity, MemoryRelation, MemoryContext
+from intelligence.search import IntelligentSearchEngine
+from intelligence.smart_suggestions import SmartSuggestionsEngine
+from intelligence.natural_query import NaturalQueryProcessor
+from intelligence.search_mcp import IntelligentSearchMCPTools
 
 
 # Shared memory store for all tests

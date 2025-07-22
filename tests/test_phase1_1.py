@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for Phase 1.1: Database Schema & Core Models
+Integration tests for Phase 1.1: Database Schema & Core Models
 """
 
 import tempfile
@@ -7,8 +7,8 @@ import pytest
 from pathlib import Path
 from datetime import datetime
 
-from database import initialize_database
-from models import MemoryEntity, MemoryRelation, MemoryContext, ENTITY_TYPES, RELATION_TYPES
+from core.database import initialize_database
+from core.models import MemoryEntity, MemoryRelation, MemoryContext, ENTITY_TYPES, RELATION_TYPES
 
 
 class TestPhase1_1Deliverables:

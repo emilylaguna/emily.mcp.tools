@@ -5,7 +5,7 @@ Phase 1.1: Database Schema & Core Models
 
 import pytest
 from datetime import datetime
-from models import MemoryEntity, MemoryRelation, MemoryContext, ENTITY_TYPES, RELATION_TYPES
+from core.models import MemoryEntity, MemoryRelation, MemoryContext, ENTITY_TYPES, RELATION_TYPES
 
 
 class TestMemoryEntity:

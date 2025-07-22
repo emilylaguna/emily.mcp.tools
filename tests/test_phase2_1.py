@@ -1,15 +1,14 @@
 """
-Tests for Phase 2.1: CRUD Operations with Vector Search
+Unit tests for Phase 2.1: CRUD Operations with Vector Search
 """
 
-import json
 import pytest
 import tempfile
 from datetime import datetime, UTC
 from pathlib import Path
 
 from core import create_test_memory_store
-from models import MemoryEntity, MemoryRelation, MemoryContext
+from core.models import MemoryEntity, MemoryRelation, MemoryContext
 
 
 class TestEntityCRUD:

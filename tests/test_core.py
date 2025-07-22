@@ -1,26 +1,14 @@
 """
-Unit tests for UnifiedMemoryStore core functionality.
-Phase 1.2: Core UnifiedMemoryStore Class
+Unit tests for core UnifiedMemoryStore functionality.
 """
 
-import json
-import sqlite3
+import pytest
 import tempfile
-import threading
-import time
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-import pytest
-
-try:
-    from core import UnifiedMemoryStore, create_test_memory_store, create_memory_store
-    from models import MemoryEntity, MemoryRelation, MemoryContext
-except ImportError:
-    import sys
-    sys.path.insert(0, '.')
-    from core import UnifiedMemoryStore, create_test_memory_store, create_memory_store
-    from models import MemoryEntity, MemoryRelation, MemoryContext
+from core import UnifiedMemoryStore, create_test_memory_store, create_memory_store
+from core.models import MemoryEntity, MemoryRelation, MemoryContext
 
 
 class TestUnifiedMemoryStore:

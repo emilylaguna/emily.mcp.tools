@@ -1,19 +1,19 @@
 """
-Tests for Migration System
-
-Tests migration from JSONL files to unified memory store with sample data.
+Unit tests for migration system.
+Phase 2.3: Migration System
 """
 
-import json
+import pytest
 import tempfile
+import json
 import shutil
 from pathlib import Path
 from datetime import datetime
-import pytest
+from unittest.mock import Mock, patch
 
 from core import UnifiedMemoryStore
-from migration import MigrationManager
-from models import MemoryEntity, MemoryRelation, MemoryContext
+from migration.manager import MigrationManager
+from core.models import MemoryEntity, MemoryRelation, MemoryContext
 
 
 class TestMigrationSystem:

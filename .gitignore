@@ -11,5 +11,5 @@ wheels/
 
 *.DS_Store
 
-data/*.jsonl
+data/*
 *.editorconfig
