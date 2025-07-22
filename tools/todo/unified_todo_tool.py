@@ -15,8 +15,12 @@ import json
 from pydantic import BaseModel, Field
 
 from ..base import BaseTool
-from core import UnifiedMemoryStore
-from models import MemoryEntity, MemoryRelation, MemoryContext
+try:
+    from ...core import UnifiedMemoryStore
+    from ...core.models import MemoryEntity, MemoryRelation, MemoryContext
+except ImportError:
+    from core import UnifiedMemoryStore
+    from core.models import MemoryEntity, MemoryRelation, MemoryContext
 
 logger = logging.getLogger(__name__)
 

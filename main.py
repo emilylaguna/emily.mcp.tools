@@ -9,13 +9,8 @@ from pathlib import Path
 from mcp.server.fastmcp import Context, FastMCP
 
 from core import UnifiedMemoryStore
-from intelligent_search_mcp import IntelligentSearchMCPTools
+from intelligence import IntelligentSearchMCPTools
 from tools import *
-# from tools.todo.unified_todo_tool import UnifiedTodoTool
-# from tools.handoff.unified_handoff_tool import UnifiedHandoffTool
-# from tools.knowledgebase.unified_knowledge_graph_tool import UnifiedKnowledgeGraphTool
-
-
 
 def create_mcp_server() -> FastMCP:
     """Create and configure the MCP server with all tools."""
@@ -40,7 +35,7 @@ def create_mcp_server() -> FastMCP:
     # Initialize intelligent search tools
     intelligent_search_tools = IntelligentSearchMCPTools(memory_store)
     intelligent_search_tools.register_tools(mcp)
-    
+
     return mcp
 
 # Expose a global MCP server object for MCP CLI compatibility

@@ -14,16 +14,16 @@ from typing import Dict, List, Optional, Any
 import uuid
 
 try:
-    from core import UnifiedMemoryStore, create_memory_store
-    from models import MemoryEntity, MemoryRelation, MemoryContext
-    from migration import MigrationManager
+    from ..core import UnifiedMemoryStore, create_memory_store
+    from ..core.models import MemoryEntity, MemoryRelation, MemoryContext
+    from .manager import MigrationManager
 except ImportError:
     # Fallback for when running as standalone script
     import sys
     sys.path.append('.')
     from core import UnifiedMemoryStore, create_memory_store
-    from models import MemoryEntity, MemoryRelation, MemoryContext
-    from migration import MigrationManager
+    from core.models import MemoryEntity, MemoryRelation, MemoryContext
+    from migration.manager import MigrationManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

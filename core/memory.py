@@ -15,11 +15,27 @@ import uuid
 try:
     from .models import MemoryEntity, MemoryRelation, MemoryContext
     from .database import DatabaseManager
-    from .ai_extraction import AIExtractor, EntityMatcher, ContentEnhancer
 except ImportError:
-    from models import MemoryEntity, MemoryRelation, MemoryContext
-    from database import DatabaseManager
-    from ai_extraction import AIExtractor, EntityMatcher, ContentEnhancer
+    from core.models import MemoryEntity, MemoryRelation, MemoryContext
+    from core.database import DatabaseManager
+
+# Lazy import AI extraction to avoid circular imports
+AIExtractor = None
+EntityMatcher = None  
+ContentEnhancer = None
+
+def _lazy_import_ai_extraction():
+    """Lazy import AI extraction classes to avoid circular imports."""
+    global AIExtractor, EntityMatcher, ContentEnhancer
+    if AIExtractor is None:
+        try:
+            from intelligence.ai_extraction import AIExtractor as _AIExtractor, EntityMatcher as _EntityMatcher, ContentEnhancer as _ContentEnhancer
+            AIExtractor = _AIExtractor
+            EntityMatcher = _EntityMatcher
+            ContentEnhancer = _ContentEnhancer
+        except ImportError:
+            logger.error("Failed to import AI extraction classes")
+            raise
 
 # Import sqlite-vec for vector search
 try:
@@ -90,6 +106,7 @@ class UnifiedMemoryStore:
     def _setup_ai_extraction(self) -> None:
         """Initialize AI extraction components."""
         try:
+            _lazy_import_ai_extraction()
             self.ai_extractor = AIExtractor(use_spacy=True)
             self.entity_matcher = EntityMatcher(self)
             self.content_enhancer = ContentEnhancer(self, self.ai_extractor, self.entity_matcher)

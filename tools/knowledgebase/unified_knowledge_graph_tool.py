@@ -12,16 +12,16 @@ import uuid
 
 try:
     from ...core import UnifiedMemoryStore
-    from ...models import MemoryEntity, MemoryRelation, MemoryContext
+    from ...core.models import MemoryEntity, MemoryRelation, MemoryContext
     from ..base import BaseTool
 except ImportError:
     try:
         from core import UnifiedMemoryStore
-        from models import MemoryEntity, MemoryRelation, MemoryContext
+        from core.models import MemoryEntity, MemoryRelation, MemoryContext
         from tools.base import BaseTool
     except ImportError:
         from core import UnifiedMemoryStore
-        from models import MemoryEntity, MemoryRelation, MemoryContext
+        from core.models import MemoryEntity, MemoryRelation, MemoryContext
         from base import BaseTool
 
 logger = logging.getLogger(__name__)

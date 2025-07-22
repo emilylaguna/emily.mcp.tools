@@ -13,8 +13,14 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from ..base import BaseTool
-from automation_engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
-from core import UnifiedMemoryStore
+try:
+    from ...workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
+    from ...workflows.suggester import WorkflowSuggester
+    from ...core import UnifiedMemoryStore
+except ImportError:
+    from workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
+    from workflows.suggester import WorkflowSuggester
+    from core import UnifiedMemoryStore
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +49,18 @@ class WorkflowRunInfo(BaseModel):
     error: Optional[str] = None
 
 
+class WorkflowSuggestion(BaseModel):
+    """Workflow suggestion for MCP clients."""
+    id: str
+    name: str
+    description: str
+    confidence: float
+    reasoning: str
+    category: str
+    estimated_impact: str
+    workflow_yaml: str
+
+
 class AutomationTool(BaseTool):
     """Tool for managing workflows and automation in the unified memory system."""
 
@@ -58,6 +76,7 @@ class AutomationTool(BaseTool):
         
         self.memory_store = memory_store
         self.workflow_engine = WorkflowEngine(self.memory_store)
+        self.workflow_suggester = WorkflowSuggester(self.memory_store)
 
     @property
     def name(self) -> str:
@@ -77,7 +96,10 @@ class AutomationTool(BaseTool):
             "resume_workflow",
             "trigger_workflow",
             "list_workflow_runs",
-            "get_workflow_run"
+            "get_workflow_run",
+            "get_workflow_suggestions",
+            "approve_workflow_suggestion",
+            "get_suggestion_metrics"
         ]
 
     def register_workflow(self, workflow_def: Dict[str, Any]) -> WorkflowDefinition:
@@ -283,6 +305,50 @@ class AutomationTool(BaseTool):
             logger.error(f"Failed to get workflow run {run_id}: {e}")
             return None
 
+    def get_workflow_suggestions(self, query: str = "", limit: int = 10) -> List[WorkflowSuggestion]:
+        """Get workflow suggestions based on a query."""
+        try:
+            suggestions = self.workflow_suggester.suggest_workflows(query, limit=limit)
+            return [
+                WorkflowSuggestion(
+                    id=s['id'],
+                    name=s['name'],
+                    description=s['description'],
+                    confidence=s['confidence'],
+                    reasoning=s['reasoning'],
+                    category=s['category'],
+                    estimated_impact=s['estimated_impact'],
+                    workflow_yaml=s['workflow_yaml']
+                )
+                for s in suggestions
+            ]
+        except Exception as e:
+            logger.error(f"Failed to get workflow suggestions: {e}")
+            return []
+
+    def approve_workflow_suggestion(self, suggestion_id: str) -> bool:
+        """Approve a workflow suggestion."""
+        try:
+            success = self.workflow_suggester.approve_suggestion(suggestion_id)
+            if success:
+                # Optionally, you might want to re-register the approved workflow
+                # This would require fetching the suggestion and its workflow definition
+                # For now, we just approve it.
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error(f"Failed to approve workflow suggestion {suggestion_id}: {e}")
+            return False
+
+    def get_suggestion_metrics(self) -> Dict[str, Any]:
+        """Get metrics for workflow suggestions."""
+        try:
+            return self.workflow_suggester.get_metrics()
+        except Exception as e:
+            logger.error(f"Failed to get suggestion metrics: {e}")
+            return {}
+
     def register(self, mcp):
         @mcp.tool()
         async def automation_register_workflow(workflow_definition: dict) -> dict:
@@ -474,6 +540,62 @@ class AutomationTool(BaseTool):
                     "success": False,
                     "error": str(e),
                     "message": "Failed to get workflow run"
+                }
+
+        @mcp.tool()
+        async def automation_get_workflow_suggestions(query: str = "", limit: int = 10) -> dict:
+            """Get workflow suggestions based on a query."""
+            try:
+                suggestions = self.get_workflow_suggestions(query, limit=limit)
+                return {
+                    "success": True,
+                    "suggestions": [s.model_dump() for s in suggestions],
+                    "count": len(suggestions)
+                }
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "message": "Failed to get workflow suggestions"
+                }
+
+        @mcp.tool()
+        async def automation_approve_workflow_suggestion(suggestion_id: str) -> dict:
+            """Approve a workflow suggestion."""
+            try:
+                success = self.approve_workflow_suggestion(suggestion_id)
+                if success:
+                    return {
+                        "success": True,
+                        "message": f"Workflow suggestion {suggestion_id} approved successfully"
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "error": "Workflow suggestion not found or approval failed",
+                        "message": f"Failed to approve workflow suggestion {suggestion_id}"
+                    }
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "message": "Failed to approve workflow suggestion"
+                }
+
+        @mcp.tool()
+        async def automation_get_suggestion_metrics() -> dict:
+            """Get metrics for workflow suggestions."""
+            try:
+                metrics = self.get_suggestion_metrics()
+                return {
+                    "success": True,
+                    "metrics": metrics
+                }
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "message": "Failed to get suggestion metrics"
                 }
 
         @mcp.resource("resource://automation/workflows")

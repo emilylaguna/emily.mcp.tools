@@ -15,8 +15,12 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 from ..base import BaseTool
-from core import UnifiedMemoryStore
-from models import MemoryContext
+try:
+    from ...core import UnifiedMemoryStore
+    from ...core.models import MemoryContext
+except ImportError:
+    from core import UnifiedMemoryStore
+    from core.models import MemoryContext
 
 logger = logging.getLogger(__name__)
 

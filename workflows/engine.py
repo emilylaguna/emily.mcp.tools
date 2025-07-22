@@ -16,8 +16,12 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-from core import UnifiedMemoryStore
-from models import MemoryEntity, MemoryRelation
+try:
+    from ..core import UnifiedMemoryStore
+    from ..core.models import MemoryEntity, MemoryRelation
+except ImportError:
+    from core import UnifiedMemoryStore
+    from core.models import MemoryEntity, MemoryRelation
 
 logger = logging.getLogger(__name__)
 

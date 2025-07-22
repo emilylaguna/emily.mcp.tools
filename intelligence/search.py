@@ -12,8 +12,12 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 
-from core import UnifiedMemoryStore
-from models import MemoryEntity, MemoryContext
+try:
+    from ..core import UnifiedMemoryStore
+    from ..core.models import MemoryEntity, MemoryContext
+except ImportError:
+    from core import UnifiedMemoryStore
+    from core.models import MemoryEntity, MemoryContext
 
 logger = logging.getLogger(__name__)
 

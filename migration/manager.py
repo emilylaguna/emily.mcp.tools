@@ -12,8 +12,12 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import logging
 
-from core import UnifiedMemoryStore
-from models import MemoryEntity, MemoryRelation, MemoryContext
+try:
+    from ..core import UnifiedMemoryStore
+    from ..core.models import MemoryEntity, MemoryRelation, MemoryContext
+except ImportError:
+    from core import UnifiedMemoryStore
+    from core.models import MemoryEntity, MemoryRelation, MemoryContext
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

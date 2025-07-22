@@ -15,8 +15,12 @@ from datetime import datetime
 import aiohttp
 from pydantic import BaseModel
 
-from core import UnifiedMemoryStore
-from models import MemoryEntity, MemoryRelation
+try:
+    from ..core import UnifiedMemoryStore
+    from ..core.models import MemoryEntity, MemoryRelation
+except ImportError:
+    from core import UnifiedMemoryStore
+    from core.models import MemoryEntity, MemoryRelation
 
 logger = logging.getLogger(__name__)
 

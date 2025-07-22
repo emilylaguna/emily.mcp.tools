@@ -10,8 +10,11 @@ from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 
-from core import UnifiedMemoryStore
-from workflow_dsl import WorkflowDSL, EXAMPLE_WORKFLOWS
+try:
+    from ..core import UnifiedMemoryStore
+except ImportError:
+    from core import UnifiedMemoryStore
+from .dsl import WorkflowDSL, EXAMPLE_WORKFLOWS
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +74,18 @@ class WorkflowSuggester:
             temporal_patterns = patterns.get('temporal_patterns', {})
             if temporal_patterns.get('regular_activity'):
                 suggestions.append(self._suggest_reminder_workflow(temporal_patterns))
+                suggestions.append(self._suggest_deadline_reminder_workflow(temporal_patterns))
             
             # Content organization suggestions
             content_patterns = patterns.get('content_patterns', {})
             if content_patterns.get('repetitive_content'):
                 suggestions.append(self._suggest_content_organization_workflow(content_patterns))
+            
+            # Bug report suggestions (always include as a common pattern)
+            suggestions.append(self._suggest_bug_report_workflow({}))
+            
+            # Code review suggestions (always include as a common pattern)
+            suggestions.append(self._suggest_code_review_workflow({}))
             
             return suggestions
             
@@ -286,7 +296,7 @@ class WorkflowSuggester:
             'description': f'Automatically create tasks and notify team for conversations about {", ".join(topics_list)}',
             'confidence': 0.80,
             'reasoning': f"Found {patterns.get('total_conversations', 0)} conversations with frequent topics: {topics_list}",
-            'workflow_yaml': EXAMPLE_WORKFLOWS['pr_follow_up'],
+            'workflow_yaml': EXAMPLE_WORKFLOWS['meeting_followup'],
             'category': 'communication',
             'estimated_impact': 'medium'
         }
@@ -381,6 +391,45 @@ actions:
             'estimated_impact': 'low'
         }
     
+    def _suggest_bug_report_workflow(self, patterns: Dict[str, Any]) -> Dict[str, Any]:
+        """Suggest workflow for bug report automation."""
+        return {
+            'id': 'auto_bug_report',
+            'name': 'Bug Report Automation',
+            'description': 'Automatically create tasks for bug reports and issues',
+            'confidence': 0.75,
+            'reasoning': "Based on common bug reporting patterns",
+            'workflow_yaml': EXAMPLE_WORKFLOWS['bug_report'],
+            'category': 'issue_management',
+            'estimated_impact': 'high'
+        }
+    
+    def _suggest_code_review_workflow(self, patterns: Dict[str, Any]) -> Dict[str, Any]:
+        """Suggest workflow for code review automation."""
+        return {
+            'id': 'auto_code_review',
+            'name': 'Code Review Automation',
+            'description': 'Automatically create tasks for code reviews',
+            'confidence': 0.70,
+            'reasoning': "Based on code review patterns",
+            'workflow_yaml': EXAMPLE_WORKFLOWS['code_review'],
+            'category': 'development',
+            'estimated_impact': 'medium'
+        }
+    
+    def _suggest_deadline_reminder_workflow(self, patterns: Dict[str, Any]) -> Dict[str, Any]:
+        """Suggest workflow for deadline reminder automation."""
+        return {
+            'id': 'auto_deadline_reminder',
+            'name': 'Deadline Reminder Automation',
+            'description': 'Send reminders for upcoming deadlines',
+            'confidence': 0.85,
+            'reasoning': "Based on temporal activity patterns",
+            'workflow_yaml': EXAMPLE_WORKFLOWS['deadline_reminder'],
+            'category': 'productivity',
+            'estimated_impact': 'medium'
+        }
+    
     def get_suggestion_by_id(self, suggestion_id: str) -> Optional[Dict[str, Any]]:
         """Get a specific suggestion by ID."""
         patterns = self.analyze_patterns()
@@ -392,24 +441,66 @@ actions:
         
         return None
     
-    def approve_suggestion(self, suggestion_id: str) -> Optional[str]:
-        """Approve a suggestion and return the workflow YAML."""
-        suggestion = self.get_suggestion_by_id(suggestion_id)
-        if suggestion:
-            return suggestion['workflow_yaml']
-        return None
+    def suggest_workflows(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get workflow suggestions based on a query."""
+        try:
+            # Analyze patterns first
+            patterns = self.analyze_patterns()
+            
+            # Generate suggestions
+            suggestions = self.generate_suggestions(patterns)
+            
+            # Filter by query if provided
+            if query:
+                filtered_suggestions = []
+                query_lower = query.lower()
+                for suggestion in suggestions:
+                    if (query_lower in suggestion['name'].lower() or 
+                        query_lower in suggestion['description'].lower() or
+                        query_lower in suggestion['category'].lower()):
+                        filtered_suggestions.append(suggestion)
+                suggestions = filtered_suggestions
+            
+            # Limit results
+            return suggestions[:limit]
+            
+        except Exception as e:
+            logger.error(f"Failed to suggest workflows: {e}")
+            return []
     
-    def get_suggestion_metrics(self) -> Dict[str, Any]:
+    def approve_suggestion(self, suggestion_id: str) -> bool:
+        """Approve a workflow suggestion and optionally register it."""
+        try:
+            suggestion = self.get_suggestion_by_id(suggestion_id)
+            if suggestion:
+                # For now, just mark as approved
+                # In a full implementation, you might want to:
+                # 1. Parse the workflow YAML
+                # 2. Register it with the workflow engine
+                # 3. Store approval metadata
+                logger.info(f"Approved workflow suggestion: {suggestion_id}")
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Failed to approve suggestion {suggestion_id}: {e}")
+            return False
+    
+    def get_metrics(self) -> Dict[str, Any]:
         """Get metrics about workflow suggestions."""
-        patterns = self.analyze_patterns()
-        suggestions = self.generate_suggestions(patterns)
-        
-        return {
-            'total_suggestions': len(suggestions),
-            'suggestions_by_category': self._group_suggestions_by_category(suggestions),
-            'average_confidence': sum(s['confidence'] for s in suggestions) / len(suggestions) if suggestions else 0,
-            'high_impact_suggestions': len([s for s in suggestions if s['estimated_impact'] == 'high'])
-        }
+        try:
+            patterns = self.analyze_patterns()
+            suggestions = self.generate_suggestions(patterns)
+            
+            return {
+                'total_suggestions': len(suggestions),
+                'suggestions_by_category': self._group_suggestions_by_category(suggestions),
+                'average_confidence': sum(s['confidence'] for s in suggestions) / len(suggestions) if suggestions else 0,
+                'high_impact_suggestions': len([s for s in suggestions if s['estimated_impact'] == 'high']),
+                'patterns_analyzed': list(patterns.keys()) if patterns else []
+            }
+        except Exception as e:
+            logger.error(f"Failed to get metrics: {e}")
+            return {}
     
     def _group_suggestions_by_category(self, suggestions: List[Dict[str, Any]]) -> Dict[str, int]:
         """Group suggestions by category."""

@@ -10,10 +10,14 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import re
 
-from core import UnifiedMemoryStore
-from intelligent_search import IntelligentSearchEngine
-from smart_suggestions import SmartSuggestionsEngine
-from natural_query import NaturalQueryProcessor
+try:
+    from ..core import UnifiedMemoryStore
+except ImportError:
+    from core import UnifiedMemoryStore
+
+from .search import IntelligentSearchEngine
+from .smart_suggestions import SmartSuggestionsEngine
+from .natural_query import NaturalQueryProcessor
 
 logger = logging.getLogger(__name__)
 

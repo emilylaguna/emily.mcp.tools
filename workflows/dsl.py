@@ -11,7 +11,7 @@ import logging
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 
-from automation_engine import Workflow, WorkflowAction, WorkflowTrigger
+from .engine import Workflow, WorkflowAction, WorkflowTrigger
 
 logger = logging.getLogger(__name__)
 
@@ -313,5 +313,112 @@ actions:
       title: "Daily Standup - {{ datetime.now().strftime('%Y-%m-%d') }}"
       priority: medium
       content: "Daily team synchronization meeting"
+""",
+
+    'meeting_followup': """
+id: meeting_followup
+name: Meeting Follow-up Automation
+description: Create action items from meeting notes
+trigger:
+  type: entity_created
+  filter:
+    type: handoff
+    metadata.topics: ["meeting", "discussion"]
+actions:
+  - type: create_task
+    params:
+      title: "Follow up on meeting: {{ entity.name }}"
+      priority: medium
+      content: "Action items from meeting: {{ entity.content }}"
+  - type: notify
+    params:
+      channel: slack
+      message: "Meeting follow-up task created: {{ entity.name }}"
+""",
+
+    'bug_report': """
+id: bug_report
+name: Bug Report Automation
+description: Automatically create tasks for bug reports
+trigger:
+  type: entity_created
+  filter:
+    type: handoff
+    metadata.topics: ["bug", "issue", "error"]
+actions:
+  - type: create_task
+    params:
+      title: "Investigate bug: {{ entity.name }}"
+      priority: high
+      content: "Bug report: {{ entity.content }}"
+  - type: notify
+    params:
+      channel: slack
+      message: "New bug report requires investigation: {{ entity.name }}"
+""",
+
+    'project_setup': """
+id: project_setup
+name: Project Setup Automation
+description: Automatically setup new projects with initial tasks
+trigger:
+  type: entity_created
+  filter:
+    type: project
+actions:
+  - type: create_task
+    params:
+      title: "Project Setup - Define Requirements"
+      priority: high
+      content: "Define project requirements and scope for {{ entity.name }}"
+  - type: create_task
+    params:
+      title: "Project Setup - Create Timeline"
+      priority: medium
+      content: "Create project timeline and milestones for {{ entity.name }}"
+  - type: notify
+    params:
+      channel: slack
+      message: "New project '{{ entity.name }}' has been set up with initial tasks"
+""",
+
+    'code_review': """
+id: code_review
+name: Code Review Automation
+description: Automatically create tasks for code reviews
+trigger:
+  type: entity_created
+  filter:
+    type: handoff
+    metadata.topics: ["code review", "review"]
+actions:
+  - type: create_task
+    params:
+      title: "Code Review: {{ entity.name }}"
+      priority: medium
+      content: "Code review request: {{ entity.content }}"
+  - type: notify
+    params:
+      channel: slack
+      message: "Code review task created: {{ entity.name }}"
+""",
+
+    'deadline_reminder': """
+id: deadline_reminder
+name: Deadline Reminder Automation
+description: Send reminders for upcoming deadlines
+trigger:
+  type: scheduled
+  schedule: "0 10 * * 1-5"  # 10 AM on weekdays
+actions:
+  - type: notify
+    params:
+      channel: slack
+      message: "Check for upcoming deadlines and update task status"
+  - type: create_task
+    params:
+      title: "Review Upcoming Deadlines"
+      priority: medium
+      content: "Review and update status of tasks with upcoming deadlines"
 """
 } 
