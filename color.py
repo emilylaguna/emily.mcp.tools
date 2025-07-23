@@ -50,10 +50,12 @@ async def color():
     #     "workflow_definition": json_data
     # })
     # Print a JSON pretty print
-    handoff = await mcp.call_tool("handoff_save", {"context": "Hello, world! and Meow"})
-    logger.info(f"Handoff: {handoff}")
+    # handoff = await mcp.call_tool("handoff_save", {"context": "Hello, world! and Meow"})
+    # logger.info(f"Handoff: {handoff}")
     
-    today = await mcp.call_tool("todo_get_today", {})
+    today = await mcp.call_tool("todo_get_upcoming", {
+        "days": 7
+    })
     logger.info(f"Today: {today}")
 
 asyncio.run(color())

@@ -20,7 +20,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
     graph_tool = UnifiedKnowledgeGraphTool(memory_store)
     
     @mcp.tool()
-    async def graph_find_related(entity_id: str, depth: int = 2, ctx: object = None) -> dict:
+    async def graph_find_related(entity_id: str, depth: int = 2, ctx: Optional[object] = None) -> dict:
         """Find entities related to a given entity within a specified depth."""
         try:
             # Handle both string and numeric IDs
@@ -64,7 +64,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_search(query: str, entity_type: str = None, limit: int = 20, ctx: object = None) -> list:
+    async def graph_search(query: str, entity_type: Optional[str] = None, limit: int = 20, ctx: Optional[object] = None) -> list:
         """Search for entities in the knowledge graph."""
         try:
             results = graph_tool.graph_search(query, entity_type, limit)
@@ -74,7 +74,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return [{"error": str(e)}]
     
     @mcp.tool()
-    async def graph_create_entity(payload: dict, ctx: object = None) -> dict:
+    async def graph_create_entity(payload: dict, ctx: Optional[object] = None) -> dict:
         """Create a new entity in the knowledge graph."""
         try:
             entity = graph_tool.create_entity(payload)
@@ -92,7 +92,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
     
     @mcp.tool()
     async def graph_create_relation(source_id: str, target_id: str, relation_type: str, 
-                                  strength: float = 1.0, metadata: dict = None, ctx: object = None) -> dict:
+                                  strength: float = 1.0, metadata: Optional[Dict[str, Any]] = None, ctx: Optional[object] = None) -> dict:
         """Create a new relation between two entities."""
         try:
             # Handle numeric IDs
@@ -123,7 +123,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_get_entity(entity_id: str, ctx: object = None) -> dict:
+    async def graph_get_entity(entity_id: str, ctx: Optional[object] = None) -> dict:
         """Get a specific entity by ID."""
         try:
             # Handle numeric IDs
@@ -149,7 +149,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_get_relations(entity_id: str, relation_types: list = None, ctx: object = None) -> list:
+    async def graph_get_relations(entity_id: str, relation_types: Optional[List[str]] = None, ctx: Optional[object] = None) -> list:
         """Get relations for a specific entity."""
         try:
             # Handle numeric IDs
@@ -174,7 +174,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return [{"error": str(e)}]
     
     @mcp.tool()
-    async def graph_shortest_path(source_id: str, target_id: str, ctx: object = None) -> dict:
+    async def graph_shortest_path(source_id: str, target_id: str, ctx: Optional[object] = None) -> dict:
         """Find the shortest path between two entities."""
         try:
             # Handle numeric IDs
@@ -208,7 +208,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_find_clusters(entity_type: str = None, ctx: object = None) -> dict:
+    async def graph_find_clusters(entity_type: Optional[str] = None, ctx: Optional[object] = None) -> dict:
         """Find clusters of related entities."""
         try:
             clusters = graph_tool.find_clusters(entity_type)
@@ -240,7 +240,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_get_centrality(entity_id: str, ctx: object = None) -> dict:
+    async def graph_get_centrality(entity_id: str, ctx: Optional[object] = None) -> dict:
         """Get centrality score for an entity."""
         try:
             # Handle numeric IDs
@@ -260,7 +260,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_delete_entity(entity_id: str, ctx: object = None) -> dict:
+    async def graph_delete_entity(entity_id: str, ctx: Optional[object] = None) -> dict:
         """Delete an entity and its relations."""
         try:
             # Handle numeric IDs
@@ -274,7 +274,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     @mcp.tool()
-    async def graph_delete_relation(relation_id: str, ctx: object = None) -> dict:
+    async def graph_delete_relation(relation_id: str, ctx: Optional[object] = None) -> dict:
         """Delete a specific relation."""
         try:
             success = graph_tool.delete_relation(relation_id)

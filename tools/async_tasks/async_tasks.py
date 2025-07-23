@@ -322,9 +322,9 @@ class AsyncTasksTool(BaseTool):
 
     def register(self, mcp):
         @mcp.tool()
-        async def async_tasks_create(name: str, command: str, arguments: dict = None,
-                                    description: str = None, priority: str = "normal", 
-                                    tags: list = None, ctx: object = None) -> dict:
+        async def async_tasks_create(name: str, command: str, arguments: Optional[Dict[str, Any]] = None,
+                                    description: Optional[str] = None, priority: str = "normal", 
+                                    tags: Optional[List[str]] = None, ctx: Optional[object] = None) -> dict:
             """Create a new async task."""
             if arguments is None:
                 arguments = {}
@@ -351,7 +351,7 @@ class AsyncTasksTool(BaseTool):
             }
 
         @mcp.tool()
-        async def async_tasks_list(status: str = None, priority: str = None, limit: int = 50, ctx: object = None) -> list:
+        async def async_tasks_list(status: Optional[str] = None, priority: Optional[str] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
             """List async tasks with optional filtering."""
             status_enum = TaskStatus(status.lower()) if status else None
             priority_enum = TaskPriority(priority.lower()) if priority else None
@@ -376,7 +376,7 @@ class AsyncTasksTool(BaseTool):
             ]
 
         @mcp.tool()
-        async def async_tasks_get_status(task_id: int, ctx: object = None) -> dict:
+        async def async_tasks_get_status(task_id: int, ctx: Optional[object] = None) -> dict:
             """Get detailed status of an async task."""
             status_info = self.get_task_status(task_id)
             if status_info:

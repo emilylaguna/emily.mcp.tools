@@ -416,7 +416,11 @@ class UnifiedTodoTool(BaseTool):
                          and task.metadata.get("status") == "todo"]
         
         # Combine and deduplicate
-        all_evening = evening_tasks + evening_tagged
+        # Ensure we have lists before adding them
+        evening_list = evening_tasks if evening_tasks is not None else []
+        evening_tagged_list = evening_tagged if evening_tagged is not None else []
+        
+        all_evening = evening_list + evening_tagged_list
         unique_evening = {}
         for task in all_evening:
             unique_evening[task.id] = task
@@ -426,8 +430,9 @@ class UnifiedTodoTool(BaseTool):
     def get_upcoming_tasks(self, days: int = 7) -> Dict[str, List]:
         """Upcoming view with AI enhancements."""
         upcoming = {}
-        
+    
         for day_offset in range(days):
+            logger.info(f"Day offset: {day_offset} {timedelta(days=day_offset)}")
             target_date = datetime.now() + timedelta(days=day_offset)
             date_str = target_date.strftime("%Y-%m-%d")
             
@@ -455,14 +460,21 @@ class UnifiedTodoTool(BaseTool):
             # AI suggestions for this date
             date_suggestions = self._suggest_for_date(target_date)
             
+            # Ensure we have lists before adding them
+            scheduled_list = scheduled if scheduled is not None else []
+            due_tasks_list = due_tasks if due_tasks is not None else []
+            project_deadlines_list = project_deadlines if project_deadlines is not None else []
+            calendar_events_list = calendar_events if calendar_events is not None else []
+            date_suggestions_list = date_suggestions if date_suggestions is not None else []
+            
             upcoming[date_str] = {
                 "date": target_date.isoformat(),
-                "scheduled_tasks": scheduled,
-                "due_tasks": due_tasks,
-                "project_deadlines": project_deadlines,
-                "calendar_events": calendar_events,
-                "suggestions": date_suggestions,
-                "workload_score": self._calculate_workload_score(scheduled + due_tasks)
+                "scheduled_tasks": scheduled_list,
+                "due_tasks": due_tasks_list,
+                "project_deadlines": project_deadlines_list,
+                "calendar_events": calendar_events_list,
+                "suggestions": date_suggestions_list,
+                "workload_score": self._calculate_workload_score(scheduled_list + due_tasks_list)
             }
         
         return upcoming
@@ -490,7 +502,11 @@ class UnifiedTodoTool(BaseTool):
                        and not task.metadata.get("due_date")]
         
         # Combine and deduplicate
-        all_someday = someday_tasks + low_priority
+        # Ensure we have lists before adding them
+        someday_list = someday_tasks if someday_tasks is not None else []
+        low_priority_list = low_priority if low_priority is not None else []
+        
+        all_someday = someday_list + low_priority_list
         unique_someday = {}
         for task in all_someday:
             unique_someday[task.id] = task
@@ -723,22 +739,27 @@ class UnifiedTodoTool(BaseTool):
             "created_after": (datetime.now() - timedelta(days=3)).isoformat()
         })
         
-        for conv in recent_conversations[:2]:
-            suggestions.append({
-                "context_id": conv['id'],
-                "title": f"Follow up on: {conv['content'][:50]}...",
-                "reason": "Recent conversation requires follow-up",
-                "suggested_action": "Create task from conversation"
-            })
+        if recent_conversations is not None:
+            for conv in recent_conversations[:2]:
+                suggestions.append({
+                    "context_id": conv['id'],
+                    "title": f"Follow up on: {conv['content'][:50]}...",
+                    "reason": "Recent conversation requires follow-up",
+                    "suggested_action": "Create task from conversation"
+                })
         
         return suggestions
     
     def quick_find(self, query: str) -> Dict[str, List]:
         """Quick find across tasks, projects, areas with AI search."""
+        tasks = self.memory.search(query, {"type": "task"})
+        projects = self.memory.search(query, {"type": "project"})
+        areas = self.memory.search(query, {"type": "area"})
+        
         return {
-            "tasks": self.memory.search(query, {"type": "task"}),
-            "projects": self.memory.search(query, {"type": "project"}),
-            "areas": self.memory.search(query, {"type": "area"})
+            "tasks": tasks if tasks is not None else [],
+            "projects": projects if projects is not None else [],
+            "areas": areas if areas is not None else []
         }
 
     def register(self, mcp):
@@ -781,7 +802,8 @@ class UnifiedTodoTool(BaseTool):
             "metadata.status": "todo",
             "metadata.scheduled_date": None
         })
-        suggestions.extend(high_priority[:2])
+        if high_priority is not None:
+            suggestions.extend(high_priority[:2])
         
         # 2. Tasks related to recent conversations
         recent_conversations = self.memory.search("", filters={
@@ -789,13 +811,15 @@ class UnifiedTodoTool(BaseTool):
             "created_after": (datetime.now() - timedelta(days=3)).isoformat()
         })
         
-        for conv in recent_conversations:
-            # Find tasks mentioned in or related to recent conversations
-            related_tasks = self.memory.get_related(conv['id'], ["relates_to", "spawns_task"])
-            for task in related_tasks:
-                if (task.get('type') == 'task' and 
-                    task.get('metadata', {}).get('status') == 'todo'):
-                    suggestions.append(task)
+        if recent_conversations is not None:
+            for conv in recent_conversations:
+                # Find tasks mentioned in or related to recent conversations
+                related_tasks = self.memory.get_related(conv['id'], ["relates_to", "spawns_task"])
+                if related_tasks is not None:
+                    for task in related_tasks:
+                        if (task.get('type') == 'task' and 
+                            task.get('metadata', {}).get('status') == 'todo'):
+                            suggestions.append(task)
         
         # 3. Project deadlines approaching
         urgent_projects = self._get_projects_with_approaching_deadlines()
@@ -805,7 +829,8 @@ class UnifiedTodoTool(BaseTool):
                 "metadata.project_id": project['id'],
                 "metadata.status": "todo"
             })
-            suggestions.extend(project_tasks[:1])  # One task per urgent project
+            if project_tasks is not None:
+                suggestions.extend(project_tasks[:1])  # One task per urgent project
         
         # 4. Quick wins (low effort, high impact)
         quick_wins = self.memory.search("", filters={
@@ -813,7 +838,8 @@ class UnifiedTodoTool(BaseTool):
             "metadata.time_estimate": "<30",  # Less than 30 minutes
             "metadata.status": "todo"
         })
-        suggestions.extend(quick_wins[:2])
+        if quick_wins is not None:
+            suggestions.extend(quick_wins[:2])
         
         # Deduplicate and limit
         unique_suggestions = {}
@@ -865,7 +891,8 @@ class UnifiedTodoTool(BaseTool):
             else:
                 # Handle MemoryEntity objects
                 time_estimate = task.metadata.get('time_estimate', 30)  # Default 30 min
-            total_estimate += time_estimate
+
+            total_estimate += time_estimate if time_estimate is not None else 30
         
         # Convert to hours and return score (0-10 scale)
         hours = total_estimate / 60

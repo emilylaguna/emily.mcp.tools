@@ -5,7 +5,7 @@ Time Service tool for Emily Tools MCP server.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -133,7 +133,7 @@ class TimeServiceTool(BaseTool):
 
     def register(self, mcp):
         @mcp.tool()
-        async def time_get_current_time(ctx: object = None) -> dict:
+        async def time_get_current_time(ctx: Optional[object] = None) -> dict:
             """Get comprehensive current time information."""
             time_info = self.get_current_time()
             return {
@@ -152,12 +152,12 @@ class TimeServiceTool(BaseTool):
             }
 
         @mcp.tool()
-        async def time_get_timezone_info(ctx: object = None) -> dict:
+        async def time_get_timezone_info(ctx: Optional[object] = None) -> dict:
             """Get current timezone information."""
             return self.get_timezone_info()
 
         @mcp.tool()
-        async def time_format_time(timestamp: float, format_string: str = "%Y-%m-%d %H:%M:%S", ctx: object = None) -> str:
+        async def time_format_time(timestamp: float, format_string: str = "%Y-%m-%d %H:%M:%S", ctx: Optional[object] = None) -> str:
             """Format a timestamp in a specific format."""
             return self.format_time(timestamp, format_string)
         

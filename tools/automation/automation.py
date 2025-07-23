@@ -224,8 +224,7 @@ class AutomationTool(BaseTool):
                 
             # Create manual event
             event = Event(
-                type="manual_trigger",
-                payload=event_data,
+                payload=[event_data],  # Event expects a list of dicts
                 source="mcp"
             )
             
@@ -475,7 +474,7 @@ class AutomationTool(BaseTool):
                 }
 
         @mcp.tool()
-        async def automation_trigger_workflow(workflow_id: str, event_data: dict = None) -> dict:
+        async def automation_trigger_workflow(workflow_id: str, event_data: Optional[Dict[str, Any]] = None) -> dict:
             """Manually trigger an automation workflow."""
             try:
                 if event_data is None:
@@ -501,7 +500,7 @@ class AutomationTool(BaseTool):
                 }
 
         @mcp.tool()
-        async def automation_list_runs(workflow_id: str = None, limit: int = 50) -> dict:
+        async def automation_list_runs(workflow_id: Optional[str] = None, limit: int = 50) -> dict:
             """List automation workflow runs."""
             try:
                 runs = self.list_workflow_runs(workflow_id=workflow_id, limit=limit)

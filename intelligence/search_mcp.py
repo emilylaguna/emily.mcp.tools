@@ -61,14 +61,14 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Project intelligence failed: {e}")
                 return {"error": str(e), "intelligence": {}}
         
-        @mcp.tool()
-        async def find_expertise(technology: str) -> list:
-            """Find people with expertise in specific technology."""
-            try:
-                return self.search_engine.find_expert_for_technology(technology)
-            except Exception as e:
-                logger.error(f"Expertise search failed: {e}")
-                return []
+        # @mcp.tool()
+        # async def find_expertise(technology: str) -> list:
+        #     """Find people with expertise in specific technology."""
+        #     try:
+        #         return self.search_engine.find_expert_for_technology(technology)
+        #     except Exception as e:
+        #         logger.error(f"Expertise search failed: {e}")
+        #         return []
         
         @mcp.tool()
         async def get_smart_suggestions(context: dict) -> dict:

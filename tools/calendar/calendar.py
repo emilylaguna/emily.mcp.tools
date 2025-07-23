@@ -170,10 +170,10 @@ class CalendarTool(BaseTool):
 
     def register(self, mcp):
         @mcp.tool()
-        async def calendar_create_event(title: str, start_time: str, end_time: str = None,
-                                       description: str = None, event_type: str = "other",
-                                       location: str = None, attendees: list = None, 
-                                       is_all_day: bool = False, tags: list = None, ctx: object = None) -> dict:
+        async def calendar_create_event(title: str, start_time: str, end_time: Optional[str] = None,
+                                       description: Optional[str] = None, event_type: str = "other",
+                                       location: Optional[str] = None, attendees: Optional[List[str]] = None, 
+                                       is_all_day: bool = False, tags: Optional[List[str]] = None, ctx: Optional[object] = None) -> dict:
             """Create a new calendar event."""
             if attendees is None:
                 attendees = []
@@ -205,7 +205,7 @@ class CalendarTool(BaseTool):
             }
 
         @mcp.tool()
-        async def calendar_list_events(event_type: str = None, limit: int = 50, ctx: object = None) -> list:
+        async def calendar_list_events(event_type: Optional[str] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
             """List calendar events with optional filtering."""
             event_type_enum = EventType(event_type.lower()) if event_type else None
             events = self.list_events(event_type=event_type_enum, limit=limit)
@@ -226,7 +226,7 @@ class CalendarTool(BaseTool):
             ]
 
         @mcp.tool()
-        async def calendar_get_upcoming_events(days: int = 7, ctx: object = None) -> list:
+        async def calendar_get_upcoming_events(days: int = 7, ctx: Optional[object] = None) -> list:
             """Get upcoming calendar events."""
             events = self.get_upcoming_events(days=days)
             return [
