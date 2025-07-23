@@ -6,9 +6,10 @@ intelligence features.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Literal
 from datetime import datetime, timedelta
 import re
+from enum import Enum
 
 try:
     from ..core import UnifiedMemoryStore
@@ -18,8 +19,24 @@ except ImportError:
 from .search import IntelligentSearchEngine
 from .smart_suggestions import SmartSuggestionsEngine
 from .natural_query import NaturalQueryProcessor
+from tools.common_types import SearchMode, AnalysisType
 
 logger = logging.getLogger(__name__)
+
+
+# Use common types where possible
+SearchType = SearchMode
+InsightType = AnalysisType
+
+
+class SuggestionCategory(str, Enum):
+    """Suggestion categories."""
+    WORKFLOW = "workflow"
+    TASK = "task"
+    PROJECT = "project"
+    AUTOMATION = "automation"
+    INTEGRATION = "integration"
+    OPTIMIZATION = "optimization"
 
 
 class IntelligentSearchMCPTools:

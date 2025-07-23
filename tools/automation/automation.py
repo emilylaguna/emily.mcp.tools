@@ -8,11 +8,13 @@ import logging
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Literal
+from enum import Enum
 
 from pydantic import BaseModel
 
 from ..base import BaseTool
+from ..common_types import Status, TriggerType, ActionType
 try:
     from ...workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
     from ...workflows.suggester import WorkflowSuggester
@@ -23,6 +25,21 @@ except ImportError:
     from core import UnifiedMemoryStore, MemoryEntity
 
 logger = logging.getLogger(__name__)
+
+
+# Use common types where possible
+WorkflowStatus = Status
+WorkflowTriggerType = TriggerType
+WorkflowActionType = ActionType
+
+
+class WorkflowRunStatus(str, Enum):
+    """Workflow run status values."""
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class WorkflowDefinition(BaseModel):

@@ -5,11 +5,27 @@ Time Service tool for Emily Tools MCP server.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 
 from pydantic import BaseModel
 
 from ..base import BaseTool
+from ..common_types import DayOfWeek, TimeUnit
+
+logger = logging.getLogger(__name__)
+
+
+# Common time format literals
+TimeFormat = Literal[
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%d",
+    "%H:%M:%S", 
+    "%B %d, %Y",
+    "%d/%m/%Y",
+    "%m/%d/%Y",
+    "%Y-%m-%dT%H:%M:%S",
+    "%Y-%m-%dT%H:%M:%SZ"
+]
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +197,7 @@ class TimeServiceTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def time_format_time(timestamp: float, format_string: str = "%Y-%m-%d %H:%M:%S", ctx: Optional[object] = None) -> str:
+        async def time_format_time(timestamp: float, format_string: TimeFormat = "%Y-%m-%d %H:%M:%S", ctx: Optional[object] = None) -> str:
             """Format a timestamp in a specific format."""
             return self.format_time(timestamp, format_string)
         

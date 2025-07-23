@@ -5,13 +5,14 @@ Async Tasks tool for Emily Tools MCP server.
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from enum import Enum
 
 from pydantic import BaseModel
 
 from ..base import BaseTool
+from ..common_types import Priority, Status
 import json
 
 logger = logging.getLogger(__name__)
@@ -25,11 +26,8 @@ class TaskStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class TaskPriority(str, Enum):
-    LOW = "low"
-    NORMAL = "normal"
-    HIGH = "high"
-    CRITICAL = "critical"
+# Use common Priority enum instead of TaskPriority
+TaskPriority = Priority
 
 
 class AsyncTask(BaseModel):
@@ -39,7 +37,7 @@ class AsyncTask(BaseModel):
     command: str
     arguments: Dict[str, Any] = {}
     status: TaskStatus = TaskStatus.PENDING
-    priority: TaskPriority = TaskPriority.NORMAL
+    priority: TaskPriority = TaskPriority.MEDIUM
     scheduled_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
@@ -99,7 +97,7 @@ class AsyncTasksTool(BaseTool):
                 f.write(task.json() + '\n')
 
     def create_task(self, name: str, command: str, arguments: Dict[str, Any] = {},
-                   description: Optional[str] = None, priority: TaskPriority = TaskPriority.NORMAL,
+                   description: Optional[str] = None, priority: TaskPriority = TaskPriority.MEDIUM,
                    tags: List[str] = []) -> AsyncTask:
         tasks = self._read_tasks()
         new_id = max([t.id for t in tasks if t.id is not None] + [0]) + 1
@@ -119,7 +117,7 @@ class AsyncTasksTool(BaseTool):
 
     def schedule_task(self, name: str, command: str, scheduled_at: datetime,
                      arguments: Dict[str, Any] = {}, description: Optional[str] = None,
-                     priority: TaskPriority = TaskPriority.NORMAL, tags: List[str] = []) -> AsyncTask:
+                     priority: TaskPriority = TaskPriority.MEDIUM, tags: List[str] = []) -> AsyncTask:
         tasks = self._read_tasks()
         new_id = max([t.id for t in tasks if t.id is not None] + [0]) + 1
         task = AsyncTask(
@@ -331,20 +329,19 @@ class AsyncTasksTool(BaseTool):
             }
         )
         async def async_tasks_create(name: str, command: str, arguments: Optional[Dict[str, Any]] = None,
-                                    description: Optional[str] = None, priority: str = "normal", 
+                                    description: Optional[str] = None, priority: TaskPriority = TaskPriority.MEDIUM, 
                                     tags: Optional[List[str]] = None, ctx: Optional[object] = None) -> dict:
             """Create a new async task."""
             if arguments is None:
                 arguments = {}
             if tags is None:
                 tags = []
-            priority_enum = TaskPriority(priority.lower())
             task = self.create_task(
                 name=name,
                 command=command,
                 arguments=arguments,
                 description=description,
-                priority=priority_enum,
+                priority=priority,
                 tags=tags
             )
             return {
@@ -367,11 +364,9 @@ class AsyncTasksTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def async_tasks_list(status: Optional[str] = None, priority: Optional[str] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
+        async def async_tasks_list(status: Optional[TaskStatus] = None, priority: Optional[TaskPriority] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
             """List async tasks with optional filtering."""
-            status_enum = TaskStatus(status.lower()) if status else None
-            priority_enum = TaskPriority(priority.lower()) if priority else None
-            tasks = self.list_tasks(status=status_enum, priority=priority_enum, limit=limit)
+            tasks = self.list_tasks(status=status, priority=priority, limit=limit)
             return [
                 {
                     "id": task.id,

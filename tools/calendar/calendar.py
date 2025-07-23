@@ -4,24 +4,17 @@ Calendar tool for Emily Tools MCP server.
 
 import logging
 from datetime import datetime, timedelta
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from enum import Enum
 
 from pydantic import BaseModel
 
 from ..base import BaseTool
+from ..common_types import EventType
 import json
 
 logger = logging.getLogger(__name__)
-
-
-class EventType(str, Enum):
-    MEETING = "meeting"
-    TASK = "task"
-    REMINDER = "reminder"
-    APPOINTMENT = "appointment"
-    OTHER = "other"
 
 
 class Event(BaseModel):
@@ -179,7 +172,7 @@ class CalendarTool(BaseTool):
             }
         )
         async def calendar_create_event(title: str, start_time: str, end_time: Optional[str] = None,
-                                       description: Optional[str] = None, event_type: str = "other",
+                                       description: Optional[str] = None, event_type: EventType = EventType.OTHER,
                                        location: Optional[str] = None, attendees: Optional[List[str]] = None, 
                                        is_all_day: bool = False, tags: Optional[List[str]] = None, ctx: Optional[object] = None) -> dict:
             """Create a new calendar event."""
@@ -187,13 +180,12 @@ class CalendarTool(BaseTool):
                 attendees = []
             if tags is None:
                 tags = []
-            event_type_enum = EventType(event_type.lower())
             event = self.create_event(
                 title=title,
                 start_time=start_time,
                 end_time=end_time,
                 description=description,
-                event_type=event_type_enum,
+                event_type=event_type,
                 location=location,
                 attendees=attendees,
                 is_all_day=is_all_day,
@@ -221,10 +213,9 @@ class CalendarTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def calendar_list_events(event_type: Optional[str] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
+        async def calendar_list_events(event_type: Optional[EventType] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
             """List calendar events with optional filtering."""
-            event_type_enum = EventType(event_type.lower()) if event_type else None
-            events = self.list_events(event_type=event_type_enum, limit=limit)
+            events = self.list_events(event_type=event_type, limit=limit)
             return [
                 {
                     "id": event.id,

@@ -4,12 +4,37 @@ Phase 3.2: Advanced Todo Tool MCP Integration
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 from datetime import datetime
+from enum import Enum
 
 from .unified_todo_tool import UnifiedTodoTool
+from ..common_types import Priority, EnergyLevel, Status, TimeFrame
 
 logger = logging.getLogger(__name__)
+
+
+# Task-specific status enums
+class TaskStatus(str, Enum):
+    """Task status values."""
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class AreaStatus(str, Enum):
+    """Area status values."""
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+
+
+class ProjectStatus(str, Enum):
+    """Project status values."""
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    ON_HOLD = "on_hold"
+    CANCELLED = "cancelled"
 
 
 def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
@@ -72,9 +97,9 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         }
     )
     async def todo_create_task(title: str, description: Optional[str] = None, project_id: Optional[str] = None,
-                              area_id: Optional[str] = None, priority: str = "medium", 
+                              area_id: Optional[str] = None, priority: Priority = Priority.MEDIUM, 
                               scheduled_date: Optional[str] = None, due_date: Optional[str] = None,
-                              energy_level: str = "medium", time_estimate: Optional[int] = None,
+                              energy_level: EnergyLevel = EnergyLevel.MEDIUM, time_estimate: Optional[int] = None,
                               tags: Optional[List[str]] = None) -> dict:
         """Create a new task with advanced features."""
         if tags is None:
@@ -85,10 +110,10 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             description=description,
             project_id=project_id,
             area_id=area_id,
-            priority=priority,
+            priority=priority.value,
             scheduled_date=scheduled_date,
             due_date=due_date,
-            energy_level=energy_level,
+            energy_level=energy_level.value,
             time_estimate=time_estimate,
             tags=tags
         )
@@ -227,9 +252,9 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             "idempotentHint": True
         }
     )
-    async def todo_list_areas(status: str = "active") -> list:
+    async def todo_list_areas(status: AreaStatus = AreaStatus.ACTIVE) -> list:
         """List all areas."""
-        areas = todo_tool.get_areas(status)
+        areas = todo_tool.get_areas(status.value)
         return [
             {
                 "id": area.id,
@@ -250,9 +275,9 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             "idempotentHint": True
         }
     )
-    async def todo_list_projects(area_id: Optional[str] = None, status: str = "active") -> list:
+    async def todo_list_projects(area_id: Optional[str] = None, status: ProjectStatus = ProjectStatus.ACTIVE) -> list:
         """List projects, optionally filtered by area."""
-        projects = todo_tool.get_projects(area_id, status)
+        projects = todo_tool.get_projects(area_id, status.value)
         return [
             {
                 "id": project.id,
@@ -362,10 +387,10 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         }
     )
     async def todo_update_task(task_id: str, title: Optional[str] = None, description: Optional[str] = None,
-                              status: Optional[str] = None, priority: Optional[str] = None,
+                              status: Optional[TaskStatus] = None, priority: Optional[Priority] = None,
                               project_id: Optional[str] = None, area_id: Optional[str] = None,
                               scheduled_date: Optional[str] = None, due_date: Optional[str] = None,
-                              energy_level: Optional[str] = None, time_estimate: Optional[int] = None,
+                              energy_level: Optional[EnergyLevel] = None, time_estimate: Optional[int] = None,
                               tags: Optional[List[str]] = None) -> dict:
         """Update a task's properties."""
         # Build updates dict from non-None parameters
@@ -375,9 +400,9 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         if description is not None:
             updates["content"] = description
         if status is not None:
-            updates["status"] = status
+            updates["status"] = status.value
         if priority is not None:
-            updates["priority"] = priority
+            updates["priority"] = priority.value
         if project_id is not None:
             updates["project_id"] = project_id
         if area_id is not None:
@@ -387,7 +412,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         if due_date is not None:
             updates["due_date"] = due_date
         if energy_level is not None:
-            updates["energy_level"] = energy_level
+            updates["energy_level"] = energy_level.value
         if time_estimate is not None:
             updates["time_estimate"] = time_estimate
         if tags is not None:
@@ -412,7 +437,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
     
     @mcp.tool()
     async def todo_update_project(project_id: str, name: Optional[str] = None, description: Optional[str] = None,
-                                 area_id: Optional[str] = None, status: Optional[str] = None,
+                                 area_id: Optional[str] = None, status: Optional[ProjectStatus] = None,
                                  deadline: Optional[str] = None, progress: Optional[float] = None,
                                  color: Optional[str] = None) -> dict:
         """Update a project's properties."""
@@ -428,7 +453,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
         if area_id is not None:
             project.metadata["area_id"] = area_id
         if status is not None:
-            project.metadata["status"] = status
+            project.metadata["status"] = status.value
         if deadline is not None:
             project.metadata["deadline"] = deadline
         if progress is not None:

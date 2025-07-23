@@ -3,7 +3,7 @@ MCP Integration for Unified Knowledge Graph Tool - Phase 3.3
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 
 try:
     from .unified_knowledge_graph_tool import UnifiedKnowledgeGraphTool
@@ -11,6 +11,56 @@ except ImportError:
     from unified_knowledge_graph_tool import UnifiedKnowledgeGraphTool
 
 logger = logging.getLogger(__name__)
+
+
+# Common relation types as literals
+RelationType = Literal[
+    "related_to",
+    "part_of", 
+    "depends_on",
+    "similar_to",
+    "opposite_of",
+    "causes",
+    "influences",
+    "belongs_to",
+    "works_with",
+    "reports_to",
+    "manages",
+    "collaborates_with",
+    "references",
+    "implements",
+    "extends",
+    "uses",
+    "creates",
+    "owns",
+    "follows",
+    "mentions"
+]
+
+
+# Common entity types as literals
+EntityType = Literal[
+    "person",
+    "project", 
+    "task",
+    "technology",
+    "concept",
+    "organization",
+    "location",
+    "event",
+    "document",
+    "code",
+    "data",
+    "system",
+    "process",
+    "goal",
+    "problem",
+    "solution",
+    "requirement",
+    "constraint",
+    "resource",
+    "milestone"
+]
 
 
 def register_knowledge_graph_tools(mcp, memory_store):
@@ -80,7 +130,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             "idempotentHint": True
         }
     )
-    async def graph_search(query: str, entity_type: Optional[str] = None, limit: int = 20, ctx: Optional[object] = None) -> list:
+    async def graph_search(query: str, entity_type: Optional[EntityType] = None, limit: int = 20, ctx: Optional[object] = None) -> list:
         """Search for entities in the knowledge graph."""
         try:
             results = graph_tool.graph_search(query, entity_type, limit)
@@ -123,7 +173,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             "idempotentHint": False
         }
     )
-    async def graph_create_relation(source_id: str, target_id: str, relation_type: str, 
+    async def graph_create_relation(source_id: str, target_id: str, relation_type: RelationType, 
                                   strength: float = 1.0, metadata: Optional[Dict[str, Any]] = None, ctx: Optional[object] = None) -> dict:
         """Create a new relation between two entities."""
         try:
@@ -197,7 +247,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             "idempotentHint": True
         }
     )
-    async def graph_get_relations(entity_id: str, relation_types: Optional[List[str]] = None, ctx: Optional[object] = None) -> list:
+    async def graph_get_relations(entity_id: str, relation_types: Optional[List[RelationType]] = None, ctx: Optional[object] = None) -> list:
         """Get relations for a specific entity."""
         try:
             # Handle numeric IDs
@@ -272,7 +322,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             "idempotentHint": True
         }
     )
-    async def graph_find_clusters(entity_type: Optional[str] = None, ctx: Optional[object] = None) -> dict:
+    async def graph_find_clusters(entity_type: Optional[EntityType] = None, ctx: Optional[object] = None) -> dict:
         """Find clusters of related entities."""
         try:
             clusters = graph_tool.find_clusters(entity_type)
