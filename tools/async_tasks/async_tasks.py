@@ -321,7 +321,15 @@ class AsyncTasksTool(BaseTool):
         ) 
 
     def register(self, mcp):
-        @mcp.tool()
+        @mcp.tool(
+            name="async_tasks_create",
+            description="Create a new async task for background execution with priority scheduling and metadata tracking",
+            tags={"async", "tasks", "create", "background", "execution"},
+            annotations={
+                "destructiveHint": True,
+                "idempotentHint": False
+            }
+        )
         async def async_tasks_create(name: str, command: str, arguments: Optional[Dict[str, Any]] = None,
                                     description: Optional[str] = None, priority: str = "normal", 
                                     tags: Optional[List[str]] = None, ctx: Optional[object] = None) -> dict:
@@ -350,7 +358,15 @@ class AsyncTasksTool(BaseTool):
                 "tags": task.tags
             }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="async_tasks_list",
+            description="List async tasks with optional filtering by status and priority for task management and monitoring",
+            tags={"async", "tasks", "list", "filter", "monitoring"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def async_tasks_list(status: Optional[str] = None, priority: Optional[str] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
             """List async tasks with optional filtering."""
             status_enum = TaskStatus(status.lower()) if status else None
@@ -375,7 +391,15 @@ class AsyncTasksTool(BaseTool):
                 for task in tasks
             ]
 
-        @mcp.tool()
+        @mcp.tool(
+            name="async_tasks_get_status",
+            description="Get detailed status of an async task including execution progress, results, and error information",
+            tags={"async", "tasks", "status", "monitoring", "details"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def async_tasks_get_status(task_id: int, ctx: Optional[object] = None) -> dict:
             """Get detailed status of an async task."""
             status_info = self.get_task_status(task_id)

@@ -347,7 +347,15 @@ class AutomationTool(BaseTool):
             return {}
 
     def register(self, mcp):
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_register_workflow",
+            description="Register a new automation workflow with triggers, conditions, and actions",
+            tags={"automation", "workflow", "register", "create", "configuration"},
+            annotations={
+                "destructiveHint": True,
+                "idempotentHint": False
+            }
+        )
         async def automation_register_workflow(workflow_definition: dict) -> dict:
             """Register a new automation workflow."""
             try:
@@ -364,7 +372,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to register workflow"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_list_workflows",
+            description="List all registered automation workflows with optional filtering by enabled status",
+            tags={"automation", "workflow", "list", "view", "management"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_list_workflows(enabled_only: bool = False) -> dict:
             """List all registered automation workflows."""
             try:
@@ -381,7 +397,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to list workflows"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_get_workflow",
+            description="Get detailed information about a specific automation workflow including configuration and status",
+            tags={"automation", "workflow", "get", "details", "view"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_get_workflow(workflow_id: str) -> dict:
             """Get a specific automation workflow by ID."""
             try:
@@ -404,7 +428,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to get workflow"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_delete_workflow",
+            description="Permanently delete an automation workflow and stop all its scheduled executions",
+            tags={"automation", "workflow", "delete", "remove", "cleanup"},
+            annotations={
+                "destructiveHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_delete_workflow(workflow_id: str) -> dict:
             """Delete an automation workflow."""
             try:
@@ -427,7 +459,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to delete workflow"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_pause_workflow",
+            description="Pause an automation workflow to temporarily stop its execution without deleting it",
+            tags={"automation", "workflow", "pause", "control", "management"},
+            annotations={
+                "destructiveHint": False,
+                "idempotentHint": True
+            }
+        )
         async def automation_pause_workflow(workflow_id: str) -> dict:
             """Pause an automation workflow."""
             try:
@@ -450,7 +490,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to pause workflow"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_resume_workflow",
+            description="Resume a paused automation workflow to continue its scheduled execution",
+            tags={"automation", "workflow", "resume", "control", "management"},
+            annotations={
+                "destructiveHint": False,
+                "idempotentHint": True
+            }
+        )
         async def automation_resume_workflow(workflow_id: str) -> dict:
             """Resume a paused automation workflow."""
             try:
@@ -473,7 +521,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to resume workflow"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_trigger_workflow",
+            description="Manually trigger an automation workflow with optional event data for immediate execution",
+            tags={"automation", "workflow", "trigger", "execute", "manual"},
+            annotations={
+                "destructiveHint": False,
+                "idempotentHint": False
+            }
+        )
         async def automation_trigger_workflow(workflow_id: str, event_data: Optional[Dict[str, Any]] = None) -> dict:
             """Manually trigger an automation workflow."""
             try:
@@ -499,7 +555,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to trigger workflow"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_list_runs",
+            description="List automation workflow runs with optional filtering by workflow and execution history",
+            tags={"automation", "workflow", "runs", "history", "monitoring"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_list_runs(workflow_id: Optional[str] = None, limit: int = 50) -> dict:
             """List automation workflow runs."""
             try:
@@ -516,7 +580,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to list workflow runs"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_get_run",
+            description="Get detailed information about a specific workflow run including status, logs, and results",
+            tags={"automation", "workflow", "run", "details", "monitoring"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_get_run(run_id: str) -> dict:
             """Get a specific automation workflow run by ID."""
             try:
@@ -539,7 +611,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to get workflow run"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_get_workflow_suggestions",
+            description="Get intelligent workflow suggestions based on query patterns and usage analytics",
+            tags={"automation", "workflow", "suggestions", "ai", "recommendations"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def automation_get_workflow_suggestions(query: str = "", limit: int = 10) -> dict:
             """Get workflow suggestions based on a query."""
             try:
@@ -556,7 +636,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to get workflow suggestions"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_approve_workflow_suggestion",
+            description="Approve and implement a workflow suggestion to create an active automation workflow",
+            tags={"automation", "workflow", "suggestions", "approve", "implement"},
+            annotations={
+                "destructiveHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_approve_workflow_suggestion(suggestion_id: str) -> dict:
             """Approve a workflow suggestion."""
             try:
@@ -579,7 +667,15 @@ class AutomationTool(BaseTool):
                     "message": "Failed to approve workflow suggestion"
                 }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="automation_get_suggestion_metrics",
+            description="Get analytics and metrics for workflow suggestions including approval rates and effectiveness",
+            tags={"automation", "metrics", "analytics", "suggestions", "performance"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def automation_get_suggestion_metrics() -> dict:
             """Get metrics for workflow suggestions."""
             try:

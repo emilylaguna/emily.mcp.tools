@@ -169,7 +169,15 @@ class CalendarTool(BaseTool):
         ) 
 
     def register(self, mcp):
-        @mcp.tool()
+        @mcp.tool(
+            name="calendar_create_event",
+            description="Create a new calendar event with scheduling, attendees, and metadata for comprehensive event management",
+            tags={"calendar", "event", "create", "schedule", "meeting"},
+            annotations={
+                "destructiveHint": True,
+                "idempotentHint": False
+            }
+        )
         async def calendar_create_event(title: str, start_time: str, end_time: Optional[str] = None,
                                        description: Optional[str] = None, event_type: str = "other",
                                        location: Optional[str] = None, attendees: Optional[List[str]] = None, 
@@ -204,7 +212,15 @@ class CalendarTool(BaseTool):
                 "tags": event.tags
             }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="calendar_list_events",
+            description="List calendar events with optional filtering by type and customizable result limits",
+            tags={"calendar", "event", "list", "filter", "view"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def calendar_list_events(event_type: Optional[str] = None, limit: int = 50, ctx: Optional[object] = None) -> list:
             """List calendar events with optional filtering."""
             event_type_enum = EventType(event_type.lower()) if event_type else None
@@ -225,7 +241,15 @@ class CalendarTool(BaseTool):
                 for event in events
             ]
 
-        @mcp.tool()
+        @mcp.tool(
+            name="calendar_get_upcoming_events",
+            description="Get upcoming calendar events within a specified number of days for planning and scheduling",
+            tags={"calendar", "event", "upcoming", "schedule", "planning"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def calendar_get_upcoming_events(days: int = 7, ctx: Optional[object] = None) -> list:
             """Get upcoming calendar events."""
             events = self.get_upcoming_events(days=days)

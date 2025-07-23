@@ -19,7 +19,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
     # Initialize the unified knowledge graph tool
     graph_tool = UnifiedKnowledgeGraphTool(memory_store)
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_find_related",
+        description="Find entities related to a given entity within a specified depth using graph traversal algorithms",
+        tags={"graph", "relationships", "search", "traversal", "knowledge"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_find_related(entity_id: str, depth: int = 2, ctx: Optional[object] = None) -> dict:
         """Find entities related to a given entity within a specified depth."""
         try:
@@ -63,7 +71,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_find_related: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_search",
+        description="Search for entities in the knowledge graph using semantic search with optional type filtering",
+        tags={"graph", "search", "entities", "semantic", "filter"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_search(query: str, entity_type: Optional[str] = None, limit: int = 20, ctx: Optional[object] = None) -> list:
         """Search for entities in the knowledge graph."""
         try:
@@ -73,7 +89,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_search: {e}")
             return [{"error": str(e)}]
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_create_entity",
+        description="Create a new entity in the knowledge graph with specified properties and metadata",
+        tags={"graph", "entity", "create", "knowledge", "data"},
+        annotations={
+            "destructiveHint": True,
+            "idempotentHint": False
+        }
+    )
     async def graph_create_entity(payload: dict, ctx: Optional[object] = None) -> dict:
         """Create a new entity in the knowledge graph."""
         try:
@@ -90,7 +114,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_create_entity: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_create_relation",
+        description="Create a new relation between two entities with specified type, strength, and metadata",
+        tags={"graph", "relation", "create", "connection", "knowledge"},
+        annotations={
+            "destructiveHint": True,
+            "idempotentHint": False
+        }
+    )
     async def graph_create_relation(source_id: str, target_id: str, relation_type: str, 
                                   strength: float = 1.0, metadata: Optional[Dict[str, Any]] = None, ctx: Optional[object] = None) -> dict:
         """Create a new relation between two entities."""
@@ -122,7 +154,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_create_relation: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_get_entity",
+        description="Get detailed information about a specific entity by its ID including properties and metadata",
+        tags={"graph", "entity", "get", "details", "retrieve"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_get_entity(entity_id: str, ctx: Optional[object] = None) -> dict:
         """Get a specific entity by ID."""
         try:
@@ -148,7 +188,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_get_entity: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_get_relations",
+        description="Get all relations for a specific entity with optional filtering by relation types",
+        tags={"graph", "relations", "entity", "connections", "filter"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_get_relations(entity_id: str, relation_types: Optional[List[str]] = None, ctx: Optional[object] = None) -> list:
         """Get relations for a specific entity."""
         try:
@@ -173,7 +221,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_get_relations: {e}")
             return [{"error": str(e)}]
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_shortest_path",
+        description="Find the shortest path between two entities using graph algorithms for relationship discovery",
+        tags={"graph", "path", "algorithm", "shortest", "connection"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_shortest_path(source_id: str, target_id: str, ctx: Optional[object] = None) -> dict:
         """Find the shortest path between two entities."""
         try:
@@ -207,7 +263,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_shortest_path: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_find_clusters",
+        description="Find clusters of related entities using community detection algorithms for pattern discovery",
+        tags={"graph", "clusters", "community", "detection", "patterns"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_find_clusters(entity_type: Optional[str] = None, ctx: Optional[object] = None) -> dict:
         """Find clusters of related entities."""
         try:
@@ -239,7 +303,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_find_clusters: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_get_centrality",
+        description="Get centrality score for an entity to measure its importance and influence in the knowledge graph",
+        tags={"graph", "centrality", "importance", "influence", "metrics"},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_get_centrality(entity_id: str, ctx: Optional[object] = None) -> dict:
         """Get centrality score for an entity."""
         try:
@@ -259,7 +331,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_get_centrality: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_delete_entity",
+        description="Delete an entity and all its relations from the knowledge graph permanently",
+        tags={"graph", "entity", "delete", "remove", "cleanup"},
+        annotations={
+            "destructiveHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_delete_entity(entity_id: str, ctx: Optional[object] = None) -> dict:
         """Delete an entity and its relations."""
         try:
@@ -273,7 +353,15 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in graph_delete_entity: {e}")
             return {"error": str(e)}
     
-    @mcp.tool()
+    @mcp.tool(
+        name="graph_delete_relation",
+        description="Delete a specific relation between entities from the knowledge graph",
+        tags={"graph", "relation", "delete", "remove", "connection"},
+        annotations={
+            "destructiveHint": True,
+            "idempotentHint": True
+        }
+    )
     async def graph_delete_relation(relation_id: str, ctx: Optional[object] = None) -> dict:
         """Delete a specific relation."""
         try:

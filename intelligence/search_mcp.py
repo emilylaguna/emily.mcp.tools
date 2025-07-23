@@ -34,7 +34,15 @@ class IntelligentSearchMCPTools:
     def register_tools(self, mcp):
         """Register all intelligent search tools with MCP."""
         
-        @mcp.tool()
+        @mcp.tool(
+            name="intelligent_search",
+            description="Advanced semantic search with cross-domain intelligence for finding related information across all data types",
+            tags={"search", "intelligence", "semantic", "cross-domain", "ai"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def intelligent_search(query: str, context: dict = None) -> dict:
             """Advanced semantic search with cross-domain intelligence."""
             try:
@@ -43,7 +51,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Intelligent search failed: {e}")
                 return {"error": str(e), "results": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="natural_query",
+            description="Process natural language queries with intelligent interpretation and context understanding",
+            tags={"search", "natural-language", "ai", "query", "interpretation"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def natural_query(query: str) -> dict:
             """Process natural language queries with intelligent interpretation."""
             try:
@@ -52,7 +68,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Natural query processing failed: {e}")
                 return {"error": str(e), "results": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="get_project_intelligence",
+            description="Get comprehensive project intelligence including related tasks, people, technologies, and insights",
+            tags={"intelligence", "project", "analytics", "insights", "comprehensive"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def get_project_intelligence(project_id: str) -> dict:
             """Get comprehensive project intelligence across all domains."""
             try:
@@ -70,7 +94,15 @@ class IntelligentSearchMCPTools:
         #         logger.error(f"Expertise search failed: {e}")
         #         return []
         
-        @mcp.tool()
+        @mcp.tool(
+            name="get_smart_suggestions",
+            description="Get contextual suggestions based on current entity and activity patterns using AI analysis",
+            tags={"suggestions", "contextual", "ai", "smart", "recommendations"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def get_smart_suggestions(context: dict) -> dict:
             """Get contextual suggestions based on current entity."""
             try:
@@ -79,7 +111,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Smart suggestions failed: {e}")
                 return {"error": str(e), "suggestions": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="intent_based_search",
+            description="Understand search intent from natural language and provide contextual results with AI interpretation",
+            tags={"search", "intent", "natural-language", "ai", "contextual"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def intent_based_search(natural_query: str) -> dict:
             """Understand search intent and provide contextual results."""
             try:
@@ -88,7 +128,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Intent-based search failed: {e}")
                 return {"error": str(e), "results": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="get_workflow_suggestions",
+            description="Get intelligent workflow suggestions based on user's current activity and historical patterns",
+            tags={"workflow", "suggestions", "automation", "ai", "productivity"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def get_workflow_suggestions(user_context: dict = None) -> dict:
             """Get workflow suggestions based on user's current activity."""
             try:
@@ -97,7 +145,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Workflow suggestions failed: {e}")
                 return {"error": str(e), "suggestions": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="complex_query",
+            description="Process complex queries with multiple clauses and relationships using advanced AI parsing",
+            tags={"search", "complex", "ai", "parsing", "relationships"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def complex_query(query: str) -> dict:
             """Process complex queries with multiple clauses and relationships."""
             try:
@@ -106,7 +162,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Complex query processing failed: {e}")
                 return {"error": str(e), "results": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="get_expertise_map",
+            description="Create expertise map from conversation and code patterns to identify knowledge distribution",
+            tags={"expertise", "mapping", "knowledge", "analysis", "ai"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def get_expertise_map() -> dict:
             """Create expertise map from conversation and code patterns."""
             try:
@@ -115,7 +179,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Expertise map creation failed: {e}")
                 return {"error": str(e), "expertise_map": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="get_cross_domain_insights",
+            description="Get cross-domain insights for a specific entity by analyzing relationships across different data types",
+            tags={"insights", "cross-domain", "analysis", "relationships", "ai"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def get_cross_domain_insights(entity_id: str) -> dict:
             """Get cross-domain insights for a specific entity."""
             try:
@@ -124,7 +196,15 @@ class IntelligentSearchMCPTools:
                 logger.error(f"Cross-domain insights failed: {e}")
                 return {"error": str(e), "insights": {}}
         
-        @mcp.tool()
+        @mcp.tool(
+            name="search_with_context",
+            description="Search with additional context about the current entity for more accurate and relevant results",
+            tags={"search", "contextual", "entity", "enhanced", "relevance"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def search_with_context(query: str, entity_context: str = None) -> dict:
             """Search with additional context about the current entity."""
             try:

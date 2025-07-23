@@ -63,7 +63,15 @@ class CodebaseAnalysisTool(BaseTool):
     # ------------------------------------------------------------------
 
     def register(self, mcp):
-        @mcp.tool()
+        @mcp.tool(
+            name="codebase_parse_file",
+            description="Parse a single source file and return basic metrics including complexity, lines of code, and structure analysis",
+            tags={"codebase", "analysis", "file", "metrics", "parsing"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def codebase_parse_file(path: str, ctx: Optional[object] = None) -> dict:  # noqa: D401
             """Parse a single source file and return basic metrics."""
             try:
@@ -72,7 +80,15 @@ class CodebaseAnalysisTool(BaseTool):
                 logger.error("codebase_parse_file error: %s", e)
                 return {"error": str(e)}
 
-        @mcp.tool()
+        @mcp.tool(
+            name="codebase_analyse_repo",
+            description="Analyse all supported files inside a directory recursively to provide comprehensive codebase metrics and insights",
+            tags={"codebase", "analysis", "repository", "comprehensive", "recursive"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def codebase_analyse_repo(directory: str, ctx: Optional[object] = None) -> list:  # noqa: D401
             """Analyse all supported files inside *directory* recursively."""
             try:
@@ -81,7 +97,15 @@ class CodebaseAnalysisTool(BaseTool):
                 logger.error("codebase_analyse_repo error: %s", e)
                 return [{"error": str(e)}]
 
-        @mcp.tool()
+        @mcp.tool(
+            name="codebase_query_hotspots",
+            description="Return high-complexity hotspots within a directory that may need refactoring or special attention",
+            tags={"codebase", "analysis", "hotspots", "complexity", "refactoring"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def codebase_query_hotspots(directory: str, threshold: int = 10, ctx: Optional[object] = None) -> list:  # noqa: D401
             """Return high-complexity hotspots within *directory*."""
             try:

@@ -132,7 +132,15 @@ class TimeServiceTool(BaseTool):
         return {"error": "Invalid reference time"} 
 
     def register(self, mcp):
-        @mcp.tool()
+        @mcp.tool(
+            name="time_get_current_time",
+            description="Get comprehensive current time information including timezone, dates, and business day indicators",
+            tags={"time", "current", "timezone", "date", "business"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": False
+            }
+        )
         async def time_get_current_time(ctx: Optional[object] = None) -> dict:
             """Get comprehensive current time information."""
             time_info = self.get_current_time()
@@ -151,12 +159,28 @@ class TimeServiceTool(BaseTool):
                 "is_business_day": time_info.is_business_day
             }
 
-        @mcp.tool()
+        @mcp.tool(
+            name="time_get_timezone_info",
+            description="Get current timezone information including offset and daylight saving time status",
+            tags={"time", "timezone", "offset", "dst", "locale"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def time_get_timezone_info(ctx: Optional[object] = None) -> dict:
             """Get current timezone information."""
             return self.get_timezone_info()
 
-        @mcp.tool()
+        @mcp.tool(
+            name="time_format_time",
+            description="Format a timestamp in a specific format using standard strftime formatting codes",
+            tags={"time", "format", "timestamp", "strftime", "conversion"},
+            annotations={
+                "readOnlyHint": True,
+                "idempotentHint": True
+            }
+        )
         async def time_format_time(timestamp: float, format_string: str = "%Y-%m-%d %H:%M:%S", ctx: Optional[object] = None) -> str:
             """Format a timestamp in a specific format."""
             return self.format_time(timestamp, format_string)
