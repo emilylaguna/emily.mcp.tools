@@ -21,16 +21,6 @@ def create_handoff_server(memory_store: UnifiedMemoryStore) -> FastMCP:
     
     # Initialize handoff tool
     handoff_tool = UnifiedHandoffTool(memory_store)
-    
-    # Initialize synchronously
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(handoff_tool.initialize(server))
-        loop.close()
-        logger.info("Handoff server initialized")
-    except RuntimeError:
-        asyncio.create_task(handoff_tool.initialize(server))
-        logger.info("Handoff server initialization scheduled")
+    handoff_tool.register(server)
     
     return server 

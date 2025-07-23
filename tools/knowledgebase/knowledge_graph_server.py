@@ -22,16 +22,6 @@ def create_knowledge_graph_server(memory_store: UnifiedMemoryStore, data_dir: Pa
     
     # Initialize knowledge graph tool
     kg_tool = UnifiedKnowledgeGraphTool(memory_store, data_dir)
-    
-    # Initialize synchronously
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(kg_tool.initialize(server))
-        loop.close()
-        logger.info("Knowledge Graph server initialized")
-    except RuntimeError:
-        asyncio.create_task(kg_tool.initialize(server))
-        logger.info("Knowledge Graph server initialization scheduled")
+    kg_tool.register(server)
     
     return server 

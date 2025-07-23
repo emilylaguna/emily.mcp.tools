@@ -9,6 +9,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from pathlib import Path
 from fastmcp import FastMCP
+import asyncio
 
 from core import UnifiedMemoryStore
 from tools.todo.todo_server import create_todo_server
@@ -47,15 +48,16 @@ def create_mcp_server() -> FastMCP:
     logger.info(f"Workflow automation enabled: {memory_store.workflow_engine is not None}")
 
     # Initialize main MCP server
-    main_server = FastMCP("Emily.Tools")
 
     # Create individual service servers
     todo_server = create_todo_server(memory_store)
     automation_server = create_automation_server(memory_store, data_dir, workflow_engine)
     handoff_server = create_handoff_server(memory_store)
     kg_server = create_knowledge_graph_server(memory_store, data_dir)
-    codebase_server = create_codebase_server(data_dir)
+    # codebase_server = create_codebase_server(data_dir)
     intelligence_server = create_intelligence_server(memory_store)
+
+    main_server = FastMCP("Emily.Tools")
 
     # Mount servers WITHOUT prefixes since tools already have meaningful prefixes
     # This avoids double-prefixing (e.g., todo_todo_create_area -> todo_create_area)
@@ -63,19 +65,18 @@ def create_mcp_server() -> FastMCP:
     main_server.mount(automation_server)     # Tools: automation_register_workflow, automation_list_workflows, etc.
     main_server.mount(handoff_server)        # Tools: handoff_save, handoff_get, handoff_list, etc.
     main_server.mount(kg_server)             # Tools: graph_create_entity, graph_find_related, etc.
-    main_server.mount(codebase_server)       # Tools: codebase_parse_file, codebase_analyse_repo, etc.
+    # main_server.mount(codebase_server)       # Tools: codebase_parse_file, codebase_analyse_repo, etc.
     main_server.mount(intelligence_server)   # Tools: intelligent_search, natural_query, complex_query, etc.
 
-    logger.info("Main server initialized with composed services:")
-    logger.info("- TodoService: todo_* tools")
-    logger.info("- AutomationService: automation_* tools")
-    logger.info("- HandoffService: handoff_* tools") 
-    logger.info("- KnowledgeGraphService: graph_* tools")
-    logger.info("- CodebaseService: codebase_* tools")
-    logger.info("- IntelligenceService: intelligent_*, natural_query, complex_query, etc.")
+    # logger.info("Main server initialized with composed services:")
+    # logger.info("- TodoService: todo_* tools")
+    # logger.info("- AutomationService: automation_* tools")
+    # logger.info("- HandoffService: handoff_* tools") 
+    # logger.info("- KnowledgeGraphService: graph_* tools")
+    # logger.info("- CodebaseService: codebase_* tools")
+    # logger.info("- IntelligenceService: intelligent_*, natural_query, complex_query, etc.")
 
     return main_server
-
 
 mcp = create_mcp_server()
 

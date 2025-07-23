@@ -22,18 +22,6 @@ def create_todo_server(memory_store: UnifiedMemoryStore) -> FastMCP:
     
     # Initialize todo tool
     todo_tool = UnifiedTodoTool(memory_store)
-    
-    # Initialize synchronously - the tool.initialize() method handles async setup
-    try:
-        # Run the async initialization
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(todo_tool.initialize(server))
-        loop.close()
-        logger.info("Todo server initialized")
-    except RuntimeError:
-        # If we're already in an event loop, schedule the initialization
-        asyncio.create_task(todo_tool.initialize(server))
-        logger.info("Todo server initialization scheduled")
-    
+    todo_tool.register(server)
+
     return server 

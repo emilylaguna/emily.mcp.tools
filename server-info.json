@@ -6,6 +6,2209 @@
   "server_version": "2.10.6",
   "tools": [
     {
+      "key": "todo_create_area",
+      "name": "todo_create_area",
+      "description": "Create a new area (top-level organization) for grouping related projects and tasks",
+      "input_schema": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Color"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "area",
+        "organization",
+        "create",
+        "todo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_create_project",
+      "name": "todo_create_project",
+      "description": "Create a new project within an area to organize related tasks and goals",
+      "input_schema": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Area Id"
+          },
+          "deadline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Deadline"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "organization",
+        "create",
+        "project",
+        "todo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_create_task",
+      "name": "todo_create_task",
+      "description": "Create a new task with advanced features like scheduling, priority, and energy level tracking",
+      "input_schema": {
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Project Id"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Area Id"
+          },
+          "priority": {
+            "default": "medium",
+            "title": "Priority",
+            "type": "string"
+          },
+          "scheduled_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Scheduled Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Due Date"
+          },
+          "energy_level": {
+            "default": "medium",
+            "title": "Energy Level",
+            "type": "string"
+          },
+          "time_estimate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time Estimate"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tags"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "productivity",
+        "task",
+        "create",
+        "todo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_create_task_nl",
+      "name": "todo_create_task_nl",
+      "description": "Create task from natural language input using AI to parse intent, priority, and scheduling",
+      "input_schema": {
+        "properties": {
+          "input_text": {
+            "title": "Input Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_text"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "task",
+        "create",
+        "todo",
+        "natural-language",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_create_from_conversation",
+      "name": "todo_create_from_conversation",
+      "description": "Create task from conversation context by analyzing chat history and extracting actionable items",
+      "input_schema": {
+        "properties": {
+          "context_id": {
+            "title": "Context Id",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Title"
+          }
+        },
+        "required": [
+          "context_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "task",
+        "create",
+        "conversation",
+        "todo",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_today",
+      "name": "todo_get_today",
+      "description": "Get today's tasks with AI suggestions for prioritization and scheduling optimization",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "task",
+        "today",
+        "todo",
+        "ai",
+        "schedule"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_evening",
+      "name": "todo_get_evening",
+      "description": "Get tasks suitable for evening work based on energy level and context requirements",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "evening",
+        "task",
+        "todo",
+        "energy",
+        "schedule"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_upcoming",
+      "name": "todo_get_upcoming",
+      "description": "Get upcoming tasks and events within a specified timeframe for planning and preparation",
+      "input_schema": {
+        "properties": {
+          "days": {
+            "default": 7,
+            "title": "Days",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "task",
+        "upcoming",
+        "todo",
+        "planning",
+        "schedule"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_anytime",
+      "name": "todo_get_anytime",
+      "description": "Get tasks without specific scheduling that can be done at any convenient time",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "anytime",
+        "task",
+        "flexible",
+        "todo",
+        "schedule"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_someday",
+      "name": "todo_get_someday",
+      "description": "Get tasks marked for future consideration that are not immediately actionable",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "someday",
+        "task",
+        "todo",
+        "future",
+        "planning"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_list_areas",
+      "name": "todo_list_areas",
+      "description": "List all areas (top-level organization containers) with optional status filtering",
+      "input_schema": {
+        "properties": {
+          "status": {
+            "default": "active",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "area",
+        "list",
+        "organization",
+        "todo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_list_projects",
+      "name": "todo_list_projects",
+      "description": "List projects with optional filtering by area and status for project management overview",
+      "input_schema": {
+        "properties": {
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Area Id"
+          },
+          "status": {
+            "default": "active",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "management",
+        "organization",
+        "list",
+        "todo",
+        "project"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_complete_task",
+      "name": "todo_complete_task",
+      "description": "Mark a task as completed and update its status with completion metadata",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "status",
+        "task",
+        "todo",
+        "update",
+        "complete"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_complete_project",
+      "name": "todo_complete_project",
+      "description": "Complete a project and all its associated tasks in bulk operation",
+      "input_schema": {
+        "properties": {
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "management",
+        "bulk",
+        "todo",
+        "complete",
+        "project"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_project_progress",
+      "name": "todo_get_project_progress",
+      "description": "Get detailed project progress including completion rates, task breakdown, and milestones",
+      "input_schema": {
+        "properties": {
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "analytics",
+        "tracking",
+        "todo",
+        "progress",
+        "project"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_project_timeline",
+      "name": "todo_project_timeline",
+      "description": "Get complete project timeline across all data types including tasks, milestones, and deadlines",
+      "input_schema": {
+        "properties": {
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "history",
+        "timeline",
+        "tracking",
+        "todo",
+        "project"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_suggest_priorities",
+      "name": "todo_suggest_priorities",
+      "description": "Get AI-suggested task priorities based on context, deadlines, and workload analysis",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "task",
+        "todo",
+        "ai",
+        "priorities",
+        "suggestions"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_quick_find",
+      "name": "todo_quick_find",
+      "description": "Quick semantic search across tasks, projects, and areas using AI-powered search capabilities",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "semantic",
+        "todo",
+        "ai",
+        "find",
+        "search"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_update_task",
+      "name": "todo_update_task",
+      "description": "Update a task's properties including status, priority, scheduling, and project assignment",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Priority"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Project Id"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Area Id"
+          },
+          "scheduled_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Scheduled Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Due Date"
+          },
+          "energy_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Energy Level"
+          },
+          "time_estimate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time Estimate"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tags"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "management",
+        "task",
+        "modify",
+        "todo",
+        "update"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_update_project",
+      "name": "todo_update_project",
+      "description": "Update a project's properties.",
+      "input_schema": {
+        "properties": {
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Area Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "deadline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Deadline"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Progress"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Color"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "todo_archive_area",
+      "name": "todo_archive_area",
+      "description": "Archive an area and all its projects to remove them from active view while preserving data",
+      "input_schema": {
+        "properties": {
+          "area_id": {
+            "title": "Area Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "area_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "area",
+        "organization",
+        "cleanup",
+        "archive",
+        "todo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_delete_task",
+      "name": "todo_delete_task",
+      "description": "Permanently delete a task from the system",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "remove",
+        "cleanup",
+        "delete",
+        "task",
+        "todo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_statistics",
+      "name": "todo_get_statistics",
+      "description": "Get comprehensive todo statistics including task counts, project status, and productivity metrics",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "analytics",
+        "statistics",
+        "todo",
+        "overview",
+        "metrics"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_search_tasks",
+      "name": "todo_search_tasks",
+      "description": "Search tasks with advanced filtering capabilities including metadata, tags, and content search",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Filters"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "filter",
+        "task",
+        "todo",
+        "advanced",
+        "search"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "todo_get_task_details",
+      "name": "todo_get_task_details",
+      "description": "Get detailed task information including relationships, project context, and area assignments",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "context",
+        "task",
+        "todo",
+        "details",
+        "relationships"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_register_workflow",
+      "name": "automation_register_workflow",
+      "description": "Register a new automation workflow with triggers, conditions, and actions",
+      "input_schema": {
+        "properties": {
+          "workflow_definition": {
+            "additionalProperties": true,
+            "title": "Workflow Definition",
+            "type": "object"
+          }
+        },
+        "required": [
+          "workflow_definition"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "configuration",
+        "register",
+        "create",
+        "automation",
+        "workflow"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_list_workflows",
+      "name": "automation_list_workflows",
+      "description": "List all registered automation workflows with optional filtering by enabled status",
+      "input_schema": {
+        "properties": {
+          "enabled_only": {
+            "default": false,
+            "title": "Enabled Only",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "management",
+        "list",
+        "automation",
+        "workflow",
+        "view"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_get_workflow",
+      "name": "automation_get_workflow",
+      "description": "Get detailed information about a specific automation workflow including configuration and status",
+      "input_schema": {
+        "properties": {
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "get",
+        "details",
+        "automation",
+        "workflow",
+        "view"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_delete_workflow",
+      "name": "automation_delete_workflow",
+      "description": "Permanently delete an automation workflow and stop all its scheduled executions",
+      "input_schema": {
+        "properties": {
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "remove",
+        "cleanup",
+        "delete",
+        "automation",
+        "workflow"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_pause_workflow",
+      "name": "automation_pause_workflow",
+      "description": "Pause an automation workflow to temporarily stop its execution without deleting it",
+      "input_schema": {
+        "properties": {
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "management",
+        "pause",
+        "automation",
+        "workflow",
+        "control"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_resume_workflow",
+      "name": "automation_resume_workflow",
+      "description": "Resume a paused automation workflow to continue its scheduled execution",
+      "input_schema": {
+        "properties": {
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "management",
+        "automation",
+        "workflow",
+        "resume",
+        "control"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_trigger_workflow",
+      "name": "automation_trigger_workflow",
+      "description": "Manually trigger an automation workflow with optional event data for immediate execution",
+      "input_schema": {
+        "properties": {
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          },
+          "event_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Event Data"
+          }
+        },
+        "required": [
+          "workflow_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "trigger",
+        "manual",
+        "automation",
+        "execute",
+        "workflow"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_list_runs",
+      "name": "automation_list_runs",
+      "description": "List automation workflow runs with optional filtering by workflow and execution history",
+      "input_schema": {
+        "properties": {
+          "workflow_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Workflow Id"
+          },
+          "limit": {
+            "default": 50,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "history",
+        "automation",
+        "workflow",
+        "runs",
+        "monitoring"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_get_run",
+      "name": "automation_get_run",
+      "description": "Get detailed information about a specific workflow run including status, logs, and results",
+      "input_schema": {
+        "properties": {
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "run",
+        "details",
+        "automation",
+        "workflow",
+        "monitoring"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_get_workflow_suggestions",
+      "name": "automation_get_workflow_suggestions",
+      "description": "Get intelligent workflow suggestions based on query patterns and usage analytics",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "default": "",
+            "title": "Query",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "recommendations",
+        "ai",
+        "automation",
+        "workflow",
+        "suggestions"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_approve_workflow_suggestion",
+      "name": "automation_approve_workflow_suggestion",
+      "description": "Approve and implement a workflow suggestion to create an active automation workflow",
+      "input_schema": {
+        "properties": {
+          "suggestion_id": {
+            "title": "Suggestion Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "suggestion_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "implement",
+        "automation",
+        "workflow",
+        "approve",
+        "suggestions"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "automation_get_suggestion_metrics",
+      "name": "automation_get_suggestion_metrics",
+      "description": "Get analytics and metrics for workflow suggestions including approval rates and effectiveness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "analytics",
+        "performance",
+        "automation",
+        "metrics",
+        "suggestions"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "handoff_save",
+      "name": "handoff_save",
+      "description": "Save chat context for handoff between sessions with AI enhancement.",
+      "input_schema": {
+        "properties": {
+          "context": {
+            "title": "Context",
+            "type": "string"
+          }
+        },
+        "required": [
+          "context"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "handoff_get",
+      "name": "handoff_get",
+      "description": "Get all handoff contexts from today ordered by created_at in DESC order.",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "handoff_list",
+      "name": "handoff_list",
+      "description": "List recent saved chat contexts.",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "handoff_search",
+      "name": "handoff_search",
+      "description": "Search handoff contexts by content using AI semantic search.",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "handoff_related",
+      "name": "handoff_related",
+      "description": "Get contexts related to the specified context through entities and topics.",
+      "input_schema": {
+        "properties": {
+          "context_id": {
+            "title": "Context Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "context_id"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "handoff_insights",
+      "name": "handoff_insights",
+      "description": "Get AI-generated insights about a handoff context.",
+      "input_schema": {
+        "properties": {
+          "context_id": {
+            "title": "Context Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "context_id"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "handoff_suggest_actions",
+      "name": "handoff_suggest_actions",
+      "description": "Get suggested follow-up actions for a context.",
+      "input_schema": {
+        "properties": {
+          "context_id": {
+            "title": "Context Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "context_id"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "graph_find_related",
+      "name": "graph_find_related",
+      "description": "Find entities related to a given entity within a specified depth using graph traversal algorithms",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "depth": {
+            "default": 2,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "traversal",
+        "knowledge",
+        "relationships",
+        "search",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_search",
+      "name": "graph_search",
+      "description": "Search for entities in the knowledge graph using semantic search with optional type filtering",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Entity Type"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "entities",
+        "semantic",
+        "filter",
+        "search",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_create_entity",
+      "name": "graph_create_entity",
+      "description": "Create a new entity in the knowledge graph with specified properties and metadata",
+      "input_schema": {
+        "properties": {
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "data",
+        "entity",
+        "knowledge",
+        "create",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_create_relation",
+      "name": "graph_create_relation",
+      "description": "Create a new relation between two entities with specified type, strength, and metadata",
+      "input_schema": {
+        "properties": {
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "target_id": {
+            "title": "Target Id",
+            "type": "string"
+          },
+          "relation_type": {
+            "title": "Relation Type",
+            "type": "string"
+          },
+          "strength": {
+            "default": 1.0,
+            "title": "Strength",
+            "type": "number"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Metadata"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "source_id",
+          "target_id",
+          "relation_type"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "connection",
+        "knowledge",
+        "create",
+        "relation",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_get_entity",
+      "name": "graph_get_entity",
+      "description": "Get detailed information about a specific entity by its ID including properties and metadata",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "get",
+        "retrieve",
+        "entity",
+        "details",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_get_relations",
+      "name": "graph_get_relations",
+      "description": "Get all relations for a specific entity with optional filtering by relation types",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "relation_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Relation Types"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "filter",
+        "connections",
+        "entity",
+        "graph",
+        "relations"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_shortest_path",
+      "name": "graph_shortest_path",
+      "description": "Find the shortest path between two entities using graph algorithms for relationship discovery",
+      "input_schema": {
+        "properties": {
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "target_id": {
+            "title": "Target Id",
+            "type": "string"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "source_id",
+          "target_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "connection",
+        "shortest",
+        "algorithm",
+        "graph",
+        "path"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_find_clusters",
+      "name": "graph_find_clusters",
+      "description": "Find clusters of related entities using community detection algorithms for pattern discovery",
+      "input_schema": {
+        "properties": {
+          "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Entity Type"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "graph",
+        "community",
+        "patterns",
+        "detection",
+        "clusters"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_get_centrality",
+      "name": "graph_get_centrality",
+      "description": "Get centrality score for an entity to measure its importance and influence in the knowledge graph",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "centrality",
+        "importance",
+        "influence",
+        "metrics",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_delete_entity",
+      "name": "graph_delete_entity",
+      "description": "Delete an entity and all its relations from the knowledge graph permanently",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "remove",
+        "cleanup",
+        "delete",
+        "entity",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "graph_delete_relation",
+      "name": "graph_delete_relation",
+      "description": "Delete a specific relation between entities from the knowledge graph",
+      "input_schema": {
+        "properties": {
+          "relation_id": {
+            "title": "Relation Id",
+            "type": "string"
+          },
+          "ctx": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ctx"
+          }
+        },
+        "required": [
+          "relation_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": null,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "connection",
+        "remove",
+        "delete",
+        "relation",
+        "graph"
+      ],
+      "enabled": true
+    },
+    {
       "key": "intelligent_search",
       "name": "intelligent_search",
       "description": "Advanced semantic search with cross-domain intelligence for finding related information across all data types",
@@ -35,11 +2238,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "search",
-        "intelligence",
         "semantic",
+        "ai",
+        "intelligence",
         "cross-domain",
-        "ai"
+        "search"
       ],
       "enabled": true
     },
@@ -67,11 +2270,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "search",
-        "natural-language",
         "interpretation",
         "query",
-        "ai"
+        "natural-language",
+        "ai",
+        "search"
       ],
       "enabled": true
     },
@@ -99,11 +2302,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "intelligence",
-        "project",
         "analytics",
         "comprehensive",
-        "insights"
+        "intelligence",
+        "insights",
+        "project"
       ],
       "enabled": true
     },
@@ -132,11 +2335,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "smart",
         "contextual",
-        "suggestions",
+        "smart",
+        "recommendations",
         "ai",
-        "recommendations"
+        "suggestions"
       ],
       "enabled": true
     },
@@ -164,11 +2367,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "search",
-        "natural-language",
-        "intent",
         "contextual",
-        "ai"
+        "natural-language",
+        "ai",
+        "intent",
+        "search"
       ],
       "enabled": true
     },
@@ -195,11 +2398,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
+        "ai",
         "automation",
-        "suggestions",
+        "workflow",
         "productivity",
-        "ai"
+        "suggestions"
       ],
       "enabled": true
     },
@@ -227,11 +2430,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "search",
+        "complex",
         "ai",
         "relationships",
-        "parsing",
-        "complex"
+        "search",
+        "parsing"
       ],
       "enabled": true
     },
@@ -251,9 +2454,9 @@
         "openWorldHint": null
       },
       "tags": [
-        "analysis",
         "expertise",
         "knowledge",
+        "analysis",
         "mapping",
         "ai"
       ],
@@ -284,10 +2487,10 @@
       },
       "tags": [
         "analysis",
+        "ai",
         "relationships",
-        "insights",
         "cross-domain",
-        "ai"
+        "insights"
       ],
       "enabled": true
     },
@@ -320,18 +2523,83 @@
         "openWorldHint": null
       },
       "tags": [
-        "search",
-        "relevance",
+        "contextual",
         "enhanced",
         "entity",
-        "contextual"
+        "search",
+        "relevance"
       ],
       "enabled": true
     }
   ],
   "prompts": [],
-  "resources": [],
-  "templates": [],
+  "resources": [
+    {
+      "key": "resource://automation/workflows",
+      "uri": "resource://automation/workflows",
+      "name": "automation_workflows_resource",
+      "description": "Get a list of all automation workflows.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "resource://automation/runs",
+      "uri": "resource://automation/runs",
+      "name": "automation_runs_resource",
+      "description": "Get a list of recent workflow runs.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "resource://handoff/recent",
+      "uri": "resource://handoff/recent",
+      "name": "handoff_recent",
+      "description": "Returns the last 10 recent handoff contexts as JSON.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "resource://knowledge_graph/entities",
+      "uri": "resource://knowledge_graph/entities",
+      "name": "resource_knowledge_graph_entities",
+      "description": "Resource for all entities in the knowledge graph.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    }
+  ],
+  "templates": [
+    {
+      "key": "resource://automation/workflows/{workflow_id}",
+      "uri_template": "resource://automation/workflows/{workflow_id}",
+      "name": "automation_workflow_detail",
+      "description": "Get detailed information about a specific workflow.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "resource://handoff/{context_id}",
+      "uri_template": "resource://handoff/{context_id}",
+      "name": "handoff_by_id",
+      "description": "Return a single handoff context by ID as a dict.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "resource://knowledge_graph/entity/{entity_id}",
+      "uri_template": "resource://knowledge_graph/entity/{entity_id}",
+      "name": "resource_knowledge_graph_entity",
+      "description": "Resource for a specific entity.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    }
+  ],
   "capabilities": {
     "tools": {
       "listChanged": true

@@ -28,16 +28,7 @@ def create_automation_server(
     
     # Initialize automation tool
     automation_tool = AutomationTool(memory_store, data_dir, workflow_engine)
-    
-    # Initialize synchronously
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(automation_tool.initialize(server))
-        loop.close()
-        logger.info("Automation server initialized")
-    except RuntimeError:
-        asyncio.create_task(automation_tool.initialize(server))
-        logger.info("Automation server initialization scheduled")
+    automation_tool.register(server)
+    logger.info("Automation server initialized")
     
     return server 
