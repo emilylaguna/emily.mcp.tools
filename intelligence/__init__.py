@@ -1,22 +1,11 @@
 """
-Intelligence and AI functionality for Emily.Tools.
-
-This package contains AI extraction, intelligent search, natural query
-processing, and smart suggestions.
+Intelligence package for Emily Tools MCP server.
 """
 
-from .ai_extraction import AIExtractor, EntityMatcher, ContentEnhancer
-from .search import IntelligentSearchEngine
 from .search_mcp import IntelligentSearchMCPTools
-from .natural_query import NaturalQueryProcessor
-from .smart_suggestions import SmartSuggestionsEngine
+from .intelligence_server import create_intelligence_server
 
 __all__ = [
-    'AIExtractor',
-    'EntityMatcher', 
-    'ContentEnhancer',
-    'IntelligentSearchEngine',
-    'IntelligentSearchMCPTools',
-    'NaturalQueryProcessor',
-    'SmartSuggestionsEngine'
+    "IntelligentSearchMCPTools",
+    "create_intelligence_server",
 ] 

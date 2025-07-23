@@ -1,0 +1,348 @@
+{
+  "name": "Emily.Tools",
+  "instructions": null,
+  "fastmcp_version": "2.10.6",
+  "mcp_version": "1.12.0",
+  "server_version": "2.10.6",
+  "tools": [
+    {
+      "key": "intelligent_search",
+      "name": "intelligent_search",
+      "description": "Advanced semantic search with cross-domain intelligence for finding related information across all data types",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": true,
+            "default": null,
+            "title": "Context",
+            "type": "object"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "search",
+        "intelligence",
+        "semantic",
+        "cross-domain",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "natural_query",
+      "name": "natural_query",
+      "description": "Process natural language queries with intelligent interpretation and context understanding",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "search",
+        "natural-language",
+        "interpretation",
+        "query",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "get_project_intelligence",
+      "name": "get_project_intelligence",
+      "description": "Get comprehensive project intelligence including related tasks, people, technologies, and insights",
+      "input_schema": {
+        "properties": {
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "intelligence",
+        "project",
+        "analytics",
+        "comprehensive",
+        "insights"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "get_smart_suggestions",
+      "name": "get_smart_suggestions",
+      "description": "Get contextual suggestions based on current entity and activity patterns using AI analysis",
+      "input_schema": {
+        "properties": {
+          "context": {
+            "additionalProperties": true,
+            "title": "Context",
+            "type": "object"
+          }
+        },
+        "required": [
+          "context"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "smart",
+        "contextual",
+        "suggestions",
+        "ai",
+        "recommendations"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "intent_based_search",
+      "name": "intent_based_search",
+      "description": "Understand search intent from natural language and provide contextual results with AI interpretation",
+      "input_schema": {
+        "properties": {
+          "natural_query": {
+            "title": "Natural Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "natural_query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "search",
+        "natural-language",
+        "intent",
+        "contextual",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "get_workflow_suggestions",
+      "name": "get_workflow_suggestions",
+      "description": "Get intelligent workflow suggestions based on user's current activity and historical patterns",
+      "input_schema": {
+        "properties": {
+          "user_context": {
+            "additionalProperties": true,
+            "default": null,
+            "title": "User Context",
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "workflow",
+        "automation",
+        "suggestions",
+        "productivity",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "complex_query",
+      "name": "complex_query",
+      "description": "Process complex queries with multiple clauses and relationships using advanced AI parsing",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "search",
+        "ai",
+        "relationships",
+        "parsing",
+        "complex"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "get_expertise_map",
+      "name": "get_expertise_map",
+      "description": "Create expertise map from conversation and code patterns to identify knowledge distribution",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": false,
+        "openWorldHint": null
+      },
+      "tags": [
+        "analysis",
+        "expertise",
+        "knowledge",
+        "mapping",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "get_cross_domain_insights",
+      "name": "get_cross_domain_insights",
+      "description": "Get cross-domain insights for a specific entity by analyzing relationships across different data types",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "analysis",
+        "relationships",
+        "insights",
+        "cross-domain",
+        "ai"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "search_with_context",
+      "name": "search_with_context",
+      "description": "Search with additional context about the current entity for more accurate and relevant results",
+      "input_schema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "entity_context": {
+            "default": null,
+            "title": "Entity Context",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": true,
+        "openWorldHint": null
+      },
+      "tags": [
+        "search",
+        "relevance",
+        "enhanced",
+        "entity",
+        "contextual"
+      ],
+      "enabled": true
+    }
+  ],
+  "prompts": [],
+  "resources": [],
+  "templates": [],
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": false,
+      "listChanged": false
+    },
+    "prompts": {
+      "listChanged": false
+    },
+    "logging": {}
+  }
+}

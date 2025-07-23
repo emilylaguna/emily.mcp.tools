@@ -72,7 +72,7 @@ class CodebaseAnalysisTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def codebase_parse_file(path: str, ctx: Optional[object] = None) -> dict:  # noqa: D401
+        async def codebase_parse_file(path: str, ctx: object = None) -> dict:  # noqa: D401
             """Parse a single source file and return basic metrics."""
             try:
                 return self._parse_file(path)
@@ -89,7 +89,7 @@ class CodebaseAnalysisTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def codebase_analyse_repo(directory: str, ctx: Optional[object] = None) -> list:  # noqa: D401
+        async def codebase_analyse_repo(directory: str, ctx: object = None) -> list:  # noqa: D401
             """Analyse all supported files inside *directory* recursively."""
             try:
                 return self._analyse_repo(directory)
@@ -106,7 +106,7 @@ class CodebaseAnalysisTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def codebase_query_hotspots(directory: str, threshold: int = 10, ctx: Optional[object] = None) -> list:  # noqa: D401
+        async def codebase_query_hotspots(directory: str, threshold: int = 10, ctx: object = None) -> list:  # noqa: D401
             """Return high-complexity hotspots within *directory*."""
             try:
                 return self._query_hotspots(directory, threshold)
