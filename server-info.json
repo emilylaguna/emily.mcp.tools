@@ -46,10 +46,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "area",
+        "todo",
         "organization",
-        "create",
-        "todo"
+        "area",
+        "create"
       ],
       "enabled": true
     },
@@ -106,10 +106,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "organization",
-        "create",
+        "todo",
         "project",
-        "todo"
+        "organization",
+        "create"
       ],
       "enabled": true
     },
@@ -235,9 +235,9 @@
       },
       "tags": [
         "productivity",
+        "todo",
         "task",
-        "create",
-        "todo"
+        "create"
       ],
       "enabled": true
     },
@@ -265,11 +265,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "task",
-        "create",
         "todo",
+        "ai",
         "natural-language",
-        "ai"
+        "task",
+        "create"
       ],
       "enabled": true
     },
@@ -309,11 +309,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "task",
-        "create",
-        "conversation",
         "todo",
-        "ai"
+        "conversation",
+        "ai",
+        "task",
+        "create"
       ],
       "enabled": true
     },
@@ -333,11 +333,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "task",
-        "today",
         "todo",
         "ai",
-        "schedule"
+        "schedule",
+        "today",
+        "task"
       ],
       "enabled": true
     },
@@ -357,11 +357,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "evening",
-        "task",
         "todo",
         "energy",
-        "schedule"
+        "schedule",
+        "evening",
+        "task"
       ],
       "enabled": true
     },
@@ -387,11 +387,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "task",
-        "upcoming",
         "todo",
-        "planning",
-        "schedule"
+        "upcoming",
+        "task",
+        "schedule",
+        "planning"
       ],
       "enabled": true
     },
@@ -411,11 +411,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "anytime",
-        "task",
-        "flexible",
         "todo",
-        "schedule"
+        "schedule",
+        "flexible",
+        "anytime",
+        "task"
       ],
       "enabled": true
     },
@@ -435,9 +435,9 @@
         "openWorldHint": null
       },
       "tags": [
-        "someday",
-        "task",
         "todo",
+        "task",
+        "someday",
         "future",
         "planning"
       ],
@@ -465,10 +465,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "area",
-        "list",
+        "todo",
         "organization",
-        "todo"
+        "area",
+        "list"
       ],
       "enabled": true
     },
@@ -506,11 +506,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "management",
-        "organization",
-        "list",
         "todo",
-        "project"
+        "management",
+        "project",
+        "organization",
+        "list"
       ],
       "enabled": true
     },
@@ -538,11 +538,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "todo",
         "status",
         "task",
-        "todo",
-        "update",
-        "complete"
+        "complete",
+        "update"
       ],
       "enabled": true
     },
@@ -570,11 +570,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "management",
-        "bulk",
         "todo",
-        "complete",
-        "project"
+        "bulk",
+        "management",
+        "project",
+        "complete"
       ],
       "enabled": true
     },
@@ -602,11 +602,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "analytics",
-        "tracking",
         "todo",
-        "progress",
-        "project"
+        "tracking",
+        "project",
+        "analytics",
+        "progress"
       ],
       "enabled": true
     },
@@ -634,11 +634,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "history",
-        "timeline",
-        "tracking",
         "todo",
-        "project"
+        "history",
+        "tracking",
+        "project",
+        "timeline"
       ],
       "enabled": true
     },
@@ -658,11 +658,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "task",
         "todo",
         "ai",
-        "priorities",
-        "suggestions"
+        "suggestions",
+        "task",
+        "priorities"
       ],
       "enabled": true
     },
@@ -690,11 +690,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "semantic",
         "todo",
+        "semantic",
         "ai",
-        "find",
-        "search"
+        "search",
+        "find"
       ],
       "enabled": true
     },
@@ -857,10 +857,10 @@
         "openWorldHint": null
       },
       "tags": [
+        "todo",
         "management",
         "task",
         "modify",
-        "todo",
         "update"
       ],
       "enabled": true
@@ -993,11 +993,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "todo",
+        "cleanup",
         "area",
         "organization",
-        "cleanup",
-        "archive",
-        "todo"
+        "archive"
       ],
       "enabled": true
     },
@@ -1025,11 +1025,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "todo",
+        "delete",
         "remove",
         "cleanup",
-        "delete",
-        "task",
-        "todo"
+        "task"
       ],
       "enabled": true
     },
@@ -1049,11 +1049,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "analytics",
-        "statistics",
         "todo",
         "overview",
-        "metrics"
+        "metrics",
+        "statistics",
+        "analytics"
       ],
       "enabled": true
     },
@@ -1094,11 +1094,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "filter",
-        "task",
         "todo",
+        "filter",
+        "search",
         "advanced",
-        "search"
+        "task"
       ],
       "enabled": true
     },
@@ -1126,11 +1126,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "context",
-        "task",
         "todo",
+        "context",
         "details",
-        "relationships"
+        "relationships",
+        "task"
       ],
       "enabled": true
     },
@@ -1159,11 +1159,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "configuration",
+        "automation",
+        "workflow",
         "register",
         "create",
-        "automation",
-        "workflow"
+        "configuration"
       ],
       "enabled": true
     },
@@ -1190,10 +1190,10 @@
       },
       "tags": [
         "management",
-        "list",
         "automation",
         "workflow",
-        "view"
+        "view",
+        "list"
       ],
       "enabled": true
     },
@@ -1253,10 +1253,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "remove",
-        "cleanup",
         "delete",
+        "remove",
         "automation",
+        "cleanup",
         "workflow"
       ],
       "enabled": true
@@ -1286,10 +1286,10 @@
       },
       "tags": [
         "management",
-        "pause",
         "automation",
-        "workflow",
-        "control"
+        "pause",
+        "control",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1317,11 +1317,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "resume",
         "management",
         "automation",
-        "workflow",
-        "resume",
-        "control"
+        "control",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1362,9 +1362,9 @@
         "openWorldHint": null
       },
       "tags": [
-        "trigger",
         "manual",
         "automation",
+        "trigger",
         "execute",
         "workflow"
       ],
@@ -1405,10 +1405,10 @@
       },
       "tags": [
         "history",
-        "automation",
-        "workflow",
+        "monitoring",
         "runs",
-        "monitoring"
+        "automation",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1436,11 +1436,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "monitoring",
         "run",
         "details",
         "automation",
-        "workflow",
-        "monitoring"
+        "workflow"
       ],
       "enabled": true
     },
@@ -1503,11 +1503,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "implement",
         "automation",
         "workflow",
-        "approve",
-        "suggestions"
+        "suggestions",
+        "implement",
+        "approve"
       ],
       "enabled": true
     },
@@ -1527,10 +1527,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "analytics",
         "performance",
         "automation",
         "metrics",
+        "analytics",
         "suggestions"
       ],
       "enabled": true
@@ -1711,8 +1711,8 @@
       "tags": [
         "traversal",
         "knowledge",
-        "relationships",
         "search",
+        "relationships",
         "graph"
       ],
       "enabled": true
@@ -1768,9 +1768,9 @@
         "openWorldHint": null
       },
       "tags": [
-        "entities",
-        "semantic",
         "filter",
+        "semantic",
+        "entities",
         "search",
         "graph"
       ],
@@ -1811,11 +1811,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "knowledge",
         "data",
         "entity",
-        "knowledge",
-        "create",
-        "graph"
+        "graph",
+        "create"
       ],
       "enabled": true
     },
@@ -1883,9 +1883,9 @@
       "tags": [
         "connection",
         "knowledge",
-        "create",
         "relation",
-        "graph"
+        "graph",
+        "create"
       ],
       "enabled": true
     },
@@ -1925,8 +1925,8 @@
       "tags": [
         "get",
         "retrieve",
-        "entity",
         "details",
+        "entity",
         "graph"
       ],
       "enabled": true
@@ -1980,11 +1980,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "relations",
         "filter",
         "connections",
         "entity",
-        "graph",
-        "relations"
+        "graph"
       ],
       "enabled": true
     },
@@ -2027,11 +2027,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "connection",
-        "shortest",
         "algorithm",
+        "connection",
+        "path",
         "graph",
-        "path"
+        "shortest"
       ],
       "enabled": true
     },
@@ -2074,11 +2074,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "graph",
-        "community",
         "patterns",
         "detection",
-        "clusters"
+        "clusters",
+        "graph",
+        "community"
       ],
       "enabled": true
     },
@@ -2116,11 +2116,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "centrality",
-        "importance",
         "influence",
+        "importance",
         "metrics",
-        "graph"
+        "graph",
+        "centrality"
       ],
       "enabled": true
     },
@@ -2158,9 +2158,9 @@
         "openWorldHint": null
       },
       "tags": [
+        "delete",
         "remove",
         "cleanup",
-        "delete",
         "entity",
         "graph"
       ],
@@ -2201,9 +2201,9 @@
       },
       "tags": [
         "connection",
-        "remove",
         "delete",
         "relation",
+        "remove",
         "graph"
       ],
       "enabled": true
@@ -2240,9 +2240,9 @@
       "tags": [
         "semantic",
         "ai",
-        "intelligence",
+        "search",
         "cross-domain",
-        "search"
+        "intelligence"
       ],
       "enabled": true
     },
@@ -2270,11 +2270,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "ai",
+        "search",
         "interpretation",
         "query",
-        "natural-language",
-        "ai",
-        "search"
+        "natural-language"
       ],
       "enabled": true
     },
@@ -2302,11 +2302,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "analytics",
-        "comprehensive",
-        "intelligence",
         "insights",
-        "project"
+        "intelligence",
+        "project",
+        "analytics",
+        "comprehensive"
       ],
       "enabled": true
     },
@@ -2335,10 +2335,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "contextual",
-        "smart",
         "recommendations",
         "ai",
+        "contextual",
+        "smart",
         "suggestions"
       ],
       "enabled": true
@@ -2367,11 +2367,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "contextual",
-        "natural-language",
         "ai",
+        "search",
+        "contextual",
         "intent",
-        "search"
+        "natural-language"
       ],
       "enabled": true
     },
@@ -2401,8 +2401,8 @@
         "ai",
         "automation",
         "workflow",
-        "productivity",
-        "suggestions"
+        "suggestions",
+        "productivity"
       ],
       "enabled": true
     },
@@ -2430,11 +2430,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "complex",
         "ai",
-        "relationships",
         "search",
-        "parsing"
+        "relationships",
+        "parsing",
+        "complex"
       ],
       "enabled": true
     },
@@ -2454,11 +2454,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "expertise",
-        "knowledge",
         "analysis",
-        "mapping",
-        "ai"
+        "knowledge",
+        "ai",
+        "expertise",
+        "mapping"
       ],
       "enabled": true
     },
@@ -2487,10 +2487,10 @@
       },
       "tags": [
         "analysis",
+        "insights",
         "ai",
         "relationships",
-        "cross-domain",
-        "insights"
+        "cross-domain"
       ],
       "enabled": true
     },
@@ -2523,10 +2523,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "contextual",
         "enhanced",
-        "entity",
         "search",
+        "contextual",
+        "entity",
         "relevance"
       ],
       "enabled": true
