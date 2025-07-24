@@ -8,11 +8,7 @@ from pathlib import Path
 from fastmcp import FastMCP
 from .unified_knowledge_graph_tool import UnifiedKnowledgeGraphTool
 
-try:
-    from ...core import UnifiedMemoryStore
-except ImportError:
-    from core import UnifiedMemoryStore
-
+from emily_core import UnifiedMemoryStore
 logger = logging.getLogger(__name__)
 
 

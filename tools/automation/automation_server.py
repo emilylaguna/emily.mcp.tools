@@ -8,11 +8,11 @@ from pathlib import Path
 from fastmcp import FastMCP
 from .automation import AutomationTool
 
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
+
 try:
-    from ...core import UnifiedMemoryStore
     from ...workflows.engine import WorkflowEngine
 except ImportError:
-    from core import UnifiedMemoryStore
     from workflows.engine import WorkflowEngine
 
 logger = logging.getLogger(__name__)

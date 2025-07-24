@@ -11,13 +11,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
-
-try:
-    from ..core import UnifiedMemoryStore
-    from ..core.models import MemoryEntity, MemoryContext
-except ImportError:
-    from core import UnifiedMemoryStore
-    from core.models import MemoryEntity, MemoryContext
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
 
 logger = logging.getLogger(__name__)
 

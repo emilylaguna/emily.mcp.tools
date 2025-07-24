@@ -17,14 +17,10 @@ from uuid import uuid4
 from pydantic import BaseModel, Field
 
 
-
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryRelation
 try:
-    from ..core import UnifiedMemoryStore
-    from ..core.models import MemoryEntity, MemoryRelation
     from ..tools.todo.unified_todo_tool import UnifiedTodoTool
 except ImportError:
-    from core import UnifiedMemoryStore
-    from core.models import MemoryEntity, MemoryRelation
     from tools.todo.unified_todo_tool import UnifiedTodoTool
 logger = logging.getLogger(__name__)
 

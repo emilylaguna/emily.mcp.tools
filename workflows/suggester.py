@@ -9,11 +9,8 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
+from emily_core import UnifiedMemoryStore
 
-try:
-    from ..core import UnifiedMemoryStore
-except ImportError:
-    from core import UnifiedMemoryStore
 from .dsl import WorkflowDSL, EXAMPLE_WORKFLOWS
 
 logger = logging.getLogger(__name__)

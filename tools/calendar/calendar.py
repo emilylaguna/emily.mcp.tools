@@ -10,7 +10,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from ...common.base_tool import BaseTool
+from emily_common import BaseTool
 from ..common_types import EventType
 import json
 

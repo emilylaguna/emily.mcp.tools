@@ -8,10 +8,7 @@ from pathlib import Path
 from fastmcp import FastMCP
 from .unified_todo_tool import UnifiedTodoTool
 
-try:
-    from ...core import UnifiedMemoryStore
-except ImportError:
-    from core import UnifiedMemoryStore
+from emily_core import UnifiedMemoryStore
 
 logger = logging.getLogger(__name__)
 

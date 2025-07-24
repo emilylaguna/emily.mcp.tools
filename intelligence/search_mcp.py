@@ -10,11 +10,8 @@ from typing import Dict, List, Any, Optional, Literal
 from datetime import datetime, timedelta
 import re
 from enum import Enum
+from emily_core import UnifiedMemoryStore
 
-try:
-    from ..core import UnifiedMemoryStore
-except ImportError:
-    from core import UnifiedMemoryStore
 
 from .search import IntelligentSearchEngine
 from .smart_suggestions import SmartSuggestionsEngine

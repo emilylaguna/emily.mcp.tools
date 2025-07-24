@@ -14,13 +14,10 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from ...common.base_tool import BaseTool
-try:
-    from ...core import UnifiedMemoryStore
-    from ...core.models import MemoryContext
-except ImportError:
-    from core import UnifiedMemoryStore
-    from core.models import MemoryContext
+from emily_common import BaseTool
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
+
+
 
 logger = logging.getLogger(__name__)
 

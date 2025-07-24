@@ -21,12 +21,13 @@ dependencies = [
     "coloredlogs>=15.0.1",
     "fastmcp>=2.10.6",
     "emily-common",
+    "emily-core",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "data*", "servers*", "analysis*", "workflows*", "intelligence*", "tools*"]
-exclude = ["common*", "tests*", "test_*", "docs*", "ref*"]
+include = ["data*", "servers*", "analysis*", "workflows*", "intelligence*", "tools*"]
+exclude = ["emily_common*", "emily_core*", "tests*", "test_*", "docs*", "ref*"]
 
 [project.optional-dependencies]
 dev = [
@@ -37,10 +38,11 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["emily_common"]
+members = ["emily_common", "emily_core"]
 
 [tool.uv.sources]
 emily-common = { workspace = true }
+emily-core = { workspace = true }
 
 [tool.black]
 line-length = 88

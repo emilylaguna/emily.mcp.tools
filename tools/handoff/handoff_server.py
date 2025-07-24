@@ -7,10 +7,7 @@ import asyncio
 from fastmcp import FastMCP
 from .unified_handoff_tool import UnifiedHandoffTool
 
-try:
-    from ...core import UnifiedMemoryStore
-except ImportError:
-    from core import UnifiedMemoryStore
+from emily_core import UnifiedMemoryStore
 
 logger = logging.getLogger(__name__)
 

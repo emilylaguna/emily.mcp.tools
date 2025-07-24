@@ -9,11 +9,10 @@ from typing import Any, Dict, List, Optional, Literal
 
 from pydantic import BaseModel
 
-from ..base import BaseTool
+from emily_common import BaseTool
 from .models import DayOfWeek, TimeUnit
 
 logger = logging.getLogger(__name__)
-
 
 # Common time format literals
 TimeFormat = Literal[
@@ -28,7 +27,6 @@ TimeFormat = Literal[
 ]
 
 logger = logging.getLogger(__name__)
-
 
 class TimeInfo(BaseModel):
     current_time: datetime

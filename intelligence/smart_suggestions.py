@@ -8,13 +8,7 @@ and cross-domain intelligence.
 import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-
-try:
-    from ..core import UnifiedMemoryStore
-    from ..core.models import MemoryEntity, MemoryContext
-except ImportError:
-    from core import UnifiedMemoryStore
-    from core.models import MemoryEntity, MemoryContext
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
 
 logger = logging.getLogger(__name__)
 

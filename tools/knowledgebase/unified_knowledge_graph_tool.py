@@ -10,20 +10,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 import uuid
 
-try:
-    from ...core import UnifiedMemoryStore
-    from ...core.models import MemoryEntity, MemoryRelation, MemoryContext
-    from ...common.base_tool import BaseTool
-except ImportError:
-    try:
-        from core import UnifiedMemoryStore
-        from core.models import MemoryEntity, MemoryRelation, MemoryContext
-        from common.base_tool import BaseTool
-    except ImportError:
-        from core import UnifiedMemoryStore
-        from core.models import MemoryEntity, MemoryRelation, MemoryContext
-        from common.base_tool import BaseTool
-
+from emily_common import BaseTool
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext, MemoryRelation
 logger = logging.getLogger(__name__)
 
 

@@ -12,7 +12,7 @@ from typing import List, Optional
 
 import analysis
 
-from ...common.base_tool import BaseTool
+from emily_common import BaseTool
 
 logger = logging.getLogger(__name__)
 

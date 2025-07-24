@@ -14,18 +14,10 @@ import json
 
 from pydantic import BaseModel, Field
 
-
-try:
-    from ...common.base_tool import BaseTool
-    from ...core import UnifiedMemoryStore
-    from ...core.models import MemoryEntity, MemoryRelation, MemoryContext
-except ImportError:
-    from common.base_tool import BaseTool
-    from core import UnifiedMemoryStore
-    from core.models import MemoryEntity, MemoryRelation, MemoryContext
+from emily_common import BaseTool
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryRelation, MemoryContext
 
 logger = logging.getLogger(__name__)
-
 
 class Priority(str, Enum):
     LOW = "low"

@@ -13,16 +13,16 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from ...common.base_tool import BaseTool
+from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
+
+from emily_common import BaseTool
 from ..common_types import Status, TriggerType, ActionType
 try:
     from ...workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
     from ...workflows.suggester import WorkflowSuggester
-    from ...core import UnifiedMemoryStore, MemoryEntity
 except ImportError:
     from workflows.engine import WorkflowEngine, Workflow, WorkflowAction, WorkflowTrigger, Event
     from workflows.suggester import WorkflowSuggester
-    from core import UnifiedMemoryStore, MemoryEntity
 
 logger = logging.getLogger(__name__)
 
