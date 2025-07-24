@@ -14,7 +14,7 @@ import json
 
 from pydantic import BaseModel, Field
 
-from ..base import BaseTool
+from ...common.BaseTool import BaseTool
 try:
     from ...core import UnifiedMemoryStore
     from ...core.models import MemoryEntity, MemoryRelation, MemoryContext

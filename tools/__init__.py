@@ -3,7 +3,7 @@ Tools package for Emily Tools MCP server.
 Now supporting FastMCP server composition.
 """
 
-from .base import BaseTool
+from ..common.BaseTool import BaseTool
 
 # Individual tool classes (for direct use)
 from .todo.unified_todo_tool import UnifiedTodoTool

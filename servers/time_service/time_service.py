@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Literal
 
 from pydantic import BaseModel
 
-from ...common.BaseTool import BaseTool
-from ..common_types import DayOfWeek, TimeUnit
+from ..base import BaseTool
+from .models import DayOfWeek, TimeUnit
 
 logger = logging.getLogger(__name__)
 
