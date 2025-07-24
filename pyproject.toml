@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "emily-tools"
 version = "0.1.0"
@@ -16,7 +20,13 @@ dependencies = [
     "aiohttp>=3.12.14",
     "coloredlogs>=15.0.1",
     "fastmcp>=2.10.6",
+    "emily-common",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "data*", "servers*", "analysis*", "workflows*", "intelligence*", "tools*"]
+exclude = ["common*", "tests*", "test_*", "docs*", "ref*"]
 
 [project.optional-dependencies]
 dev = [
@@ -25,6 +35,12 @@ dev = [
     "isort>=5.0.0",
     "mypy>=1.0.0",
 ]
+
+[tool.uv.workspace]
+members = ["emily_common"]
+
+[tool.uv.sources]
+emily-common = { workspace = true }
 
 [tool.black]
 line-length = 88

@@ -14,11 +14,13 @@ import json
 
 from pydantic import BaseModel, Field
 
-from ...common.BaseTool import BaseTool
+
 try:
+    from ...common.base_tool import BaseTool
     from ...core import UnifiedMemoryStore
     from ...core.models import MemoryEntity, MemoryRelation, MemoryContext
 except ImportError:
+    from common.base_tool import BaseTool
     from core import UnifiedMemoryStore
     from core.models import MemoryEntity, MemoryRelation, MemoryContext
 

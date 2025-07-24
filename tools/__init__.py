@@ -3,8 +3,6 @@ Tools package for Emily Tools MCP server.
 Now supporting FastMCP server composition.
 """
 
-from ..common.BaseTool import BaseTool
-
 # Individual tool classes (for direct use)
 from .todo.unified_todo_tool import UnifiedTodoTool
 from .calendar.calendar import CalendarTool
@@ -23,9 +21,6 @@ from .knowledgebase.knowledge_graph_server import create_knowledge_graph_server
 from .codebase.codebase_server import create_codebase_server
 
 __all__ = [
-    # Base
-    "BaseTool",
-    
     # Individual tools
     "UnifiedTodoTool", 
     "CalendarTool",
