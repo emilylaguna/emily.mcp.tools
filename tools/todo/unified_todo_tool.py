@@ -385,14 +385,10 @@ class UnifiedTodoTool(BaseTool):
         # AI-suggested tasks based on context and patterns
         suggested_tasks = self._ai_suggest_today_tasks()
         
-        # Get related calendar events (placeholder for future integration)
-        calendar_events = self._get_calendar_events(today_str)
-        
         return {
             "scheduled": scheduled_tasks,
             "overdue": overdue_tasks,
             "suggested": suggested_tasks,
-            "calendar_events": calendar_events,
             "evening": self.get_evening_tasks()
         }
     
@@ -820,7 +816,7 @@ class UnifiedTodoTool(BaseTool):
         for project in urgent_projects:
             project_tasks = self.memory.search("", filters={
                 "type": "task",
-                "metadata.project_id": project['id'],
+                "metadata.project_id": project.id,
                 "metadata.status": "todo"
             })
             if project_tasks is not None:
@@ -842,7 +838,7 @@ class UnifiedTodoTool(BaseTool):
         
         return list(unique_suggestions.values())[:8]
     
-    def _get_projects_with_approaching_deadlines(self) -> List[Dict]:
+    def _get_projects_with_approaching_deadlines(self) -> List[MemoryEntity]:
         """Get projects with deadlines approaching in the next 3 days."""
         upcoming_deadlines = []
         today = datetime.now().date()
