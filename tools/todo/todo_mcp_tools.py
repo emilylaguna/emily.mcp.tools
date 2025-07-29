@@ -659,7 +659,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool) -> None:
             "area": {
                 "id": area.id,
                 "name": area.name,
-                "description": area.description,
+                "description": area.content,
                 "status": area.metadata.get('status')
             } if area else None,
             "related_entities": [
