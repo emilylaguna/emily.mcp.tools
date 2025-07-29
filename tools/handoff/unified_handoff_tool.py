@@ -408,7 +408,8 @@ class UnifiedHandoffTool(BaseTool):
             }
         
         @mcp.tool()
-        async def handoff_get() -> list:
+        async def handoff_get() -> Optional[HandoffContext]:
+            return self.get_latest_context()
             """Get all handoff contexts from today ordered by created_at in DESC order."""
             contexts = self.get_contexts_from_today()
             return [
@@ -478,13 +479,13 @@ class UnifiedHandoffTool(BaseTool):
             """Get suggested follow-up actions for a context."""
             return self.suggest_followup_actions(context_id)
         
-        @mcp.resource("resource://handoff/recent")
+        # @mcp.resource("resource://handoff/recent")
         def handoff_recent() -> str:
             """Returns the last 10 recent handoff contexts as JSON."""
             latest = self.get_latest_context()
             return json.dumps(latest.model_dump(mode='json') if latest else {}, indent=2)
         
-        @mcp.resource("resource://handoff/{context_id}")
+        # @mcp.resource("resource://handoff/{context_id}")
         def handoff_by_id(context_id: int) -> dict:
             """Return a single handoff context by ID as a dict."""
             ctx = self.get_context(context_id)

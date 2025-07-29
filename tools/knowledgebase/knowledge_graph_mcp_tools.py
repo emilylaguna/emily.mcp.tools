@@ -422,7 +422,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             return {"error": str(e)}
     
     # Resources
-    @mcp.resource("resource://knowledge_graph/entities")
+    # @mcp.resource("resource://knowledge_graph/entities")
     def resource_knowledge_graph_entities() -> list:
         """Resource for all entities in the knowledge graph."""
         try:
@@ -440,7 +440,7 @@ def register_knowledge_graph_tools(mcp, memory_store):
             logger.error(f"Error in resource_knowledge_graph_entities: {e}")
             return []
     
-    @mcp.resource("resource://knowledge_graph/entity/{entity_id}")
+    # @mcp.resource("resource://knowledge_graph/entity/{entity_id}")
     def resource_knowledge_graph_entity(entity_id: str) -> dict:
         """Resource for a specific entity."""
         try:

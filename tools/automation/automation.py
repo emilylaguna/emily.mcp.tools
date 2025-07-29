@@ -708,7 +708,7 @@ class AutomationTool(BaseTool):
                     "message": "Failed to get suggestion metrics"
                 }
 
-        @mcp.resource("resource://automation/workflows")
+
         def automation_workflows_resource() -> str:
             """Get a list of all automation workflows."""
             try:
@@ -736,7 +736,7 @@ class AutomationTool(BaseTool):
                     "count": 0
                 }, indent=2)
 
-        @mcp.resource("resource://automation/workflows/{workflow_id}")
+        # @mcp.resource("resource://automation/workflows/{workflow_id}")
         def automation_workflow_detail(workflow_id: str) -> str:
             """Get detailed information about a specific workflow."""
             try:
@@ -754,7 +754,7 @@ class AutomationTool(BaseTool):
                     "workflow_id": workflow_id
                 }, indent=2)
 
-        @mcp.resource("resource://automation/runs")
+        # @mcp.resource("resource://automation/runs")
         def automation_runs_resource() -> str:
             """Get a list of recent workflow runs."""
             try:

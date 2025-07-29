@@ -256,12 +256,12 @@ class CalendarTool(BaseTool):
                 for event in events
             ]
 
-        @mcp.resource("resource://calendar/all")
+        # @mcp.resource("resource://calendar/all")
         def resource_calendar_all() -> list:
             """Return all calendar events as a list of dicts."""
             return [event.model_dump(mode='json') for event in self.list_events()]
 
-        @mcp.resource("resource://calendar/{event_id}")
+        # @mcp.resource("resource://calendar/{event_id}")
         def resource_calendar_by_id(event_id: int) -> dict:
             """Return a single calendar event by ID as a dict."""
             event = self.get_event(event_id)
