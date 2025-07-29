@@ -37,7 +37,7 @@ class ProjectStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
+def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool) -> None:
     """Register all MCP tools for the unified todo system."""
     
     @mcp.tool(
@@ -259,7 +259,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             {
                 "id": area.id,
                 "name": area.name,
-                "description": area.description,
+                "description": area.content,
                 "status": area.metadata.get("status"),
                 "color": area.metadata.get("color")
             }
@@ -282,7 +282,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             {
                 "id": project.id,
                 "name": project.name,
-                "description": project.description,
+                "description": project.content,
                 "area_id": project.metadata.get("area_id"),
                 "status": project.metadata.get("status"),
                 "deadline": project.metadata.get("deadline"),
@@ -636,7 +636,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             "task": {
                 "id": task.id,
                 "title": task.name,
-                "description": task.description,
+                "description": task.content,
                 "priority": task.metadata.get('priority'),
                 "status": task.metadata.get('status'),
                 "project_id": task.metadata.get('project_id'),
@@ -652,7 +652,7 @@ def register_todo_mcp_tools(mcp, todo_tool: UnifiedTodoTool):
             "project": {
                 "id": project.id,
                 "name": project.name,
-                "description": project.description,
+                "description": project.content,
                 "status": project.metadata.get('status'),
                 "progress": project.metadata.get('progress')
             } if project else None,
