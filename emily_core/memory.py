@@ -979,16 +979,10 @@ class UnifiedMemoryStore:
                     enhancement = self.content_enhancer.enhance_context(context)
                     
                     # Update context with AI-generated metadata
-                    if enhancement['topics']:
-                        context.topics = enhancement['topics']
-                    if enhancement['summary']:
-                        context.summary = enhancement['summary']
-                    if enhancement['action_items']:
-                        context.metadata['action_items'] = enhancement['action_items']
-                    if enhancement['extracted_entities']:
-                        context.metadata['extracted_entities'] = enhancement['extracted_entities']
-                    if enhancement['extract_hash']:
-                        context.metadata['extract_hash'] = enhancement['extract_hash']
+                    keys = ['topics', 'summary', 'action_items', 'extracted_entities', 'extract_hash']
+                    for key in keys:
+                        if enhancement.get(key):
+                            context.metadata[key] = enhancement[key]
                     
                     logger.info(f"Enhancement: {enhancement}")
                     # Create new entities for extracted entities marked for creation
@@ -1326,7 +1320,6 @@ class UnifiedMemoryStore:
         # Save the context first
         saved_context = self.save_context(context)
         
-        logger.info(f"Saving relation: {relation.id}")
         # Apply AI enhancement if available
         if self.enable_ai_extraction and self.content_enhancer:
             try:
