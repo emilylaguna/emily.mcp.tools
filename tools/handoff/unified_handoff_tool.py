@@ -22,18 +22,6 @@ from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
 logger = logging.getLogger(__name__)
 
 
-class HandoffContext(BaseModel):
-    """Backward compatible handoff context model."""
-    id: Optional[int] = None
-    context: str
-    created_at: datetime = datetime.now()
-    
-    # Optional enhancement fields (not breaking changes)
-    summary: Optional[str] = None
-    topics: List[str] = []
-    related_entities: List[str] = []
-
-
 class UnifiedHandoffTool(BaseTool):
     """Enhanced handoff tool using unified memory backend with AI features."""
     
@@ -41,10 +29,6 @@ class UnifiedHandoffTool(BaseTool):
         self.memory = memory_store
         self.tool_name = "handoff"
         
-        # Cache for numeric ID to UUID mapping
-        self._id_cache: Dict[int, str] = {}
-        self._reverse_cache: Dict[str, int] = {}
-    
     @property
     def name(self) -> str:
         return "handoff"
@@ -56,7 +40,7 @@ class UnifiedHandoffTool(BaseTool):
     def get_capabilities(self) -> List[str]:
         return [
             "save_context",
-            "get_latest_context", 
+            "get_latest_context",
             "list_contexts",
             "get_context",
             "search_contexts",
@@ -65,50 +49,7 @@ class UnifiedHandoffTool(BaseTool):
             "suggest_followup_actions"
         ]
     
-    def _extract_numeric_id(self, uuid_id: str) -> int:
-        """Convert UUID to numeric ID for backward compatibility."""
-        # Use hash to create consistent numeric ID
-        return int(hashlib.md5(uuid_id.encode()).hexdigest()[:8], 16)
-    
-    def _get_uuid_from_numeric_id(self, numeric_id: int) -> Optional[str]:
-        """Find UUID from numeric ID mapping."""
-        # Check cache first
-        if numeric_id in self._id_cache:
-            return self._id_cache[numeric_id]
-        
-        # Search contexts with matching numeric ID in metadata
-        contexts = self.memory.search_contexts("", filters={
-            "type": "handoff", 
-            "metadata.numeric_id": str(numeric_id)
-        })
-        
-        if contexts:
-            uuid_id = contexts[0].id
-            # Cache the mapping
-            self._id_cache[numeric_id] = uuid_id
-            self._reverse_cache[uuid_id] = numeric_id
-            return uuid_id
-        
-        return None
-    
-    def _memory_context_to_handoff_context(self, memory_context: Dict[str, Any]) -> HandoffContext:
-        """Convert MemoryContext to HandoffContext for API compatibility."""
-        numeric_id = self._extract_numeric_id(memory_context['id'])
-        
-        # Cache the mapping
-        self._id_cache[numeric_id] = memory_context['id']
-        self._reverse_cache[memory_context['id']] = numeric_id
-        
-        return HandoffContext(
-            id=numeric_id,
-            context=memory_context['content'],
-            created_at=memory_context['created_at'],
-            summary=memory_context.get('summary'),
-            topics=memory_context.get('topics', []),
-            related_entities=memory_context.get('entity_ids', [])
-        )
-    
-    def save_context(self, context: str) -> HandoffContext:
+    def save_context(self, context: str) -> MemoryContext:
         """Save handoff context with AI enhancement (maintains original API)."""
         # Create MemoryContext for unified storage
         memory_context = MemoryContext(
@@ -120,29 +61,9 @@ class UnifiedHandoffTool(BaseTool):
         # Save with AI enhancement (entity extraction, etc.)
         try:
             saved_memory_context = self.memory.save_context_with_ai(memory_context)
-            
-            # Add numeric ID to metadata for quick lookup
-            numeric_id = self._extract_numeric_id(saved_memory_context.id)
-            saved_memory_context.metadata['numeric_id'] = str(numeric_id)
-            
-            # Update the context with the numeric ID
             self.memory.update_context(saved_memory_context)
             
-            # Convert back to HandoffContext for API compatibility
-            handoff_context = HandoffContext(
-                id=numeric_id,
-                context=saved_memory_context.content,
-                created_at=saved_memory_context.created_at,
-                summary=saved_memory_context.summary,
-                topics=saved_memory_context.topics,
-                related_entities=saved_memory_context.entity_ids
-            )
-            
-            # Cache the mapping
-            self._id_cache[numeric_id] = saved_memory_context.id
-            self._reverse_cache[saved_memory_context.id] = numeric_id
-            
-            return handoff_context
+            return saved_memory_context
             
         except Exception as e:
             logger.warning(f"AI enhancement failed, saving basic context: {e}")
@@ -154,31 +75,23 @@ class UnifiedHandoffTool(BaseTool):
             )
             saved_memory_context = self.memory.save_context(memory_context)
             
-            numeric_id = self._extract_numeric_id(saved_memory_context.id)
-            saved_memory_context.metadata['numeric_id'] = str(numeric_id)
             self.memory.update_context(saved_memory_context)
             
-            return HandoffContext(
-                id=numeric_id,
-                context=saved_memory_context.content,
-                created_at=saved_memory_context.created_at
-            )
+            return saved_memory_context
     
-    def get_contexts(self) -> List[HandoffContext]:
+    def get_contexts(self) -> List[MemoryContext]:
         """Get all handoff contexts (maintains original API)."""
         # Search all handoff contexts using the contexts table
         memory_contexts = self.memory.search_contexts("", filters={"type": "handoff"})
         
-        # Convert to HandoffContext objects
         handoff_contexts = []
         for ctx in memory_contexts:
-            handoff_context = self._memory_context_to_handoff_context(ctx.model_dump())
-            handoff_contexts.append(handoff_context)
+            handoff_contexts.append(ctx)
         
         # Sort by created_at (most recent first)
         return sorted(handoff_contexts, key=lambda x: x.created_at, reverse=True)
     
-    def get_contexts_from_today(self) -> List[HandoffContext]:
+    def get_contexts_from_today(self) -> List[MemoryContext]:
         """Get all handoff contexts from today ordered by created_at in DESC order."""
         from datetime import date
         
@@ -187,72 +100,55 @@ class UnifiedHandoffTool(BaseTool):
         # Search all handoff contexts using the contexts table
         memory_contexts = self.memory.search_contexts("", filters={"type": "handoff"})
         
-        # Convert to HandoffContext objects and filter by today
         handoff_contexts = []
         for ctx in memory_contexts:
-            handoff_context = self._memory_context_to_handoff_context(ctx.model_dump())
             # Check if the context was created today
-            if handoff_context.created_at.date() == today:
-                handoff_contexts.append(handoff_context)
+            if ctx.created_at.date() == today:
+                handoff_contexts.append(ctx)
         
         # Sort by created_at (most recent first)
         return sorted(handoff_contexts, key=lambda x: x.created_at, reverse=True)
     
-    def get_latest_context(self) -> Optional[HandoffContext]:
+    def get_latest_context(self) -> Optional[MemoryContext]:
         """Get the most recent handoff context."""
         contexts = self.get_contexts()
         return contexts[0] if contexts else None
     
-    def list_contexts(self, limit: int = 10) -> List[HandoffContext]:
+    def list_contexts(self, limit: int = 10) -> List[MemoryContext]:
         """List recent handoff contexts (maintains original API)."""
         contexts = self.get_contexts()
         return contexts[:limit]
     
-    def get_context(self, context_id: int) -> Optional[HandoffContext]:
+    def get_context(self, context_id: str) -> Optional[MemoryContext]:
         """Get specific context by ID (maintains original API)."""
-        # Find UUID from numeric ID
-        uuid_id = self._get_uuid_from_numeric_id(context_id)
-        
-        if not uuid_id:
-            return None
         
         # Get from unified memory using contexts table
         context_results = self.memory.search_contexts("", filters={
             "type": "handoff",
-            "id": uuid_id
+            "id": context_id
         })
         
         if not context_results:
             return None
         
-        return self._memory_context_to_handoff_context(context_results[0].model_dump())
+        return context_results[0]
     
-    def search_contexts(self, query: str, limit: int = 10) -> List[HandoffContext]:
+    def search_contexts(self, query: str, limit: int = 10) -> List[MemoryContext]:
         """Semantic search across handoff contexts."""
         # Use unified memory context search
         results = self.memory.search_contexts(query, filters={"type": "handoff"})
         
-        # Convert to HandoffContext objects with relevance scores
         contexts_with_scores = []
         for result in results:
-            handoff_context = self._memory_context_to_handoff_context(result.model_dump())
-            
-            # Add relevance score as metadata (not in original model)
-            if hasattr(handoff_context, '__dict__'):
-                handoff_context.__dict__['relevance_score'] = getattr(result, 'relevance', 0.0)
-            
-            contexts_with_scores.append(handoff_context)
+            contexts_with_scores.append(result)
         
         return contexts_with_scores[:limit]
     
-    def get_related_contexts(self, context_id: int) -> List[HandoffContext]:
+    def get_related_contexts(self, context_id: str) -> List[MemoryContext]:
         """Find contexts related to the given context through entities and topics."""
-        uuid_id = self._get_uuid_from_numeric_id(context_id)
-        if not uuid_id:
-            return []
         
         # Get the context to understand its content and entities
-        base_context = self.memory.search_contexts("", filters={"type": "handoff", "id": uuid_id})
+        base_context = self.memory.search_contexts("", filters={"type": "handoff", "id": context_id})
         if not base_context:
             return []
         
@@ -260,7 +156,7 @@ class UnifiedHandoffTool(BaseTool):
         
         # Find related contexts through:
         # 1. Shared entities
-        related_by_entities = self._find_contexts_by_shared_entities(uuid_id)
+        related_by_entities = self._find_contexts_by_shared_entities(context_id)
         
         # 2. Similar topics/content
         related_by_content = self.memory.search_contexts(
@@ -277,14 +173,12 @@ class UnifiedHandoffTool(BaseTool):
         all_related = {}
         for ctx_list in [related_by_entities, related_by_content, related_by_time]:
             for ctx in ctx_list:
-                if ctx['id'] != uuid_id:  # Exclude self
+                if ctx['id'] != context_id:  # Exclude self
                     all_related[ctx['id']] = ctx
         
-        # Convert to HandoffContext and limit results
         related_contexts = []
         for ctx in list(all_related.values())[:10]:
-            handoff_context = self._memory_context_to_handoff_context(ctx)
-            related_contexts.append(handoff_context)
+            related_contexts.append(ctx)
         
         return related_contexts
     
@@ -321,21 +215,18 @@ class UnifiedHandoffTool(BaseTool):
         
         return filtered[:20]
     
-    def get_context_insights(self, context_id: int) -> Dict[str, Any]:
+    def get_context_insights(self, context_id: str) -> Dict[str, Any]:
         """Get AI-generated insights about a context."""
-        uuid_id = self._get_uuid_from_numeric_id(context_id)
-        if not uuid_id:
-            return {}
         
         # Get context and related data
-        context_data = self.memory.search_contexts("", filters={"type": "handoff", "id": uuid_id})
+        context_data = self.memory.search_contexts("", filters={"type": "handoff", "id": context_id})
         if not context_data:
             return {}
         
         ctx = context_data[0].model_dump()
         
         # Get related entities
-        related_entities = self.memory.get_related(uuid_id)
+        related_entities = self.memory.get_related(context_id)
         
         # Generate insights
         insights = {
@@ -352,13 +243,10 @@ class UnifiedHandoffTool(BaseTool):
         
         return insights
     
-    def suggest_followup_actions(self, context_id: int) -> List[str]:
+    def suggest_followup_actions(self, context_id: str) -> List[str]:
         """Suggest follow-up actions based on context content."""
-        uuid_id = self._get_uuid_from_numeric_id(context_id)
-        if not uuid_id:
-            return []
         
-        context_data = self.memory.search_contexts("", filters={"type": "handoff", "id": uuid_id})
+        context_data = self.memory.search_contexts("", filters={"type": "handoff", "id": context_id})
         if not context_data:
             return []
         
@@ -372,7 +260,7 @@ class UnifiedHandoffTool(BaseTool):
             suggestions.append(f"Create task: {action}")
         
         # Suggest based on mentioned entities
-        related_entities = self.memory.get_related(uuid_id)
+        related_entities = self.memory.get_related(context_id)
         
         # Suggest contacting people
         people = [e for e in related_entities if e.get('type') == 'person']
@@ -396,19 +284,12 @@ class UnifiedHandoffTool(BaseTool):
         """Register MCP tools with enhanced capabilities."""
         
         @mcp.tool()
-        async def handoff_save(context: str) -> dict:
+        async def handoff_save(context: str) -> MemoryContext:
             """Save chat context for handoff between sessions with AI enhancement."""
-            saved = self.save_context(context)
-            return {
-                "id": saved.id,
-                "context": saved.context,
-                "created_at": saved.created_at.isoformat(),
-                "summary": saved.summary,
-                "topics": saved.topics
-            }
+            return self.save_context(context)
         
         @mcp.tool()
-        async def handoff_get() -> Optional[HandoffContext]:
+        async def handoff_get() -> Optional[MemoryContext]:
             return self.get_latest_context()
             """Get all handoff contexts from today ordered by created_at in DESC order."""
             contexts = self.get_contexts_from_today()
@@ -424,58 +305,30 @@ class UnifiedHandoffTool(BaseTool):
             ]
         
         @mcp.tool()
-        async def handoff_list(limit: int = 10) -> list:
+        async def handoff_list(limit: int = 10) -> list[MemoryContext]:
             """List recent saved chat contexts."""
             contexts = self.list_contexts(limit=limit)
-            return [
-                {
-                    "id": c.id,
-                    "context": c.context,
-                    "created_at": c.created_at.isoformat(),
-                    "summary": c.summary,
-                    "topics": c.topics
-                }
-                for c in contexts
-            ]
+            return contexts
         
         @mcp.tool()
-        async def handoff_search(query: str, limit: int = 10) -> list:
+        async def handoff_search(query: str, limit: int = 10) -> list[MemoryContext]:
             """Search handoff contexts by content using AI semantic search."""
             results = self.search_contexts(query, limit)
-            return [
-                {
-                    "id": ctx.id,
-                    "context": ctx.context[:200] + "..." if len(ctx.context) > 200 else ctx.context,
-                    "created_at": ctx.created_at.isoformat(),
-                    "relevance_score": getattr(ctx, 'relevance_score', 0.0),
-                    "summary": ctx.summary,
-                    "topics": ctx.topics
-                }
-                for ctx in results
-            ]
+            return results
         
         @mcp.tool()
-        async def handoff_related(context_id: int) -> list:
+        async def handoff_related(context_id: str) -> list[MemoryContext]:
             """Get contexts related to the specified context through entities and topics."""
             results = self.get_related_contexts(context_id)
-            return [
-                {
-                    "id": ctx.id,
-                    "context": ctx.context[:150] + "..." if len(ctx.context) > 150 else ctx.context,
-                    "created_at": ctx.created_at.isoformat(),
-                    "summary": ctx.summary,
-                    "topics": ctx.topics
-                }
-                for ctx in results
-            ]
+            return results
         
         @mcp.tool()
-        async def handoff_insights(context_id: int) -> dict:
+        async def handoff_insights(context_id: str) -> dict:
             """Get AI-generated insights about a handoff context."""
             return self.get_context_insights(context_id)
         
         @mcp.tool()
-        async def handoff_suggest_actions(context_id: int) -> list:
+        async def handoff_suggest_actions(context_id: str) -> list:
             """Get suggested follow-up actions for a context."""
             return self.suggest_followup_actions(context_id)
         
@@ -486,7 +339,7 @@ class UnifiedHandoffTool(BaseTool):
             return json.dumps(latest.model_dump(mode='json') if latest else {}, indent=2)
         
         # @mcp.resource("resource://handoff/{context_id}")
-        def handoff_by_id(context_id: int) -> dict:
+        def handoff_by_id(context_id: str) -> dict:
             """Return a single handoff context by ID as a dict."""
             ctx = self.get_context(context_id)
             return ctx.model_dump(mode='json') if ctx else {}

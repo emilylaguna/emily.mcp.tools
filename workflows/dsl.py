@@ -8,8 +8,7 @@ Supports validation and template resolution.
 import re
 import yaml
 import logging
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
+from typing import Any, Dict, List
 
 from .engine import Workflow, WorkflowAction, WorkflowTrigger
 
@@ -434,5 +433,42 @@ actions:
     params:
       channel: slack
       message: "New project '{{ entity.name }}' has been set up with initial tasks"
+""",
+
+    'code_review': """
+id: code_review
+name: Code Review Automation
+description: Automatically create tasks for code reviews
+trigger:
+  type: handoff
+  tags: ["code review", "pull request", "review"]
+actions:
+  - type: create_task
+    params:
+      title: "Code Review: {{ entity.name }}"
+      priority: medium
+      content: "Code review needed: {{ entity.content }}"
+  - type: notify
+    params:
+      channel: slack
+      message: "Code review task created: {{ entity.name }}"
+""",
+
+    'deadline_reminder': """
+id: deadline_reminder
+name: Deadline Reminder Automation
+description: Send reminders for upcoming deadlines
+trigger:
+  schedule: "0 10 * * 1-5"  # 10 AM on weekdays
+actions:
+  - type: create_task
+    params:
+      title: "Check upcoming deadlines"
+      priority: high
+      content: "Review and notify about upcoming project deadlines"
+  - type: notify
+    params:
+      channel: slack
+      message: "Daily deadline check completed"
 """,
 } 

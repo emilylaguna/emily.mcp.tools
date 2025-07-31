@@ -41,19 +41,6 @@ class WorkflowRunStatus(str, Enum):
     FAILED = "failed"
     CANCELLED = "cancelled"
 
-
-class WorkflowDefinition(BaseModel):
-    """Workflow definition for MCP clients."""
-    id: str
-    name: str
-    description: str
-    trigger: Dict[str, Any]
-    actions: List[Dict[str, Any]]
-    enabled: bool = True
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-
-
 class WorkflowRunInfo(BaseModel):
     """Workflow run information for MCP clients."""
     id: str
@@ -125,19 +112,9 @@ class AutomationTool(BaseTool):
             "get_suggestion_metrics"
         ]
 
-    def register_workflow(self, workflow_def: Dict[str, Any]) -> WorkflowDefinition:
+    def register_workflow(self, workflow: Workflow) -> None:
         """Register a new workflow."""
-        try:
-            # Create workflow from definition
-            workflow = Workflow(
-                id=workflow_def.get("id", str(uuid.uuid4())),
-                name=workflow_def["name"],
-                description=workflow_def["description"],
-                trigger=WorkflowTrigger(**workflow_def["trigger"]),
-                actions=[WorkflowAction(**action) for action in workflow_def["actions"]],
-                enabled=workflow_def.get("enabled", True)
-            )
-            
+        try:            
             # Register with engine (this handles both in-memory and persistence)
             self.workflow_engine.register_workflow(workflow)
             
@@ -145,22 +122,11 @@ class AutomationTool(BaseTool):
             if workflow.id not in self.workflow_engine.workflows:
                 raise RuntimeError(f"Workflow {workflow.id} was not properly registered in memory")
             
-            return WorkflowDefinition(
-                id=workflow.id,
-                name=workflow.name,
-                description=workflow.description,
-                trigger=workflow.trigger.model_dump(),
-                actions=[action.model_dump() for action in workflow.actions],
-                enabled=workflow.enabled,
-                created_at=workflow.created_at.isoformat(),
-                updated_at=workflow.updated_at.isoformat()
-            )
-            
         except Exception as e:
             logger.error(f"Failed to register workflow: {e}")
             raise ValueError(f"Invalid workflow definition: {e}")
 
-    def list_workflows(self, enabled_only: bool = False) -> List[WorkflowDefinition]:
+    def list_workflows(self, enabled_only: bool = False) -> List[Workflow]:
         """List all registered workflows."""
         workflows = []
         
@@ -171,35 +137,17 @@ class AutomationTool(BaseTool):
             if enabled_only and not workflow.enabled:
                 continue
                 
-            workflows.append(WorkflowDefinition(
-                id=workflow.id,
-                name=workflow.name,
-                description=workflow.description,
-                trigger=workflow.trigger.model_dump(),
-                actions=[action.model_dump() for action in workflow.actions],
-                enabled=workflow.enabled,
-                created_at=workflow.created_at.isoformat(),
-                updated_at=workflow.updated_at.isoformat()
-            ))
+            workflows.append(workflow)
         
         return workflows
 
-    def get_workflow(self, workflow_id: str) -> Optional[WorkflowDefinition]:
+    def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
         """Get a specific workflow by ID."""
         workflow = self.workflow_engine.get_workflow(workflow_id)
         if not workflow:
             return None
             
-        return WorkflowDefinition(
-            id=workflow.id,
-            name=workflow.name,
-            description=workflow.description,
-            trigger=workflow.trigger.model_dump(),
-            actions=[action.model_dump() for action in workflow.actions],
-            enabled=workflow.enabled,
-            created_at=workflow.created_at.isoformat(),
-            updated_at=workflow.updated_at.isoformat()
-        )
+        return workflow
 
     def delete_workflow(self, workflow_id: str) -> bool:
         """Delete a workflow."""
@@ -361,7 +309,7 @@ class AutomationTool(BaseTool):
             return self.workflow_suggester.get_metrics()
         except Exception as e:
             logger.error(f"Failed to get suggestion metrics: {e}")
-            return {}
+        return {}
 
     def register(self, mcp):
         @mcp.tool(
@@ -373,10 +321,10 @@ class AutomationTool(BaseTool):
                 "idempotentHint": False
             }
         )
-        async def automation_register_workflow(workflow_definition: dict) -> dict:
+        async def automation_register_workflow(workflow: Workflow) -> dict:
             """Register a new automation workflow."""
             try:
-                workflow = self.register_workflow(workflow_definition)
+                self.register_workflow(workflow)
                 return {
                     "success": True,
                     "workflow": workflow.model_dump(),
@@ -398,21 +346,9 @@ class AutomationTool(BaseTool):
                 "idempotentHint": True
             }
         )
-        async def automation_list_workflows(enabled_only: bool = False) -> dict:
+        async def automation_list_workflows(enabled_only: bool = False) -> Optional[List[Workflow]]:
             """List all registered automation workflows."""
-            try:
-                workflows = self.list_workflows(enabled_only=enabled_only)
-                return {
-                    "success": True,
-                    "workflows": [w.dict() for w in workflows],
-                    "count": len(workflows)
-                }
-            except Exception as e:
-                return {
-                    "success": False,
-                    "error": str(e),
-                    "message": "Failed to list workflows"
-                }
+            return self.list_workflows(enabled_only=enabled_only)
 
         @mcp.tool(
             name="automation_get_workflow",
@@ -430,7 +366,7 @@ class AutomationTool(BaseTool):
                 if workflow:
                     return {
                         "success": True,
-                        "workflow": workflow.dict()
+                        "workflow": workflow.model_dump()
                     }
                 else:
                     return {
@@ -587,7 +523,7 @@ class AutomationTool(BaseTool):
                 runs = self.list_workflow_runs(workflow_id=workflow_id, limit=limit)
                 return {
                     "success": True,
-                    "runs": [r.dict() for r in runs],
+                    "runs": [r.model_dump() for r in runs],
                     "count": len(runs)
                 }
             except Exception as e:
@@ -613,7 +549,7 @@ class AutomationTool(BaseTool):
                 if run:
                     return {
                         "success": True,
-                        "run": run.dict()
+                        "run": run.model_dump()
                     }
                 else:
                     return {
@@ -742,7 +678,7 @@ class AutomationTool(BaseTool):
             try:
                 workflow = self.get_workflow(workflow_id)
                 if workflow:
-                    return json.dumps(workflow.dict(), indent=2)
+                    return json.dumps(workflow.model_dump(), indent=2)
                 else:
                     return json.dumps({
                         "error": "Workflow not found",

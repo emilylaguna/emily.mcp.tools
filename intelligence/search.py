@@ -8,7 +8,7 @@ all tool types.
 
 import re
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from emily_core import UnifiedMemoryStore, MemoryEntity, MemoryContext
@@ -275,7 +275,7 @@ class IntelligentSearchEngine:
                     else:
                         created_at = result['created_at']
                     
-                    age_days = (datetime.now() - created_at).days
+                    age_days = (datetime.now(timezone.utc) - created_at).days
                     recency_boost = max(0.1, 1.0 - (age_days / 30))  # Boost recent items
                     result['relevance_score'] *= (1 + recency_boost * 0.2)
                 except Exception:

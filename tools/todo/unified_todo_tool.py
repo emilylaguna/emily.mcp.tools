@@ -507,10 +507,16 @@ class UnifiedTodoTool(BaseTool):
     def create_task_from_conversation(self, context_id: str, suggested_title: Optional[str] = None) -> MemoryEntity:
         """Create task from handoff context with AI extraction."""
         
-        # Get the conversation context
-        context = self.memory.get_entity(context_id)
-        if not context:
+        # Get the conversation context using the same approach as handoff tool
+        context_results = self.memory.search_contexts("", filters={
+            "type": "handoff",
+            "id": context_id
+        })
+        
+        if not context_results:
             raise ValueError(f"Context {context_id} not found")
+        
+        context = context_results[0]
         
         # Extract action items if no title provided
         if not suggested_title:

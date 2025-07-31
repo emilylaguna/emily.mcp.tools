@@ -46,10 +46,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "create",
-        "organization",
+        "todo",
         "area",
-        "todo"
+        "organization",
+        "create"
       ],
       "enabled": true
     },
@@ -106,10 +106,10 @@
         "openWorldHint": null
       },
       "tags": [
+        "todo",
         "project",
-        "create",
         "organization",
-        "todo"
+        "create"
       ],
       "enabled": true
     },
@@ -258,10 +258,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "create",
+        "todo",
         "task",
         "productivity",
-        "todo"
+        "create"
       ],
       "enabled": true
     },
@@ -289,11 +289,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "todo",
         "task",
+        "todo",
         "ai",
-        "create",
-        "natural-language"
+        "natural-language",
+        "create"
       ],
       "enabled": true
     },
@@ -333,11 +333,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "conversation",
+        "task",
         "todo",
         "ai",
         "create",
-        "task"
+        "conversation"
       ],
       "enabled": true
     },
@@ -357,11 +357,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "schedule",
-        "todo",
         "today",
+        "task",
+        "todo",
         "ai",
-        "task"
+        "schedule"
       ],
       "enabled": true
     },
@@ -381,11 +381,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "evening",
-        "schedule",
+        "task",
         "todo",
+        "evening",
         "energy",
-        "task"
+        "schedule"
       ],
       "enabled": true
     },
@@ -411,11 +411,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "schedule",
-        "todo",
         "upcoming",
-        "planning",
-        "task"
+        "task",
+        "todo",
+        "schedule",
+        "planning"
       ],
       "enabled": true
     },
@@ -435,11 +435,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "anytime",
-        "schedule",
-        "todo",
+        "task",
         "flexible",
-        "task"
+        "todo",
+        "schedule",
+        "anytime"
       ],
       "enabled": true
     },
@@ -460,10 +460,10 @@
       },
       "tags": [
         "someday",
+        "task",
         "future",
         "todo",
-        "planning",
-        "task"
+        "planning"
       ],
       "enabled": true
     },
@@ -500,10 +500,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "list",
-        "organization",
+        "todo",
         "area",
-        "todo"
+        "organization",
+        "list"
       ],
       "enabled": true
     },
@@ -554,11 +554,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "project",
-        "organization",
         "todo",
+        "management",
         "list",
-        "management"
+        "organization",
+        "project"
       ],
       "enabled": true
     },
@@ -586,11 +586,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "todo",
+        "update",
+        "task",
         "complete",
         "status",
-        "update",
-        "task"
+        "todo"
       ],
       "enabled": true
     },
@@ -618,11 +618,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "project",
-        "todo",
-        "management",
         "complete",
-        "bulk"
+        "todo",
+        "bulk",
+        "management",
+        "project"
       ],
       "enabled": true
     },
@@ -650,11 +650,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "project",
-        "progress",
-        "tracking",
         "analytics",
-        "todo"
+        "tracking",
+        "todo",
+        "progress",
+        "project"
       ],
       "enabled": true
     },
@@ -682,11 +682,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "project",
+        "history",
         "tracking",
         "timeline",
         "todo",
-        "history"
+        "project"
       ],
       "enabled": true
     },
@@ -706,11 +706,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "priorities",
+        "task",
         "todo",
         "ai",
-        "suggestions",
-        "task"
+        "priorities",
+        "suggestions"
       ],
       "enabled": true
     },
@@ -739,10 +739,10 @@
       },
       "tags": [
         "semantic",
-        "find",
         "todo",
+        "ai",
         "search",
-        "ai"
+        "find"
       ],
       "enabled": true
     },
@@ -940,11 +940,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "modify",
+        "update",
+        "task",
         "todo",
         "management",
-        "update",
-        "task"
+        "modify"
       ],
       "enabled": true
     },
@@ -1089,11 +1089,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "organization",
-        "archive",
         "area",
         "cleanup",
-        "todo"
+        "todo",
+        "organization",
+        "archive"
       ],
       "enabled": true
     },
@@ -1121,11 +1121,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "remove",
+        "task",
         "cleanup",
         "todo",
         "delete",
-        "task"
+        "remove"
       ],
       "enabled": true
     },
@@ -1145,11 +1145,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "overview",
-        "statistics",
         "analytics",
+        "overview",
         "todo",
-        "metrics"
+        "metrics",
+        "statistics"
       ],
       "enabled": true
     },
@@ -1190,11 +1190,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "task",
         "filter",
-        "search",
-        "todo",
         "advanced",
-        "task"
+        "todo",
+        "search"
       ],
       "enabled": true
     },
@@ -1222,11 +1222,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "task",
+        "relationships",
         "details",
         "todo",
-        "context",
-        "relationships",
-        "task"
+        "context"
       ],
       "enabled": true
     },
@@ -1235,15 +1235,205 @@
       "name": "automation_register_workflow",
       "description": "Register a new automation workflow with triggers, conditions, and actions",
       "input_schema": {
-        "properties": {
-          "workflow_definition": {
-            "additionalProperties": true,
-            "title": "Workflow Definition",
+        "$defs": {
+          "Workflow": {
+            "description": "Workflow definition.",
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "description": {
+                "title": "Description",
+                "type": "string"
+              },
+              "trigger": {
+                "$ref": "#/$defs/WorkflowTrigger"
+              },
+              "actions": {
+                "items": {
+                  "$ref": "#/$defs/WorkflowAction"
+                },
+                "title": "Actions",
+                "type": "array"
+              },
+              "enabled": {
+                "default": true,
+                "title": "Enabled",
+                "type": "boolean"
+              },
+              "created_at": {
+                "format": "date-time",
+                "title": "Created At",
+                "type": "string"
+              },
+              "updated_at": {
+                "format": "date-time",
+                "title": "Updated At",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "trigger",
+              "actions"
+            ],
+            "title": "Workflow",
+            "type": "object"
+          },
+          "WorkflowAction": {
+            "description": "Individual action within a workflow.",
+            "properties": {
+              "type": {
+                "$ref": "#/$defs/WorkflowActionType"
+              },
+              "params": {
+                "additionalProperties": true,
+                "title": "Params",
+                "type": "object"
+              },
+              "condition": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Condition"
+              }
+            },
+            "required": [
+              "type",
+              "params"
+            ],
+            "title": "WorkflowAction",
+            "type": "object"
+          },
+          "WorkflowActionType": {
+            "description": "Enumeration of supported workflow action types.",
+            "enum": [
+              "create_task",
+              "update_entity",
+              "save_relation",
+              "notify",
+              "run_shell",
+              "http_request"
+            ],
+            "title": "WorkflowActionType",
+            "type": "string"
+          },
+          "WorkflowTrigger": {
+            "description": "Trigger definition for a workflow.",
+            "properties": {
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Type"
+              },
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Content"
+              },
+              "name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Name"
+              },
+              "tags": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tags"
+              },
+              "metadata": {
+                "anyOf": [
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Metadata"
+              },
+              "event_type": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Event Type"
+              },
+              "schedule": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Schedule"
+              }
+            },
+            "title": "WorkflowTrigger",
             "type": "object"
           }
         },
+        "properties": {
+          "workflow": {
+            "$ref": "#/$defs/Workflow",
+            "title": "Workflow"
+          }
+        },
         "required": [
-          "workflow_definition"
+          "workflow"
         ],
         "type": "object"
       },
@@ -1255,11 +1445,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
         "automation",
-        "configuration",
         "register",
-        "create"
+        "configuration",
+        "create",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1286,10 +1476,10 @@
       },
       "tags": [
         "view",
-        "workflow",
         "automation",
+        "management",
         "list",
-        "management"
+        "workflow"
       ],
       "enabled": true
     },
@@ -1318,10 +1508,10 @@
       },
       "tags": [
         "view",
-        "workflow",
         "details",
         "automation",
-        "get"
+        "get",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1349,11 +1539,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
-        "automation",
-        "remove",
         "cleanup",
-        "delete"
+        "delete",
+        "remove",
+        "automation",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1381,11 +1571,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
         "pause",
         "automation",
+        "management",
         "control",
-        "management"
+        "workflow"
       ],
       "enabled": true
     },
@@ -1413,11 +1603,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
-        "automation",
-        "control",
         "resume",
-        "management"
+        "automation",
+        "management",
+        "control",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1458,11 +1648,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
-        "manual",
-        "automation",
         "trigger",
-        "execute"
+        "automation",
+        "manual",
+        "execute",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1500,11 +1690,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
-        "automation",
-        "runs",
         "history",
-        "monitoring"
+        "automation",
+        "monitoring",
+        "runs",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1532,11 +1722,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
+        "run",
         "details",
         "automation",
-        "run",
-        "monitoring"
+        "monitoring",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1567,11 +1757,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
-        "recommendations",
-        "automation",
         "ai",
-        "suggestions"
+        "automation",
+        "suggestions",
+        "recommendations",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1599,11 +1789,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "approve",
-        "workflow",
-        "automation",
         "implement",
-        "suggestions"
+        "automation",
+        "suggestions",
+        "approve",
+        "workflow"
       ],
       "enabled": true
     },
@@ -1623,10 +1813,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "automation",
-        "performance",
         "analytics",
+        "performance",
         "metrics",
+        "automation",
         "suggestions"
       ],
       "enabled": true
@@ -1654,7 +1844,7 @@
     {
       "key": "handoff_get",
       "name": "handoff_get",
-      "description": "Get all handoff contexts from today ordered by created_at in DESC order.",
+      "description": null,
       "input_schema": {
         "properties": {},
         "type": "object"
@@ -1714,7 +1904,7 @@
         "properties": {
           "context_id": {
             "title": "Context Id",
-            "type": "integer"
+            "type": "string"
           }
         },
         "required": [
@@ -1734,7 +1924,7 @@
         "properties": {
           "context_id": {
             "title": "Context Id",
-            "type": "integer"
+            "type": "string"
           }
         },
         "required": [
@@ -1754,7 +1944,7 @@
         "properties": {
           "context_id": {
             "title": "Context Id",
-            "type": "integer"
+            "type": "string"
           }
         },
         "required": [
@@ -1806,9 +1996,9 @@
       },
       "tags": [
         "graph",
+        "relationships",
         "search",
         "knowledge",
-        "relationships",
         "traversal"
       ],
       "enabled": true
@@ -1886,11 +2076,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "semantic",
-        "filter",
-        "search",
         "graph",
-        "entities"
+        "filter",
+        "semantic",
+        "entities",
+        "search"
       ],
       "enabled": true
     },
@@ -1929,11 +2119,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "data",
         "graph",
-        "knowledge",
+        "entity",
+        "data",
         "create",
-        "entity"
+        "knowledge"
       ],
       "enabled": true
     },
@@ -2021,11 +2211,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "connection",
         "graph",
-        "knowledge",
+        "connection",
         "relation",
-        "create"
+        "create",
+        "knowledge"
       ],
       "enabled": true
     },
@@ -2063,11 +2253,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "details",
-        "get",
         "graph",
         "retrieve",
-        "entity"
+        "details",
+        "entity",
+        "get"
       ],
       "enabled": true
     },
@@ -2142,11 +2332,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "filter",
         "graph",
+        "filter",
         "connections",
-        "relations",
-        "entity"
+        "entity",
+        "relations"
       ],
       "enabled": true
     },
@@ -2189,11 +2379,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "connection",
         "graph",
         "algorithm",
-        "path",
-        "shortest"
+        "connection",
+        "shortest",
+        "path"
       ],
       "enabled": true
     },
@@ -2258,11 +2448,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "patterns",
         "graph",
         "community",
         "detection",
-        "clusters"
+        "clusters",
+        "patterns"
       ],
       "enabled": true
     },
@@ -2300,11 +2490,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "centrality",
-        "importance",
         "graph",
         "influence",
-        "metrics"
+        "centrality",
+        "metrics",
+        "importance"
       ],
       "enabled": true
     },
@@ -2342,11 +2532,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "remove",
-        "cleanup",
         "graph",
+        "cleanup",
         "delete",
-        "entity"
+        "entity",
+        "remove"
       ],
       "enabled": true
     },
@@ -2384,11 +2574,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "remove",
-        "connection",
         "graph",
-        "relation",
-        "delete"
+        "connection",
+        "delete",
+        "remove",
+        "relation"
       ],
       "enabled": true
     },
@@ -2422,11 +2612,11 @@
         "openWorldHint": null
       },
       "tags": [
+        "cross-domain",
         "semantic",
-        "intelligence",
-        "search",
         "ai",
-        "cross-domain"
+        "search",
+        "intelligence"
       ],
       "enabled": true
     },
@@ -2455,10 +2645,10 @@
       },
       "tags": [
         "interpretation",
-        "query",
-        "search",
         "ai",
-        "natural-language"
+        "natural-language",
+        "search",
+        "query"
       ],
       "enabled": true
     },
@@ -2486,11 +2676,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "project",
-        "intelligence",
-        "comprehensive",
         "analytics",
-        "insights"
+        "comprehensive",
+        "project",
+        "insights",
+        "intelligence"
       ],
       "enabled": true
     },
@@ -2519,11 +2709,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "recommendations",
         "smart",
         "ai",
+        "suggestions",
         "contextual",
-        "suggestions"
+        "recommendations"
       ],
       "enabled": true
     },
@@ -2551,11 +2741,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "search",
-        "intent",
         "ai",
-        "contextual",
-        "natural-language"
+        "natural-language",
+        "intent",
+        "search",
+        "contextual"
       ],
       "enabled": true
     },
@@ -2582,11 +2772,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "workflow",
         "productivity",
-        "automation",
         "ai",
-        "suggestions"
+        "automation",
+        "suggestions",
+        "workflow"
       ],
       "enabled": true
     },
@@ -2614,11 +2804,11 @@
         "openWorldHint": null
       },
       "tags": [
-        "complex",
+        "relationships",
+        "ai",
         "parsing",
         "search",
-        "relationships",
-        "ai"
+        "complex"
       ],
       "enabled": true
     },
@@ -2639,10 +2829,10 @@
       },
       "tags": [
         "mapping",
-        "analysis",
-        "knowledge",
+        "ai",
         "expertise",
-        "ai"
+        "analysis",
+        "knowledge"
       ],
       "enabled": true
     },
@@ -2670,10 +2860,10 @@
         "openWorldHint": null
       },
       "tags": [
-        "analysis",
+        "cross-domain",
         "relationships",
         "ai",
-        "cross-domain",
+        "analysis",
         "insights"
       ],
       "enabled": true
@@ -2708,82 +2898,17 @@
       },
       "tags": [
         "relevance",
-        "search",
         "enhanced",
-        "contextual",
-        "entity"
+        "entity",
+        "search",
+        "contextual"
       ],
       "enabled": true
     }
   ],
   "prompts": [],
-  "resources": [
-    {
-      "key": "resource://automation/workflows",
-      "uri": "resource://automation/workflows",
-      "name": "automation_workflows_resource",
-      "description": "Get a list of all automation workflows.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    },
-    {
-      "key": "resource://automation/runs",
-      "uri": "resource://automation/runs",
-      "name": "automation_runs_resource",
-      "description": "Get a list of recent workflow runs.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    },
-    {
-      "key": "resource://handoff/recent",
-      "uri": "resource://handoff/recent",
-      "name": "handoff_recent",
-      "description": "Returns the last 10 recent handoff contexts as JSON.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    },
-    {
-      "key": "resource://knowledge_graph/entities",
-      "uri": "resource://knowledge_graph/entities",
-      "name": "resource_knowledge_graph_entities",
-      "description": "Resource for all entities in the knowledge graph.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    }
-  ],
-  "templates": [
-    {
-      "key": "resource://automation/workflows/{workflow_id}",
-      "uri_template": "resource://automation/workflows/{workflow_id}",
-      "name": "automation_workflow_detail",
-      "description": "Get detailed information about a specific workflow.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    },
-    {
-      "key": "resource://handoff/{context_id}",
-      "uri_template": "resource://handoff/{context_id}",
-      "name": "handoff_by_id",
-      "description": "Return a single handoff context by ID as a dict.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    },
-    {
-      "key": "resource://knowledge_graph/entity/{entity_id}",
-      "uri_template": "resource://knowledge_graph/entity/{entity_id}",
-      "name": "resource_knowledge_graph_entity",
-      "description": "Resource for a specific entity.",
-      "mime_type": "text/plain",
-      "tags": null,
-      "enabled": true
-    }
-  ],
+  "resources": [],
+  "templates": [],
   "capabilities": {
     "tools": {
       "listChanged": true

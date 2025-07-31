@@ -5,7 +5,6 @@ from pathlib import Path
 from fastmcp import FastMCP
 import asyncio
 from typing import Dict, Any
-
 import coloredlogs, logging
 
 logger = logging.getLogger(__name__)
@@ -62,8 +61,7 @@ def create_gateway_server(client: Client) -> FastMCP:
         except Exception as e:
             logger.error(f"Failed to list available tools: {e}")
             return []
-    
-    
+
     logger.info("Gateway server initialized with proxy tools")
     return gateway_server
 

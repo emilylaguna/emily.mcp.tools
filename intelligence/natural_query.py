@@ -408,19 +408,23 @@ class NaturalQueryProcessor:
         # Collect all results
         all_results = []
         for part_result in part_results:
-            all_results.extend(part_result.get('results', []))
+            # part_result['results'] is a dict with entity types as keys
+            results_dict = part_result.get('results', {})
+            for entity_type, results_list in results_dict.items():
+                all_results.extend(results_list)
             combined['total_results'] += part_result.get('total_results', 0)
         
         # Find common entities across parts
         entity_counts = {}
         for result in all_results:
-            entity_id = result.get('id')
-            if entity_id:
-                entity_counts[entity_id] = entity_counts.get(entity_id, 0) + 1
+            if isinstance(result, dict):
+                entity_id = result.get('id')
+                if entity_id:
+                    entity_counts[entity_id] = entity_counts.get(entity_id, 0) + 1
         
         # Entities that appear in multiple parts are more relevant
         common_entities = [result for result in all_results 
-                          if entity_counts.get(result.get('id'), 0) > 1]
+                          if isinstance(result, dict) and entity_counts.get(result.get('id'), 0) > 1]
         
         combined['all_results'] = all_results
         combined['common_entities'] = common_entities

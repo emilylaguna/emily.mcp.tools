@@ -11,6 +11,7 @@ import logging
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 from uuid import uuid4
 
@@ -25,6 +26,16 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+class WorkflowActionType(Enum):
+    """Enumeration of supported workflow action types."""
+    CREATE_TASK = "create_task"
+    UPDATE_ENTITY = "update_entity"
+    SAVE_RELATION = "save_relation"
+    NOTIFY = "notify"
+    RUN_SHELL = "run_shell"
+    HTTP_REQUEST = "http_request"
+
+
 class Event(BaseModel):
     """Event model for workflow triggers."""
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -35,7 +46,7 @@ class Event(BaseModel):
 
 class WorkflowAction(BaseModel):
     """Individual action within a workflow."""
-    type: str  # "create_task", "update_entity", "save_relation", "notify", "run_shell", "http_request"
+    type: WorkflowActionType
     params: Dict[str, Any]
     condition: Optional[str] = None  # Optional condition expression
 
@@ -56,7 +67,7 @@ class WorkflowTrigger(BaseModel):
 
 class Workflow(BaseModel):
     """Workflow definition."""
-    id: str
+    id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
     description: str
     trigger: WorkflowTrigger
@@ -402,17 +413,17 @@ class WorkflowEngine:
         logger.info(f"Action params: {action.params}")
         logger.info(f"Context: {context}")
         # Execute based on action type
-        if action.type == "create_task":
+        if action.type == WorkflowActionType.CREATE_TASK:
             await self._action_create_task(action.params, context)
-        elif action.type == "update_entity":
+        elif action.type == WorkflowActionType.UPDATE_ENTITY:
             await self._action_update_entity(action.params, context)
-        elif action.type == "save_relation":
+        elif action.type == WorkflowActionType.SAVE_RELATION:
             await self._action_save_relation(action.params, context)
-        elif action.type == "notify":
+        elif action.type == WorkflowActionType.NOTIFY:
             await self._action_notify(action.params, context)
-        elif action.type == "run_shell":
+        elif action.type == WorkflowActionType.RUN_SHELL:
             await self._action_run_shell(action.params, context)
-        elif action.type == "http_request":
+        elif action.type == WorkflowActionType.HTTP_REQUEST:
             await self._action_http_request(action.params, context)
         else:
             raise ValueError(f"Unknown action type: {action.type}")

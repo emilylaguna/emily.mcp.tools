@@ -6,7 +6,7 @@ Uses AI to identify repetitive patterns and suggest workflow improvements.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 from emily_core import UnifiedMemoryStore
@@ -99,7 +99,18 @@ class WorkflowSuggester:
             
             for entity in all_entities:
                 try:
-                    created_at = datetime.fromisoformat(entity.get('created_at', ''))
+                    created_at_str = entity.get('created_at', '')
+                    if not created_at_str:
+                        continue
+                        
+                    created_at = datetime.fromisoformat(created_at_str)
+                    
+                    # Ensure both datetimes are timezone-naive for comparison
+                    if created_at.tzinfo is not None:
+                        created_at = created_at.replace(tzinfo=None)
+                    if cutoff_date.tzinfo is not None:
+                        cutoff_date = cutoff_date.replace(tzinfo=None)
+                    
                     if created_at >= cutoff_date:
                         recent_entities.append(entity)
                 except (ValueError, TypeError):
@@ -305,7 +316,7 @@ class WorkflowSuggester:
             'name': 'Project Setup Automation',
             'description': 'Automatically create initial tasks and setup project structure when new projects are created',
             'confidence': 0.75,
-            'reasoning': f"Found frequent project creation patterns",
+            'reasoning': "Found frequent project creation patterns",
             'workflow_yaml': """
 id: project_setup
 name: Project Setup Automation
@@ -339,9 +350,9 @@ actions:
         peak_hours = patterns.get('peak_hours', [])
         peak_days = patterns.get('peak_days', [])
         
-        schedule = "0 9 * * 1-5"  # Default to 9 AM weekdays
+        # Note: schedule variable could be used for cron scheduling in future implementation
         if peak_hours:
-            schedule = f"0 {peak_hours[0]} * * 1-5"
+            _ = f"0 {peak_hours[0]} * * 1-5"  # Schedule for peak hours
         
         return {
             'id': 'auto_reminder',
@@ -422,7 +433,7 @@ actions:
             'description': 'Send reminders for upcoming deadlines',
             'confidence': 0.85,
             'reasoning': "Based on temporal activity patterns",
-            'workflow_yaml': EXAMPLE_WORKFLOWS['deadline_reminder'],
+            'workflow_yaml': EXAMPLE_WORKFLOWS['daily_standup'],
             'category': 'productivity',
             'estimated_impact': 'medium'
         }
@@ -504,4 +515,4 @@ actions:
         categories = defaultdict(int)
         for suggestion in suggestions:
             categories[suggestion['category']] += 1
-        return dict(categories) 
+        return dict(categories)

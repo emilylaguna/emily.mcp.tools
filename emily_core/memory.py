@@ -274,13 +274,13 @@ class UnifiedMemoryStore:
         conn = self._get_conn()
         
         try:
-            # Convert embedding to JSON string for storage (sqlite-vec can handle JSON)
-            embedding_json = json.dumps(embedding)
+            # Convert embedding to sqlite-vec BLOB format
+            embedding_blob = sqlite_vec.serialize_float32(embedding)
             
             conn.execute(f"""
                 INSERT OR REPLACE INTO {table}_embeddings (id, embedding)
                 VALUES (?, ?)
-            """, (id, embedding_json))
+            """, (id, embedding_blob))
             
             conn.commit()
             return True
@@ -380,6 +380,7 @@ class UnifiedMemoryStore:
                 SELECT id, type, name, content, metadata, tags, created_at, updated_at
                 FROM entity_data
                 WHERE id = ?
+                LIMIT 1
             """, (entity_id,))
             
             row = cursor.fetchone()
@@ -560,11 +561,11 @@ class UnifiedMemoryStore:
                 LIMIT ?
             """
             
-            # Convert query embedding to JSON string for sqlite-vec
-            query_embedding_json = json.dumps(query_embedding)
+            # Convert query embedding to sqlite-vec BLOB format
+            query_embedding_blob = sqlite_vec.serialize_float32(query_embedding)
             
             # Add filter parameters
-            all_params = [query_embedding_json, limit] + params
+            all_params = [query_embedding_blob] + params + [limit]
             
             cursor = conn.execute(sql, all_params)
             results = []
@@ -582,6 +583,26 @@ class UnifiedMemoryStore:
             logger.error(f"Vector search failed: {e}")
             return []
     
+    def _escape_fts_query(self, query: str) -> str:
+        """Escape FTS5 query to handle special characters properly."""
+        if not query or not query.strip():
+            return query
+            
+        # Split into individual terms and quote each one
+        # This handles hyphens, numbers, and other special characters
+        terms = query.split()
+        escaped_terms = []
+        
+        for term in terms:
+            # Remove any existing quotes
+            term = term.strip('"\'')
+            if term:
+                # Quote the term to treat it as a literal phrase
+                escaped_terms.append(f'"{term}"')
+        
+        # Join with AND to match all terms
+        return ' AND '.join(escaped_terms) if escaped_terms else query
+
     def _fts_search(self, query: str, filters: Dict, limit: int) -> List[Dict]:
         """Perform full-text search using FTS5."""
         conn = self._get_conn()
@@ -596,6 +617,10 @@ class UnifiedMemoryStore:
             
             # FTS search with ranking
             if query.strip():
+                # Escape the FTS query to handle special characters
+                escaped_query = self._escape_fts_query(query)
+                logger.debug(f"FTS search - escaped query: '{escaped_query}'")
+                
                 # Text search with FTS
                 sql = f"""
                     SELECT 
@@ -609,7 +634,7 @@ class UnifiedMemoryStore:
                     ORDER BY relevance
                     LIMIT ?
                 """
-                all_params = [query] + params + [limit]
+                all_params = [escaped_query] + params + [limit]
             else:
                 # Filter-only search (no text query)
                 sql = f"""
