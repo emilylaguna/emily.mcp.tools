@@ -4,7 +4,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from pathlib import Path
 from fastmcp import FastMCP
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import coloredlogs, logging
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,21 @@ def create_gateway_server(client: Client) -> FastMCP:
         # Call the tool on the main server
         result = await client.call_tool(tool_name, parameters)
         return result.data
-            
+
+    @gateway_server.tool(
+        name="get_tool_info",
+        description="Get information about a tool from the main server",
+        tags={"gateway", "tool", "info", "discovery"},
+    )
+    async def get_tool_info(tool_name: str) -> Optional[dict]:
+        """
+        Get information about a tool from the main server.
+        """
+        tools = await client.list_tools()
+        for tool in tools:
+            if tool['name'] == tool_name:
+                return tool
+        return None
     
     @gateway_server.tool(
         name="list_available_tools",
