@@ -49,6 +49,11 @@ CREATE TABLE contexts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Vector tables using sqlite-vec vec0 virtual tables
+-- These will be created by the application if sqlite-vec is available
+-- CREATE VIRTUAL TABLE entity_vectors USING vec0(id TEXT PRIMARY KEY, embedding float32[384]);
+-- CREATE VIRTUAL TABLE context_vectors USING vec0(id TEXT PRIMARY KEY, embedding float32[384]);
+
 -- Indexes for entity_data
 CREATE INDEX idx_entity_data_type_created ON entity_data(type, created_at);
 CREATE INDEX idx_entity_data_tags ON entity_data(tags);

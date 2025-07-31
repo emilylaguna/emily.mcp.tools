@@ -23,31 +23,33 @@ logger = logging.getLogger(__name__)
 class AIExtractor:
     """AI-powered entity extraction and content enhancement."""
     
-    def __init__(self, use_spacy: bool = True):
+    def __init__(self, use_spacy: bool = True, spacy_model: str = "en_core_web_lg"):
         """
         Initialize the AI extractor.
         
         Args:
             use_spacy: Whether to use spaCy for advanced NER (falls back to regex if unavailable)
+            spacy_model: spaCy model to use (en_core_web_sm, en_core_web_md, en_core_web_lg)
         """
         self.use_spacy = use_spacy and SPACY_AVAILABLE
+        self.spacy_model = spacy_model
         self.nlp = None
         
         if self.use_spacy:
             try:
-                self.nlp = spacy.load("en_core_web_sm")
-                logger.info("spaCy model loaded successfully")
+                self.nlp = spacy.load(self.spacy_model)
+                logger.info(f"spaCy model '{self.spacy_model}' loaded successfully")
             except OSError:
-                logger.warning("spaCy model not found, attempting to download with uv...")
+                logger.warning(f"spaCy model '{self.spacy_model}' not found, attempting to download with uv...")
                 if self._download_spacy_model():
                     try:
-                        self.nlp = spacy.load("en_core_web_sm")
-                        logger.info("spaCy model downloaded and loaded successfully")
+                        self.nlp = spacy.load(self.spacy_model)
+                        logger.info(f"spaCy model '{self.spacy_model}' downloaded and loaded successfully")
                     except OSError:
-                        logger.warning("Failed to load spaCy model after download, falling back to regex extraction")
+                        logger.warning(f"Failed to load spaCy model '{self.spacy_model}' after download, falling back to regex extraction")
                         self.use_spacy = False
                 else:
-                    logger.warning("Failed to download spaCy model, falling back to regex extraction")
+                    logger.warning(f"Failed to download spaCy model '{self.spacy_model}', falling back to regex extraction")
                     self.use_spacy = False
         
         # Common false positives for name extraction
@@ -60,7 +62,7 @@ class AIExtractor:
     
     def extract_entities(self, text: str) -> List[Dict[str, Any]]:
         """
-        Extract entities from text content.
+        Extract entities from text content using spaCy NER and enhanced patterns.
         
         Args:
             text: Input text to analyze
@@ -71,15 +73,14 @@ class AIExtractor:
         logger.info(f"Starting entity extraction on text of length {len(text)}")
         entities = []
         
-        # Extract person names
-        people = self._extract_people(text)
-        entities.extend([{
-            "type": "person", 
-            "name": name, 
-            "confidence": score
-        } for name, score in people])
+        if self.use_spacy and self.nlp:
+            # Use spaCy for comprehensive entity extraction
+            entities.extend(self._extract_entities_spacy(text))
+        else:
+            # Fallback to regex-based extraction
+            entities.extend(self._extract_entities_regex(text))
         
-        # Extract technologies and projects
+        # Always use regex for technology and file extraction (spaCy doesn't handle these well)
         technologies = self._extract_technologies(text)
         entities.extend([{
             "type": "technology", 
@@ -87,7 +88,6 @@ class AIExtractor:
             "confidence": score
         } for tech, score in technologies])
         
-        # Extract file and code references
         files = self._extract_file_references(text)
         entities.extend([{
             "type": "file", 
@@ -95,7 +95,6 @@ class AIExtractor:
             "confidence": score
         } for file_path, score in files])
         
-        # Extract project mentions
         projects = self._extract_projects(text)
         entities.extend([{
             "type": "project", 
@@ -104,6 +103,78 @@ class AIExtractor:
         } for project, score in projects])
         
         logger.info(f"Entity extraction complete: found {len(entities)} total entities")
+        return entities
+    
+    def _extract_entities_spacy(self, text: str) -> List[Dict[str, Any]]:
+        """Extract entities using spaCy's NER capabilities."""
+        doc = self.nlp(text)
+        entities = []
+        
+        logger.debug(f"spaCy found {len(doc.ents)} entities in text")
+        
+        # Map spaCy entity labels to our entity types
+        entity_mapping = {
+            'PERSON': 'person',
+            'ORG': 'organization', 
+            'GPE': 'location',  # Countries, cities, states
+            'LOC': 'location',  # Non-GPE locations
+            'PRODUCT': 'product',
+            'EVENT': 'event',
+            'WORK_OF_ART': 'work_of_art',
+            'LAW': 'law',
+            'LANGUAGE': 'language',
+            'DATE': 'date',
+            'TIME': 'time',
+            'PERCENT': 'percentage',
+            'MONEY': 'money',
+            'QUANTITY': 'quantity',
+            'ORDINAL': 'ordinal',
+            'CARDINAL': 'number'
+        }
+        
+        for ent in doc.ents:
+            entity_type = entity_mapping.get(ent.label_, ent.label_.lower())
+            
+            # Filter out entities that are too short or likely false positives
+            if len(ent.text.strip()) < 2:
+                continue
+                
+            # Special handling for person names
+            if ent.label_ == "PERSON":
+                if len(ent.text.split()) <= 3 and ent.text not in self.name_false_positives:
+                    confidence = 0.9
+                else:
+                    continue  # Skip filtered person names
+            else:
+                # Confidence based on entity type and length
+                confidence = min(0.8 + (len(ent.text) * 0.01), 0.95)
+            
+            entities.append({
+                "type": entity_type,
+                "name": ent.text.strip(),
+                "confidence": confidence,
+                "spacy_label": ent.label_,
+                "start_char": ent.start_char,
+                "end_char": ent.end_char
+            })
+            
+            logger.debug(f"spaCy extracted {entity_type}: {ent.text} (confidence: {confidence})")
+        
+        logger.info(f"spaCy extracted {len(entities)} entities")
+        return entities
+    
+    def _extract_entities_regex(self, text: str) -> List[Dict[str, Any]]:
+        """Fallback entity extraction using regex patterns."""
+        entities = []
+        
+        # Extract person names (existing regex logic)
+        people = self._extract_people_regex(text)
+        entities.extend([{
+            "type": "person", 
+            "name": name, 
+            "confidence": score
+        } for name, score in people])
+        
         return entities
     
     def _extract_people(self, text: str) -> List[Tuple[str, float]]:
@@ -229,7 +300,74 @@ class AIExtractor:
         return projects
     
     def extract_topics(self, text: str) -> List[str]:
-        """Extract key topics and themes from content."""
+        """Extract key topics and themes from content using spaCy NLP."""
+        if self.use_spacy and self.nlp:
+            return self._extract_topics_spacy(text)
+        else:
+            return self._extract_topics_regex(text)
+    
+    def _extract_topics_spacy(self, text: str) -> List[str]:
+        """Extract topics using spaCy's NLP capabilities."""
+        doc = self.nlp(text)
+        topics = []
+        
+        # Extract noun phrases (important topics)
+        for chunk in doc.noun_chunks:
+            # Filter out very short or very long phrases
+            if 2 <= len(chunk.text.split()) <= 4:
+                topic = chunk.text.lower().strip()
+                # Filter out common stop words and pronouns
+                if not any(word in topic for word in ['this', 'that', 'these', 'those', 'it', 'they']):
+                    topics.append(topic)
+        
+        # Extract important nouns and proper nouns
+        important_nouns = []
+        for token in doc:
+            if (token.pos_ in ['NOUN', 'PROPN'] and 
+                not token.is_stop and 
+                len(token.text) > 2 and
+                token.text.lower() not in ['thing', 'way', 'time', 'day', 'work']):
+                important_nouns.append(token.text.lower())
+        
+        topics.extend(important_nouns[:10])  # Limit to top 10 nouns
+        
+        # Extract technical terms (compound nouns)
+        technical_terms = []
+        for token in doc:
+            if (token.pos_ == 'NOUN' and 
+                token.text.isupper() or  # Acronyms
+                '-' in token.text or      # Hyphenated terms
+                token.text.lower() in self._get_technical_vocabulary()):
+                technical_terms.append(token.text.lower())
+        
+        topics.extend(technical_terms)
+        
+        # Add regex-based technical topics as well
+        regex_topics = self._extract_topics_regex(text)
+        topics.extend(regex_topics)
+        
+        # Remove duplicates and sort by frequency
+        topic_counts = {}
+        for topic in topics:
+            topic_counts[topic] = topic_counts.get(topic, 0) + 1
+        
+        # Return topics sorted by frequency, limited to top 15
+        sorted_topics = sorted(topic_counts.items(), key=lambda x: x[1], reverse=True)
+        return [topic for topic, count in sorted_topics[:15]]
+    
+    def _get_technical_vocabulary(self) -> set:
+        """Get technical vocabulary relevant to software development."""
+        return {
+            'api', 'database', 'frontend', 'backend', 'authentication', 'authorization',
+            'deployment', 'testing', 'debugging', 'optimization', 'refactoring',
+            'architecture', 'framework', 'library', 'dependency', 'configuration',
+            'monitoring', 'logging', 'performance', 'scalability', 'security',
+            'integration', 'migration', 'versioning', 'documentation', 'deployment',
+            'ci', 'cd', 'pipeline', 'automation', 'containerization', 'microservices'
+        }
+    
+    def _extract_topics_regex(self, text: str) -> List[str]:
+        """Fallback topic extraction using regex patterns."""
         topics = []
         
         # Technical activity topics
@@ -287,7 +425,93 @@ class AIExtractor:
         return summary
     
     def extract_action_items(self, content: str) -> List[str]:
-        """Extract action items and decisions from content."""
+        """Extract action items and decisions from content using spaCy dependency parsing."""
+        if self.use_spacy and self.nlp:
+            return self._extract_action_items_spacy(content)
+        else:
+            return self._extract_action_items_regex(content)
+    
+    def _extract_action_items_spacy(self, content: str) -> List[str]:
+        """Extract action items using spaCy dependency parsing."""
+        doc = self.nlp(content)
+        action_items = []
+        
+        # Action verbs that indicate tasks or decisions
+        action_verbs = {
+            'need', 'should', 'must', 'will', 'going', 'plan', 'decide', 'agree',
+            'implement', 'fix', 'update', 'create', 'add', 'remove', 'change',
+            'review', 'test', 'deploy', 'configure', 'install', 'upgrade',
+            'investigate', 'research', 'analyze', 'optimize', 'refactor'
+        }
+        
+        # Modal verbs that indicate obligations
+        modal_verbs = {'need', 'should', 'must', 'will', 'going', 'plan'}
+        
+        for sent in doc.sents:
+            # Look for action verbs in the sentence
+            action_verbs_in_sent = []
+            
+            for token in sent:
+                # Check for action verbs
+                if (token.pos_ == "VERB" and 
+                    token.lemma_.lower() in action_verbs and
+                    not token.is_stop):
+                    action_verbs_in_sent.append(token)
+                
+                # Check for modal verbs followed by action verbs
+                elif (token.pos_ == "VERB" and 
+                      token.lemma_.lower() in modal_verbs):
+                    # Look for the next verb that's the actual action
+                    for child in token.children:
+                        if child.pos_ == "VERB" and not child.is_stop:
+                            action_verbs_in_sent.append(child)
+            
+            # If we found action verbs, extract the action item
+            if action_verbs_in_sent:
+                # Get the full action phrase
+                action_phrase = self._extract_action_phrase(sent, action_verbs_in_sent)
+                if action_phrase and len(action_phrase.strip()) > 10:
+                    action_items.append(action_phrase.strip())
+        
+        # Also look for explicit action item markers
+        explicit_patterns = [
+            r'(?:action item|todo|task):\s*([^.!?]+)',
+            r'(?:TODO|FIXME|HACK):\s*([^.!?]+)',
+            r'(?:next steps?|follow up):\s*([^.!?]+)'
+        ]
+        
+        for pattern in explicit_patterns:
+            matches = re.findall(pattern, content, re.IGNORECASE | re.MULTILINE)
+            action_items.extend([match.strip() for match in matches if match.strip()])
+        
+        return list(set(action_items))
+    
+    def _extract_action_phrase(self, sent, action_verbs) -> str:
+        """Extract the complete action phrase from a sentence."""
+        if not action_verbs:
+            return ""
+        
+        # Start with the first action verb
+        start_token = action_verbs[0]
+        
+        # Find the end of the action phrase (usually at a punctuation or conjunction)
+        end_token = start_token
+        for token in sent[start_token.i:]:
+            if token.dep_ in ['punct', 'cc'] or token.text in [',', ';', 'but', 'and', 'or']:
+                break
+            end_token = token
+        
+        # Extract the phrase
+        action_phrase = sent[start_token.i:end_token.i + 1].text.strip()
+        
+        # Clean up the phrase
+        action_phrase = re.sub(r'^(?:I|we|you|they)\s+', '', action_phrase)  # Remove subject pronouns
+        action_phrase = re.sub(r'\s+', ' ', action_phrase)  # Normalize whitespace
+        
+        return action_phrase
+    
+    def _extract_action_items_regex(self, content: str) -> List[str]:
+        """Fallback action item extraction using regex patterns."""
         action_patterns = [
             r'(?:need to|should|must|will|going to|plan to)\s+([^.!?]+)',
             r'(?:action item|todo|task):\s*([^.!?]+)',
@@ -304,10 +528,23 @@ class AIExtractor:
         return list(set(actions))
     
     def _split_sentences(self, text: str) -> List[str]:
-        """Split text into sentences."""
+        """Split text into sentences using spaCy's sentence segmentation."""
+        if self.use_spacy and self.nlp:
+            return self._split_sentences_spacy(text)
+        else:
+            return self._split_sentences_regex(text)
+    
+    def _split_sentences_spacy(self, text: str) -> List[str]:
+        """Split text into sentences using spaCy's sentence segmentation."""
+        doc = self.nlp(text)
+        sentences = [sent.text.strip() for sent in doc.sents]
+        return [sent for sent in sentences if sent and len(sent.strip()) > 10]
+    
+    def _split_sentences_regex(self, text: str) -> List[str]:
+        """Fallback sentence splitting using regex patterns."""
         # Simple sentence splitting
         sentences = re.split(r'[.!?]+', text)
-        return [s.strip() for s in sentences if s.strip()]
+        return [s.strip() for s in sentences if s.strip() and len(s.strip()) > 10]
     
     def calculate_content_hash(self, content: str) -> str:
         """Calculate SHA-1 hash of content for caching."""
@@ -316,23 +553,193 @@ class AIExtractor:
     def _download_spacy_model(self) -> bool:
         """Download spaCy model using uv."""
         try:
-            logger.info("Downloading spaCy model 'en_core_web_sm' using uv...")
-            result = subprocess.run(
-                [sys.executable, "-m", "uv", "run", "python", "-m", "spacy", "download", "en_core_web_sm"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            logger.info("spaCy model download completed successfully")
+            logger.info(f"Downloading spaCy model '{self.spacy_model}'")
+            spacy.cli.download(self.spacy_model)
+            
+            logger.info(f"spaCy model '{self.spacy_model}' download completed successfully")
             return True
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to download spaCy model: {e}")
+            logger.error(f"Failed to download spaCy model '{self.spacy_model}': {e}")
             logger.error(f"stdout: {e.stdout}")
             logger.error(f"stderr: {e.stderr}")
             return False
         except FileNotFoundError:
             logger.error("uv not found in PATH, cannot download spaCy model")
             return False
+
+    def extract_sentiment(self, text: str) -> Dict[str, Any]:
+        """Extract sentiment and emotional tone from text."""
+        if not self.use_spacy or not self.nlp:
+            return {"sentiment": "neutral", "confidence": 0.5, "positive_score": 0.5, "negative_score": 0.5}
+        
+        doc = self.nlp(text)
+        
+        # Simple sentiment analysis based on positive/negative words
+        positive_words = {
+            'good', 'great', 'excellent', 'amazing', 'wonderful', 'perfect', 'successful',
+            'working', 'fixed', 'resolved', 'completed', 'finished', 'done', 'solved',
+            'improved', 'enhanced', 'optimized', 'better', 'faster', 'efficient'
+        }
+        
+        negative_words = {
+            'bad', 'terrible', 'awful', 'broken', 'failed', 'error', 'bug', 'issue',
+            'problem', 'difficult', 'hard', 'complex', 'slow', 'inefficient', 'wrong',
+            'crash', 'exception', 'timeout', 'deadlock', 'memory leak'
+        }
+        
+        positive_count = sum(1 for token in doc if token.text.lower() in positive_words)
+        negative_count = sum(1 for token in doc if token.text.lower() in negative_words)
+        
+        total_sentiment_words = positive_count + negative_count
+        
+        if total_sentiment_words == 0:
+            return {"sentiment": "neutral", "confidence": 0.5, "positive_score": 0.5, "negative_score": 0.5}
+        
+        positive_score = positive_count / total_sentiment_words
+        negative_score = negative_count / total_sentiment_words
+        
+        if positive_score > negative_score:
+            sentiment = "positive"
+            confidence = positive_score
+        elif negative_score > positive_score:
+            sentiment = "negative"
+            confidence = negative_score
+        else:
+            sentiment = "neutral"
+            confidence = 0.5
+        
+        return {
+            "sentiment": sentiment,
+            "confidence": confidence,
+            "positive_score": positive_score,
+            "negative_score": negative_score,
+            "positive_count": positive_count,
+            "negative_count": negative_count
+        }
+    
+    def extract_key_phrases(self, text: str, max_phrases: int = 10) -> List[str]:
+        """Extract key phrases using spaCy's noun chunks and dependency parsing."""
+        if not self.use_spacy or not self.nlp:
+            return []
+        
+        doc = self.nlp(text)
+        key_phrases = []
+        
+        # Extract noun phrases
+        for chunk in doc.noun_chunks:
+            if 2 <= len(chunk.text.split()) <= 5:  # Reasonable length phrases
+                phrase = chunk.text.strip()
+                if len(phrase) > 5:  # Filter out very short phrases
+                    key_phrases.append(phrase)
+        
+        # Extract verb phrases (actions)
+        for token in doc:
+            if token.pos_ == "VERB" and not token.is_stop:
+                # Get the verb and its direct object
+                verb_phrase = token.text
+                for child in token.children:
+                    if child.dep_ in ['dobj', 'pobj']:  # Direct object or prepositional object
+                        verb_phrase += f" {child.text}"
+                        break
+                
+                if len(verb_phrase.split()) <= 4:  # Keep phrases reasonable length
+                    key_phrases.append(verb_phrase)
+        
+        # Remove duplicates and limit results
+        unique_phrases = list(set(key_phrases))
+        return unique_phrases[:max_phrases]
+    
+    def extract_relationships(self, text: str) -> List[Dict[str, Any]]:
+        """Extract relationships between entities using spaCy's dependency parsing."""
+        if not self.use_spacy or not self.nlp:
+            return []
+        
+        doc = self.nlp(text)
+        relationships = []
+        
+        # Look for subject-verb-object relationships
+        for token in doc:
+            if token.pos_ == "VERB" and token.dep_ == "ROOT":
+                subject = None
+                obj = None
+                
+                # Find subject
+                for child in token.children:
+                    if child.dep_ in ['nsubj', 'nsubjpass']:
+                        subject = child.text
+                        break
+                
+                # Find object
+                for child in token.children:
+                    if child.dep_ in ['dobj', 'pobj']:
+                        obj = child.text
+                        break
+                
+                if subject and obj:
+                    relationships.append({
+                        "subject": subject,
+                        "verb": token.text,
+                        "object": obj,
+                        "confidence": 0.8
+                    })
+        
+        return relationships
+    
+    def extract_technical_entities(self, text: str) -> List[Dict[str, Any]]:
+        """Extract technical entities specific to software development."""
+        if not self.use_spacy or not self.nlp:
+            return []
+        
+        doc = self.nlp(text)
+        technical_entities = []
+        
+        # Look for technical patterns
+        for token in doc:
+            # Acronyms (all caps)
+            if token.text.isupper() and len(token.text) >= 2:
+                technical_entities.append({
+                    "type": "acronym",
+                    "name": token.text,
+                    "confidence": 0.9
+                })
+            
+            # File extensions
+            if token.text.startswith('.') and len(token.text) <= 5:
+                technical_entities.append({
+                    "type": "file_extension",
+                    "name": token.text,
+                    "confidence": 0.8
+                })
+            
+            # Version numbers
+            if re.match(r'v?\d+\.\d+(\.\d+)?', token.text):
+                technical_entities.append({
+                    "type": "version",
+                    "name": token.text,
+                    "confidence": 0.9
+                })
+        
+        # Look for compound technical terms
+        for i, token in enumerate(doc):
+            if i < len(doc) - 1:
+                next_token = doc[i + 1]
+                compound = f"{token.text} {next_token.text}"
+                
+                # Common technical compounds
+                technical_compounds = {
+                    'api key', 'web service', 'data base', 'user interface',
+                    'load balancer', 'cache memory', 'error handling',
+                    'code review', 'unit test', 'integration test'
+                }
+                
+                if compound.lower() in technical_compounds:
+                    technical_entities.append({
+                        "type": "technical_term",
+                        "name": compound,
+                        "confidence": 0.8
+                    })
+        
+        return technical_entities
 
 
 class EntityMatcher:

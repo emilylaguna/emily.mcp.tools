@@ -13,3 +13,6 @@ wheels/
 
 data/*
 *.editorconfig
+
+.vscode
+.mypy_cache
